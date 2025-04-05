@@ -5,7 +5,7 @@ import "./App.css";
 function App() {
     return (
         <Router>
-            <div className="min-h-screen bg-gray-100">
+            <div className="min-h-screen  rounded-lg">
                 <Routes>
                     <Route path="/" element={<Home />} />
                 </Routes>
