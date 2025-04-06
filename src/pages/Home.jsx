@@ -50,6 +50,18 @@ const formatTime = dateString => {
 };
 
 function Modal({ isOpen, onClose, data }) {
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "unset";
+        }
+
+        return () => {
+            document.body.style.overflow = "unset";
+        };
+    }, [isOpen]);
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -57,7 +69,7 @@ function Modal({ isOpen, onClose, data }) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center p-4 z-50"
+                    className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto"
                     onClick={onClose}
                 >
                     <motion.div
@@ -98,7 +110,7 @@ function Modal({ isOpen, onClose, data }) {
                                     <img
                                         src={data.img_url}
                                         alt={data.event_name}
-                                        className="h-full w-auto object-cover rounded-lg"
+                                        className="w-full h-auto object-cover rounded-lg"
                                     />
                                 </motion.div>
                             )}
@@ -112,7 +124,7 @@ function Modal({ isOpen, onClose, data }) {
                             >
                                 <div>
                                     <div className="space-y-2 text-gray-300 py-2">
-                                        <div className="flex">
+                                        <div className="flex flex-col md:flex-row">
                                             <div className="font-medium w-full p-2">
                                                 장르
                                             </div>{" "}
@@ -120,7 +132,7 @@ function Modal({ isOpen, onClose, data }) {
                                                 {data.genre}
                                             </div>
                                         </div>
-                                        <div className="flex">
+                                        <div className="flex flex-col md:flex-row">
                                             <div className="font-medium w-full p-2">
                                                 장소
                                             </div>{" "}
@@ -128,7 +140,7 @@ function Modal({ isOpen, onClose, data }) {
                                                 {data.location}
                                             </div>
                                         </div>
-                                        <div className="flex">
+                                        <div className="flex flex-col md:flex-row">
                                             <div className="font-medium w-full p-2">
                                                 일정
                                             </div>{" "}
@@ -141,7 +153,7 @@ function Modal({ isOpen, onClose, data }) {
                                 <div>
                                     <div className="space-y-2 text-gray-300 py-2">
                                         {data.time_entrance && (
-                                            <div className="flex">
+                                            <div className="flex flex-col md:flex-row">
                                                 <div className="font-medium w-full p-2">
                                                     입장
                                                 </div>{" "}
@@ -152,7 +164,7 @@ function Modal({ isOpen, onClose, data }) {
                                                 </div>
                                             </div>
                                         )}
-                                        <div className="flex">
+                                        <div className="flex flex-col md:flex-row">
                                             <div className="font-medium w-full p-2">
                                                 시작
                                             </div>{" "}
@@ -161,7 +173,7 @@ function Modal({ isOpen, onClose, data }) {
                                             </div>
                                         </div>
                                         {data.time_end && (
-                                            <div className="flex">
+                                            <div className="flex flex-col md:flex-row">
                                                 <div className="font-medium w-full p-2">
                                                     종료
                                                 </div>{" "}
@@ -262,32 +274,32 @@ function Home() {
     return (
         <div className="min-h-screen flex flex-col">
             <div className="container mx-auto px-4 py-8 flex-grow">
+                <div className="flex justify-between items-center px-6 mb-6 flex-col md:flex-row">
+                    <div className="flex justify-center items-center mb-4 md:mb-6">
+                        <h1 className="text-2xl md:text-3xl font-bold">
+                            한국 서브컬쳐 DJ 이벤트 DB
+                        </h1>
+                    </div>
+                    <div className="flex items-center">
+                        <button
+                            onClick={() =>
+                                window.open(
+                                    "https://docs.google.com/forms/u/0/d/e/1FAIpQLScfgviSghF4mRqCmqCZr2M6X8fpd70T6s8j62OhgdlwY6590Q/formResponse",
+                                    "_blank"
+                                )
+                            }
+                            className="bg-gray-600 text-white px-4 py-1 md:py-2 rounded hover:text-gray-900 hover:bg-white"
+                        >
+                            행사 등록 신청하기
+                        </button>
+                    </div>
+                </div>
                 {loading ? (
                     <div className="flex justify-center items-center h-64">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
                     </div>
                 ) : (
                     <div className="overflow-x-auto rounded-lg shadow">
-                        <div className="flex justify-between items-center px-6 mb-6">
-                            <div className="flex justify-center items-center mb-6">
-                                <h1 className="text-3xl font-bold">
-                                    한국 서브컬쳐 DJ 이벤트 DB
-                                </h1>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() =>
-                                        window.open(
-                                            "https://docs.google.com/forms/u/0/d/e/1FAIpQLScfgviSghF4mRqCmqCZr2M6X8fpd70T6s8j62OhgdlwY6590Q/formResponse",
-                                            "_blank"
-                                        )
-                                    }
-                                    className="bg-gray-600 text-white px-4 py-2 rounded hover:text-gray-900 hover:bg-white"
-                                >
-                                    행사 등록 신청하기
-                                </button>
-                            </div>
-                        </div>
                         <table className="min-w-full table-auto">
                             <thead className="bg-gray-900">
                                 <tr className="[&>th]:px-6 [&>th]:py-3 [&>th]:text-center [&>th]:text-md [&>th]:font-semibold [&>th]:text-gray-300">
@@ -302,6 +314,7 @@ function Home() {
                                 {filteredAndSortedData.map(item => (
                                     <tr
                                         key={item.id}
+                                        onClick={() => setSelectedItem(item)}
                                         className={`hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:px-6 [&>td]:py-4 ${
                                             item.isPast
                                                 ? "opacity-30 hover:bg-gray-800"
