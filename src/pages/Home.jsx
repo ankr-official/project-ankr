@@ -260,107 +260,91 @@ function Home() {
     );
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center px-6 mb-6">
-                <h1 className="text-3xl font-bold">
-                    한국 서브컬쳐 DJ 이벤트 DB
-                </h1>
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() =>
-                            window.open(
-                                "https://docs.google.com/forms/u/0/d/e/1FAIpQLScfgviSghF4mRqCmqCZr2M6X8fpd70T6s8j62OhgdlwY6590Q/formResponse",
-                                "_blank"
-                            )
-                        }
-                        className="bg-gray-600 text-white px-4 py-2 rounded hover:text-gray-900 hover:bg-white"
-                    >
-                        행사 등록 신청하기
-                    </button>
+        <div className="min-h-screen flex flex-col">
+            <div className="container mx-auto px-4 py-8 flex-grow">
+                <div className="flex justify-center items-center mb-6">
+                    <h1 className="text-3xl font-bold">
+                        한국 서브컬쳐 DJ 이벤트 DB
+                    </h1>
                 </div>
-            </div>
 
-            {loading ? (
-                <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-                </div>
-            ) : (
-                <div className="overflow-x-auto rounded-lg shadow">
-                    <table className="min-w-full table-auto">
-                        <thead className="bg-gray-900">
-                            <tr>
-                                <th className="px-6 py-3 text-center text-md font-semibold text-gray-300 uppercase tracking-wider">
-                                    이벤트명
-                                </th>
-                                <th className="px-6 py-3 text-center text-md font-semibold text-gray-300 uppercase tracking-wider">
-                                    장르
-                                </th>
-                                <th className="px-6 py-3 text-center text-md font-semibold text-gray-300 uppercase tracking-wider">
-                                    장소
-                                </th>
-                                <th className="px-6 py-3 text-center text-md font-semibold text-gray-300 uppercase tracking-wider">
-                                    일정
-                                </th>
-                                <th className="px-6 py-3 text-center text-md font-semibold text-gray-300 uppercase tracking-wider">
-                                    상세정보
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-gray-800 divide-y divide-gray-700">
-                            {filteredAndSortedData.map(item => (
-                                <tr
-                                    key={item.id}
-                                    className={`hover:bg-gray-700 ${
-                                        item.isPast
-                                            ? "opacity-30 hover:bg-gray-800"
-                                            : ""
-                                    }`}
+                {loading ? (
+                    <div className="flex justify-center items-center h-64">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto rounded-lg shadow">
+                        <div className="flex justify-between items-center px-6 mb-6">
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() =>
+                                        window.open(
+                                            "https://docs.google.com/forms/u/0/d/e/1FAIpQLScfgviSghF4mRqCmqCZr2M6X8fpd70T6s8j62OhgdlwY6590Q/formResponse",
+                                            "_blank"
+                                        )
+                                    }
+                                    className="bg-gray-600 text-white px-4 py-2 rounded hover:text-gray-900 hover:bg-white"
                                 >
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center">
+                                    행사 등록 신청하기
+                                </button>
+                            </div>
+                        </div>
+                        <table className="min-w-full table-auto">
+                            <thead className="bg-gray-900">
+                                <tr className="[&>th]:px-6 [&>th]:py-3 [&>th]:text-center [&>th]:text-md [&>th]:font-semibold [&>th]:text-gray-300">
+                                    <th>이벤트명</th>
+                                    <th>장르</th>
+                                    <th>장소</th>
+                                    <th>일정</th>
+                                    <th>상세정보</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-gray-800 divide-y divide-gray-700">
+                                {filteredAndSortedData.map(item => (
+                                    <tr
+                                        key={item.id}
+                                        className={`hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:px-6 [&>td]:py-4 ${
+                                            item.isPast
+                                                ? "opacity-30 hover:bg-gray-800"
+                                                : ""
+                                        }`}
+                                    >
+                                        <td className="flex items-center">
                                             {item.img_url && (
                                                 <img
                                                     src={item.img_url}
                                                     alt={item.event_name}
-                                                    className="h-10 w-10 rounded-full mr-3 object-cover"
+                                                    className="h-[50px] w-[50px] rounded-full mr-3 object-cover"
                                                 />
                                             )}
-                                            <div className="text-sm font-medium text-gray-300">
-                                                {item.event_name}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                        {item.genre}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                        {item.location}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                        {formatDate(item.schedule)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <button
-                                            onClick={() =>
-                                                setSelectedItem(item)
-                                            }
-                                            className="text-white bg-indigo-600 hover:text-indigo-900 hover:bg-white px-4 py-2 rounded"
-                                        >
-                                            상세보기
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                                            <div>{item.event_name}</div>
+                                        </td>
+                                        <td>{item.genre}</td>
+                                        <td>{item.location}</td>
+                                        <td>{formatDate(item.schedule)}</td>
+                                        <td className="text-sm">
+                                            <button
+                                                onClick={() =>
+                                                    setSelectedItem(item)
+                                                }
+                                                className="text-white bg-indigo-600 hover:text-indigo-900 hover:bg-white px-4 py-2 rounded"
+                                            >
+                                                상세보기
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
 
-            <Modal
-                isOpen={selectedItem !== null}
-                onClose={() => setSelectedItem(null)}
-                data={selectedItem || {}}
-            />
+                <Modal
+                    isOpen={selectedItem !== null}
+                    onClose={() => setSelectedItem(null)}
+                    data={selectedItem || {}}
+                />
+            </div>
         </div>
     );
 }
