@@ -50,18 +50,6 @@ const formatTime = dateString => {
 };
 
 function Modal({ isOpen, onClose, data }) {
-    useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "unset";
-        }
-
-        return () => {
-            document.body.style.overflow = "unset";
-        };
-    }, [isOpen]);
-
     return (
         <AnimatePresence>
             {isOpen && (
@@ -69,7 +57,7 @@ function Modal({ isOpen, onClose, data }) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto"
+                    className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center p-4 z-50"
                     onClick={onClose}
                 >
                     <motion.div
@@ -233,6 +221,7 @@ function Home() {
     const [loading, setLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState(null);
     const [showConfirmed, setShowConfirmed] = useState(true);
+    const [showPastEvents, setShowPastEvents] = useState(false);
 
     useEffect(() => {
         const dataRef = ref(database, "data");
@@ -275,12 +264,20 @@ function Home() {
         <div className="min-h-screen flex flex-col">
             <div className="container mx-auto px-4 py-8 flex-grow">
                 <div className="flex justify-between items-center px-6 mb-6 flex-col md:flex-row">
-                    <div className="flex justify-center items-center mb-4 md:mb-6">
+                    <div className="flex justify-center items-center mb-6">
                         <h1 className="text-2xl md:text-3xl font-bold">
                             한국 서브컬쳐 DJ 이벤트 DB
                         </h1>
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setShowPastEvents(!showPastEvents)}
+                            className="bg-gray-600 text-white px-4 py-2 rounded hover:text-gray-900 hover:bg-white"
+                        >
+                            {showPastEvents
+                                ? "과거 이벤트 숨기기"
+                                : "과거 이벤트 보기"}
+                        </button>
                         <button
                             onClick={() =>
                                 window.open(
@@ -288,7 +285,7 @@ function Home() {
                                     "_blank"
                                 )
                             }
-                            className="bg-gray-600 text-white px-4 py-1 md:py-2 rounded hover:text-gray-900 hover:bg-white"
+                            className="bg-gray-600 text-white px-4 py-2 rounded hover:text-gray-900 hover:bg-white"
                         >
                             행사 등록 신청하기
                         </button>
@@ -316,9 +313,11 @@ function Home() {
                                         key={item.id}
                                         onClick={() => setSelectedItem(item)}
                                         className={`hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:px-6 [&>td]:py-4 ${
-                                            item.isPast
-                                                ? "opacity-30 hover:bg-gray-800"
-                                                : ""
+                                            item.isPast && !showPastEvents
+                                                ? "hidden opacity-30 hover:bg-gray-800"
+                                                : item.isPast
+                                                  ? "opacity-30 hover:bg-gray-800"
+                                                  : ""
                                         }`}
                                     >
                                         <td className="flex items-center">
