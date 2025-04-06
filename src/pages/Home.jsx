@@ -262,12 +262,6 @@ function Home() {
     return (
         <div className="min-h-screen flex flex-col">
             <div className="container mx-auto px-4 py-8 flex-grow">
-                <div className="flex justify-center items-center mb-6">
-                    <h1 className="text-3xl font-bold">
-                        한국 서브컬쳐 DJ 이벤트 DB
-                    </h1>
-                </div>
-
                 {loading ? (
                     <div className="flex justify-center items-center h-64">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
@@ -275,6 +269,11 @@ function Home() {
                 ) : (
                     <div className="overflow-x-auto rounded-lg shadow">
                         <div className="flex justify-between items-center px-6 mb-6">
+                            <div className="flex justify-center items-center mb-6">
+                                <h1 className="text-3xl font-bold">
+                                    한국 서브컬쳐 DJ 이벤트 DB
+                                </h1>
+                            </div>
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={() =>
