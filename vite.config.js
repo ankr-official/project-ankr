@@ -4,7 +4,7 @@ import tailwindcss from "tailwindcss";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    base: "/",
+    base: "/project-ankr/",
     plugins: [react()],
     css: {
         postcss: {
