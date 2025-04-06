@@ -312,9 +312,9 @@ function Home() {
                                     <tr
                                         key={item.id}
                                         onClick={() => setSelectedItem(item)}
-                                        className={`hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:px-6 [&>td]:py-4 ${
+                                        className={`cursor-pointer hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:px-6 [&>td]:py-4 ${
                                             item.isPast && !showPastEvents
-                                                ? "hidden opacity-30 hover:bg-gray-800"
+                                                ? "hidden"
                                                 : item.isPast
                                                   ? "opacity-30 hover:bg-gray-800"
                                                   : ""
