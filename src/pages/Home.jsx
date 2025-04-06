@@ -36,6 +36,7 @@ const formatTime = dateString => {
     if (!dateString) return "";
     try {
         const date = new Date(dateString);
+        date.setMinutes(date.getMinutes() - 5);
         const hours = date.getHours();
         const ampm = hours < 12 ? "AM" : "PM";
         const formattedTime = date.toLocaleTimeString("ko-KR", {
