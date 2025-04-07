@@ -20,13 +20,25 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 // 날짜 포맷팅 유틸리티 함수들
-const formatDate = dateString => {
+const formatDate = (dateString, timeStart) => {
     if (!dateString) return "";
     try {
         const date = new Date(dateString);
+        date.setDate(date.getDate() + 1); // Subtract one day
         const days = ["일", "월", "화", "수", "목", "금", "토"];
-        const dayOfWeek = days[date.getDay()];
-        return `${date.toISOString().split("T")[0]} (${dayOfWeek})`; // YYYY-MM-DD (요일) 형식
+        let dayIndex = date.getDay();
+        dayIndex = (dayIndex - 1 + 7) % 7; // Subtract one day and handle negative values
+        const dayOfWeek = days[dayIndex];
+
+        // time_start가 있는 경우에만 시간 정보 추가
+        if (timeStart) {
+            const startTime = new Date(timeStart);
+            const hours = startTime.getHours();
+            const timeType = hours >= 6 && hours < 18 ? "☀️" : "🌙"; // 06:00~17:59는 낮, 나머지는 심야
+            return `${date.toISOString().split("T")[0]} (${dayOfWeek}) ${timeType}`;
+        }
+
+        return `${date.toISOString().split("T")[0]} (${dayOfWeek})`;
     } catch (e) {
         return dateString;
     }
@@ -44,7 +56,7 @@ const formatTime = dateString => {
             minute: "2-digit",
             hour12: false,
         });
-        return `${ampm} ${formattedTime}`; // HH:MM (오전/오후) 형식
+        return `${ampm} ${formattedTime}`; // [낮/심야] HH:MM (오전/오후) 형식
     } catch (e) {
         return dateString;
     }
@@ -58,7 +70,7 @@ function Modal({ isOpen, onClose, data }) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center p-4 z-50"
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-500 bg-opacity-50"
                     onClick={onClose}
                 >
                     <motion.div
@@ -73,7 +85,7 @@ function Modal({ isOpen, onClose, data }) {
                             className="p-12 bg-gray-900"
                             layoutId={`modal-content-${data.id}`}
                         >
-                            <div className="flex justify-between items-center mb-4">
+                            <div className="flex items-center justify-between mb-4">
                                 <motion.h2
                                     className="text-2xl font-bold text-white"
                                     layoutId={`title-${data.id}`}
@@ -82,9 +94,9 @@ function Modal({ isOpen, onClose, data }) {
                                 </motion.h2>
                                 <button
                                     onClick={onClose}
-                                    className="bg-indigo-800 text-indigo-200 hover:text-indigo-900 hover:bg-white rounded-full p-1"
+                                    className="p-1 text-indigo-200 bg-indigo-800 rounded-full hover:text-indigo-900 hover:bg-white"
                                 >
-                                    <XMarkIcon className="h-6 w-6" />
+                                    <XMarkIcon className="w-6 h-6" />
                                 </button>
                             </div>
 
@@ -99,7 +111,7 @@ function Modal({ isOpen, onClose, data }) {
                                     <img
                                         src={data.img_url}
                                         alt={data.event_name}
-                                        className="w-full h-auto object-cover rounded-lg"
+                                        className="object-cover w-full h-auto rounded-lg"
                                     />
                                 </motion.div>
                             )}
@@ -112,9 +124,9 @@ function Modal({ isOpen, onClose, data }) {
                                 transition={{ delay: 0.3 }}
                             >
                                 <div>
-                                    <div className="space-y-2 text-gray-300 py-2">
+                                    <div className="py-2 space-y-2 text-gray-300">
                                         <div className="flex flex-col md:flex-row">
-                                            <div className="font-medium w-full p-2">
+                                            <div className="w-full p-2 font-medium">
                                                 장르
                                             </div>{" "}
                                             <div className="w-full p-2">
@@ -122,7 +134,7 @@ function Modal({ isOpen, onClose, data }) {
                                             </div>
                                         </div>
                                         <div className="flex flex-col md:flex-row">
-                                            <div className="font-medium w-full p-2">
+                                            <div className="w-full p-2 font-medium">
                                                 장소
                                             </div>{" "}
                                             <div className="w-full p-2">
@@ -130,7 +142,7 @@ function Modal({ isOpen, onClose, data }) {
                                             </div>
                                         </div>
                                         <div className="flex flex-col md:flex-row">
-                                            <div className="font-medium w-full p-2">
+                                            <div className="w-full p-2 font-medium">
                                                 일정
                                             </div>{" "}
                                             <div className="w-full p-2">
@@ -140,10 +152,10 @@ function Modal({ isOpen, onClose, data }) {
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="space-y-2 text-gray-300 py-2">
+                                    <div className="py-2 space-y-2 text-gray-300">
                                         {data.time_entrance && (
                                             <div className="flex flex-col md:flex-row">
-                                                <div className="font-medium w-full p-2">
+                                                <div className="w-full p-2 font-medium">
                                                     입장
                                                 </div>{" "}
                                                 <div className="w-full p-2">
@@ -154,7 +166,7 @@ function Modal({ isOpen, onClose, data }) {
                                             </div>
                                         )}
                                         <div className="flex flex-col md:flex-row">
-                                            <div className="font-medium w-full p-2">
+                                            <div className="w-full p-2 font-medium">
                                                 시작
                                             </div>{" "}
                                             <div className="w-full p-2">
@@ -163,7 +175,7 @@ function Modal({ isOpen, onClose, data }) {
                                         </div>
                                         {data.time_end && (
                                             <div className="flex flex-col md:flex-row">
-                                                <div className="font-medium w-full p-2">
+                                                <div className="w-full p-2 font-medium">
                                                     종료
                                                 </div>{" "}
                                                 <div className="w-full p-2">
@@ -184,14 +196,14 @@ function Modal({ isOpen, onClose, data }) {
                             >
                                 {data.event_url && (
                                     <div>
-                                        <h3 className="text-lg font-semibold mb-2 text-gray-200">
+                                        <h3 className="mb-2 text-lg font-semibold text-gray-200">
                                             이벤트 SNS 링크
                                         </h3>
                                         <a
                                             href={data.event_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-blue-300 hover:text-blue-100 hover:underline break-all"
+                                            className="text-blue-300 break-all hover:text-blue-100 hover:underline"
                                         >
                                             {data.event_url}
                                         </a>
@@ -200,7 +212,7 @@ function Modal({ isOpen, onClose, data }) {
 
                                 {data.etc && (
                                     <div>
-                                        <h3 className="text-lg font-semibold mb-2 text-gray-200">
+                                        <h3 className="mb-2 text-lg font-semibold text-gray-200">
                                             기타 정보
                                         </h3>
                                         <p className="text-gray-300">
@@ -262,18 +274,18 @@ function Home() {
     );
 
     return (
-        <div className="min-h-screen flex flex-col">
-            <div className="container mx-auto px-4 py-8 flex-grow">
-                <div className="flex justify-between items-center px-6 mb-6 flex-col md:flex-row">
-                    <div className="flex justify-center items-center mb-6">
-                        <h1 className="text-2xl md:text-3xl font-bold">
+        <div className="flex flex-col min-h-screen">
+            <div className="container flex-grow px-4 py-8 mx-auto">
+                <div className="flex flex-col items-center justify-between px-6 mb-6 md:flex-row">
+                    <div className="flex items-center justify-center mb-6">
+                        <h1 className="text-2xl font-bold md:text-3xl">
                             한국 서브컬쳐 DJ 이벤트 DB
                         </h1>
                     </div>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setShowPastEvents(!showPastEvents)}
-                            className="bg-gray-600 text-white px-4 py-2 rounded hover:text-gray-900 hover:bg-white"
+                            className="px-4 py-2 text-white bg-gray-600 rounded hover:text-gray-900 hover:bg-white"
                         >
                             {showPastEvents
                                 ? "과거 이벤트 숨기기"
@@ -286,15 +298,15 @@ function Home() {
                                     "_blank"
                                 )
                             }
-                            className="bg-gray-600 text-white px-4 py-2 rounded hover:text-gray-900 hover:bg-white"
+                            className="px-4 py-2 text-white bg-gray-600 rounded hover:text-gray-900 hover:bg-white"
                         >
                             행사 등록 신청하기
                         </button>
                     </div>
                 </div>
                 {loading ? (
-                    <div className="flex justify-center items-center h-64">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+                    <div className="flex items-center justify-center h-64">
+                        <div className="w-12 h-12 border-b-2 border-gray-900 rounded-full animate-spin"></div>
                     </div>
                 ) : (
                     <div className="overflow-x-auto rounded-lg shadow">
@@ -333,13 +345,18 @@ function Home() {
                                         </td>
                                         <td>{item.genre}</td>
                                         <td>{item.location}</td>
-                                        <td>{formatDate(item.schedule)}</td>
+                                        <td>
+                                            {formatDate(
+                                                item.schedule,
+                                                item.time_start
+                                            )}
+                                        </td>
                                         <td className="text-sm">
                                             <button
                                                 onClick={() =>
                                                     setSelectedItem(item)
                                                 }
-                                                className="text-white bg-indigo-600 hover:text-indigo-900 hover:bg-white px-4 py-2 rounded"
+                                                className="px-4 py-2 text-white bg-indigo-600 rounded hover:text-indigo-900 hover:bg-white"
                                             >
                                                 상세보기
                                             </button>
