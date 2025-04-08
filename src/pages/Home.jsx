@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue } from "firebase/database";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import {
+    XMarkIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon,
+} from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Firebase 설정
@@ -70,7 +74,7 @@ function Modal({ isOpen, onClose, data }) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-500 bg-opacity-50"
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-50 md:p-4"
                     onClick={onClose}
                 >
                     <motion.div
@@ -78,11 +82,11 @@ function Modal({ isOpen, onClose, data }) {
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.9, opacity: 0, y: 20 }}
                         transition={{ type: "spring", duration: 0.5 }}
-                        className="rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+                        className="rounded-lg md:max-w-3xl w-full max-h-screen md:max-h-[90vh] overflow-y-auto"
                         onClick={e => e.stopPropagation()}
                     >
                         <motion.div
-                            className="p-12 bg-gray-900"
+                            className="px-8 py-8 bg-gray-900 md:p-12"
                             layoutId={`modal-content-${data.id}`}
                         >
                             <div className="flex items-center justify-between mb-4">
@@ -229,6 +233,121 @@ function Modal({ isOpen, onClose, data }) {
     );
 }
 
+// 가까운 이벤트 필터링 함수
+const getThisWeeksEvents = data => {
+    const today = new Date();
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+
+    return data
+        .filter(item => {
+            const eventDate = new Date(item.schedule);
+            return eventDate >= today && eventDate < nextWeek;
+        })
+        .sort((a, b) => new Date(a.schedule) - new Date(b.schedule)); // 날짜순 정렬
+};
+
+function EventCarousel({ events, onEventClick }) {
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    const nextSlide = () => {
+        setCurrentIndex(prevIndex => (prevIndex + 1) % events.length);
+    };
+
+    const prevSlide = () => {
+        setCurrentIndex(
+            prevIndex => (prevIndex - 1 + events.length) % events.length
+        );
+    };
+
+    // 자동 슬라이드 기능
+    useEffect(() => {
+        const interval = setInterval(() => {
+            nextSlide();
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [events.length]); // events.length가 변경될 때마다 interval 재설정
+
+    if (events.length === 0) return null;
+
+    return (
+        <div
+            className="relative w-full m-auto mb-8 overflow-hidden bg-gray-800 rounded-lg cursor-pointer"
+            onClick={() => onEventClick(events[currentIndex])}
+        >
+            <div className="relative h-72">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={currentIndex}
+                        initial={{ opacity: 0, x: 100 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -100 }}
+                        transition={{ duration: 0.3 }}
+                        className="absolute inset-0 flex items-center px-20 pb-8"
+                    >
+                        <div className="flex flex-col items-center w-full md:flex-row">
+                            {events[currentIndex].img_url && (
+                                <img
+                                    src={events[currentIndex].img_url}
+                                    alt={events[currentIndex].event_name}
+                                    className="object-cover w-20 h-20 mb-4 rounded-lg md:w-48 md:h-48 md:mb-0"
+                                />
+                            )}
+                            <div className="flex-1 md:ml-8">
+                                <h2 className="mb-2 text-2xl font-bold text-white">
+                                    {events[currentIndex].event_name}
+                                </h2>
+                                <p className="mb-2 text-gray-300">
+                                    {formatDate(
+                                        events[currentIndex].schedule,
+                                        events[currentIndex].time_start
+                                    )}
+                                </p>
+                                <p className="text-gray-400">
+                                    {events[currentIndex].location}
+                                </p>
+                            </div>
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
+            <button
+                onClick={e => {
+                    e.stopPropagation();
+                    prevSlide();
+                }}
+                className="absolute p-2 text-white transform -translate-y-1/2 bg-gray-900 rounded-full left-4 top-1/2 hover:bg-gray-700"
+            >
+                <ChevronLeftIcon className="w-6 h-6" />
+            </button>
+            <button
+                onClick={e => {
+                    e.stopPropagation();
+                    nextSlide();
+                }}
+                className="absolute p-2 text-white transform -translate-y-1/2 bg-gray-900 rounded-full right-4 top-1/2 hover:bg-gray-700"
+            >
+                <ChevronRightIcon className="w-6 h-6" />
+            </button>
+            <div className="absolute left-0 right-0 flex justify-center p-2 space-x-2 bottom-2">
+                {events.map((_, index) => (
+                    <button
+                        key={index}
+                        onClick={e => {
+                            e.stopPropagation();
+                            setCurrentIndex(index);
+                        }}
+                        className={`p-0 w-[16px] h-[16px] rounded-full ${
+                            index === currentIndex ? "bg-white" : "bg-gray-500"
+                        }`}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+}
+
 function Home() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -254,6 +373,9 @@ function Home() {
         return () => unsubscribe();
     }, []);
 
+    // 가까운 이벤트
+    const thisWeeksEvents = getThisWeeksEvents(data);
+
     // 날짜 기준 정렬 및 과거 이벤트 체크를 위한 함수
     const processData = data => {
         const today = new Date();
@@ -276,34 +398,27 @@ function Home() {
     return (
         <div className="flex flex-col min-h-screen">
             <div className="container flex-grow px-4 py-8 mx-auto">
-                <div className="flex flex-col items-center justify-between px-6 mb-6 md:flex-row">
-                    <div className="flex items-center justify-center mb-6">
+                <div className="flex flex-col items-center justify-between px-6 mb-6 border-b border-gray-700">
+                    <div className="flex items-center justify-center mb-4">
                         <h1 className="text-2xl font-bold md:text-3xl">
                             한국 서브컬쳐 DJ 이벤트 DB
                         </h1>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => setShowPastEvents(!showPastEvents)}
-                            className="px-4 py-2 text-white bg-gray-600 rounded hover:text-gray-900 hover:bg-white"
-                        >
-                            {showPastEvents
-                                ? "과거 이벤트 숨기기"
-                                : "과거 이벤트 보기"}
-                        </button>
-                        <button
-                            onClick={() =>
-                                window.open(
-                                    "https://docs.google.com/forms/u/0/d/e/1FAIpQLScfgviSghF4mRqCmqCZr2M6X8fpd70T6s8j62OhgdlwY6590Q/formResponse",
-                                    "_blank"
-                                )
-                            }
-                            className="px-4 py-2 text-white bg-gray-600 rounded hover:text-gray-900 hover:bg-white"
-                        >
-                            행사 등록 신청하기
-                        </button>
-                    </div>
                 </div>
+
+                {/* 가까운 이벤트 Carousel */}
+                {!loading && thisWeeksEvents.length > 0 && (
+                    <div className="mb-8">
+                        <h2 className="mb-4 text-xl font-semibold text-gray-200">
+                            가까운 이벤트
+                        </h2>
+                        <EventCarousel
+                            events={thisWeeksEvents}
+                            onEventClick={setSelectedItem}
+                        />
+                    </div>
+                )}
+
                 {loading ? (
                     <div className="flex items-center justify-center h-64">
                         <div className="w-12 h-12 border-b-2 border-gray-900 rounded-full animate-spin"></div>
@@ -314,10 +429,16 @@ function Home() {
                             <thead className="bg-gray-900">
                                 <tr className="[&>th]:px-6 [&>th]:py-3 [&>th]:text-center [&>th]:text-md [&>th]:font-semibold [&>th]:text-gray-300">
                                     <th>이벤트명</th>
-                                    <th>장르</th>
-                                    <th>장소</th>
+                                    <th className="hidden md:table-cell">
+                                        장르
+                                    </th>
+                                    <th className="hidden md:table-cell">
+                                        장소
+                                    </th>
                                     <th>일정</th>
-                                    <th>상세정보</th>
+                                    {/* <th className="hidden md:table-cell">
+                                        상세정보
+                                    </th> */}
                                 </tr>
                             </thead>
                             <tbody className="bg-gray-800 divide-y divide-gray-700">
@@ -338,20 +459,26 @@ function Home() {
                                                 <img
                                                     src={item.img_url}
                                                     alt={item.event_name}
-                                                    className="h-[50px] w-[50px] rounded-full mr-3 object-cover"
+                                                    className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
                                                 />
                                             )}
-                                            <div>{item.event_name}</div>
+                                            <div className="w-24 overflow-hidden text-left md:w-fit text-ellipsis whitespace-nowrap">
+                                                {item.event_name}
+                                            </div>
                                         </td>
-                                        <td>{item.genre}</td>
-                                        <td>{item.location}</td>
+                                        <td className="hidden md:table-cell">
+                                            {item.genre}
+                                        </td>
+                                        <td className="hidden md:table-cell">
+                                            {item.location}
+                                        </td>
                                         <td>
                                             {formatDate(
                                                 item.schedule,
                                                 item.time_start
                                             )}
                                         </td>
-                                        <td className="text-sm">
+                                        {/* <td className="hidden text-sm md:table-cell">
                                             <button
                                                 onClick={() =>
                                                     setSelectedItem(item)
@@ -360,14 +487,34 @@ function Home() {
                                             >
                                                 상세보기
                                             </button>
-                                        </td>
+                                        </td> */}
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
                 )}
-
+                <div className="flex flex-col items-center justify-center w-full gap-4 mt-8 md:flex-row">
+                    <button
+                        onClick={() => setShowPastEvents(!showPastEvents)}
+                        className="w-full px-4 py-2 text-white bg-gray-600 rounded md:w-fit hover:text-gray-900 hover:bg-white"
+                    >
+                        {showPastEvents
+                            ? "과거 이벤트 숨기기"
+                            : "과거 이벤트 보기"}
+                    </button>
+                    <button
+                        onClick={() =>
+                            window.open(
+                                "https://docs.google.com/forms/u/0/d/e/1FAIpQLScfgviSghF4mRqCmqCZr2M6X8fpd70T6s8j62OhgdlwY6590Q/formResponse",
+                                "_blank"
+                            )
+                        }
+                        className="w-full px-4 py-2 text-white bg-indigo-600 rounded md:w-fit hover:text-indigo-900 hover:bg-white"
+                    >
+                        행사 등록 신청하기
+                    </button>
+                </div>
                 <Modal
                     isOpen={selectedItem !== null}
                     onClose={() => setSelectedItem(null)}
