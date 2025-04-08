@@ -98,7 +98,7 @@ function Modal({ isOpen, onClose, data }) {
                                 </motion.h2>
                                 <button
                                     onClick={onClose}
-                                    className="p-1 text-indigo-200 bg-indigo-800 rounded-full hover:text-indigo-900 hover:bg-white"
+                                    className="p-1 text-indigo-200 bg-indigo-800 rounded-full lg:hover:text-indigo-900 lg:hover:bg-white"
                                 >
                                     <XMarkIcon className="w-6 h-6" />
                                 </button>
@@ -207,7 +207,7 @@ function Modal({ isOpen, onClose, data }) {
                                             href={data.event_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-blue-300 break-all hover:text-blue-100 hover:underline"
+                                            className="text-blue-300 break-all lg:hover:text-blue-100 lg:hover:underline"
                                         >
                                             {data.event_url}
                                         </a>
@@ -317,7 +317,7 @@ function EventCarousel({ events, onEventClick }) {
                     e.stopPropagation();
                     prevSlide();
                 }}
-                className="absolute p-2 text-white transform -translate-y-1/2 bg-gray-900 rounded-full left-4 top-1/2 hover:bg-gray-700"
+                className="absolute p-2 text-white transform -translate-y-1/2 bg-gray-900 rounded-full left-4 top-1/2 lg:hover:bg-gray-700"
             >
                 <ChevronLeftIcon className="w-6 h-6" />
             </button>
@@ -326,7 +326,7 @@ function EventCarousel({ events, onEventClick }) {
                     e.stopPropagation();
                     nextSlide();
                 }}
-                className="absolute p-2 text-white transform -translate-y-1/2 bg-gray-900 rounded-full right-4 top-1/2 hover:bg-gray-700"
+                className="absolute p-2 text-white transform -translate-y-1/2 bg-gray-900 rounded-full right-4 top-1/2 lg:hover:bg-gray-700"
             >
                 <ChevronRightIcon className="w-6 h-6" />
             </button>
@@ -446,11 +446,11 @@ function Home() {
                                     <tr
                                         key={item.id}
                                         onClick={() => setSelectedItem(item)}
-                                        className={`cursor-pointer hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:pl-4 [&>td]:py-4 md:[&>td]:px-6 md:[&>td]:py-4 ${
+                                        className={`cursor-pointer lg:hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:pl-4 [&>td]:py-4 md:[&>td]:px-6 md:[&>td]:py-4 ${
                                             item.isPast && !showPastEvents
                                                 ? "hidden"
                                                 : item.isPast
-                                                  ? "opacity-30 hover:bg-gray-800"
+                                                  ? "opacity-30 lg:hover:bg-gray-800"
                                                   : ""
                                         }`}
                                     >
@@ -497,7 +497,7 @@ function Home() {
                 <div className="flex flex-col items-center justify-center w-full gap-4 mt-8 md:flex-row">
                     <button
                         onClick={() => setShowPastEvents(!showPastEvents)}
-                        className="w-full px-4 py-2 text-white bg-gray-600 rounded md:w-fit hover:text-gray-900 hover:bg-white"
+                        className="w-full px-4 py-2 text-white bg-gray-600 rounded md:w-fit lg:hover:text-gray-900 lg:hover:bg-white"
                     >
                         {showPastEvents
                             ? "과거 이벤트 숨기기"
@@ -510,7 +510,7 @@ function Home() {
                                 "_blank"
                             )
                         }
-                        className="w-full px-4 py-2 text-white bg-indigo-600 rounded md:w-fit hover:text-indigo-900 hover:bg-white"
+                        className="w-full px-4 py-2 text-white bg-indigo-600 rounded md:w-fit lg:hover:text-indigo-900 lg:hover:bg-white"
                     >
                         행사 등록 신청하기
                     </button>
