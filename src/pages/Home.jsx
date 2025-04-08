@@ -424,15 +424,15 @@ function Home() {
                         <div className="w-12 h-12 border-b-2 border-gray-900 rounded-full animate-spin"></div>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-lg shadow">
+                    <div className="overflow-x-hidden rounded-lg shadow">
                         <table className="min-w-full table-auto">
                             <thead className="bg-gray-900">
                                 <tr className="[&>th]:px-6 [&>th]:py-3 [&>th]:text-center [&>th]:text-md [&>th]:font-semibold [&>th]:text-gray-300">
                                     <th>이벤트명</th>
-                                    <th className="hidden md:table-cell">
+                                    <th className="hidden lg:table-cell">
                                         장르
                                     </th>
-                                    <th className="hidden md:table-cell">
+                                    <th className="hidden lg:table-cell">
                                         장소
                                     </th>
                                     <th>일정</th>
@@ -446,7 +446,7 @@ function Home() {
                                     <tr
                                         key={item.id}
                                         onClick={() => setSelectedItem(item)}
-                                        className={`cursor-pointer hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:px-6 [&>td]:py-4 ${
+                                        className={`cursor-pointer hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:pl-4 [&>td]:py-4 md:[&>td]:px-6 md:[&>td]:py-4 ${
                                             item.isPast && !showPastEvents
                                                 ? "hidden"
                                                 : item.isPast
@@ -466,10 +466,10 @@ function Home() {
                                                 {item.event_name}
                                             </div>
                                         </td>
-                                        <td className="hidden md:table-cell">
+                                        <td className="hidden lg:table-cell">
                                             {item.genre}
                                         </td>
-                                        <td className="hidden md:table-cell">
+                                        <td className="hidden lg:table-cell">
                                             {item.location}
                                         </td>
                                         <td>
