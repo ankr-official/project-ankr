@@ -5,19 +5,79 @@ import { Modal } from "../components/Modal";
 import { EventCarousel } from "../components/EventCarousel";
 import { formatDate } from "../utils/dateUtils";
 import { getThisWeeksEvents } from "../utils/dateUtils";
-import { FORM_URL, GENRE_COLORS } from "../constants";
-import { getNaverMapUrl } from "../utils/urlUtils";
+import { FORM_URL } from "../constants";
+import { GenreTag } from "../components/common/GenreTag";
+import { LocationLink } from "../components/common/LocationLink";
+
+const TabButton = ({ isActive, onClick, children }) => (
+    <button
+        onClick={onClick}
+        className={`px-4 py-2 text-sm font-medium rounded-t-lg rounded-b-none transition-colors duration-200 ${
+            isActive
+                ? "text-white bg-indigo-600"
+                : "bg-indigo-900 lg:hover:text-gray-300 lg:hover:bg-indigo-700"
+        }`}
+    >
+        {children}
+    </button>
+);
+
+const EventTable = ({ events, title, className = "", onEventSelect }) => (
+    <div className={`overflow-x-hidden rounded-lg shadow ${className}`}>
+        <table className="min-w-full table-auto">
+            <thead className="bg-gray-900">
+                <tr className="[&>th]:px-6 [&>th]:py-3 [&>th]:text-center [&>th]:text-md [&>th]:font-semibold [&>th]:text-gray-300">
+                    <th>이벤트명</th>
+                    <th className="hidden lg:table-cell">장르</th>
+                    <th className="hidden lg:table-cell">장소</th>
+                    <th>일정</th>
+                </tr>
+            </thead>
+            <tbody className="bg-gray-800 divide-y divide-gray-700">
+                {events.map(item => (
+                    <tr
+                        key={item.id}
+                        onClick={() => onEventSelect(item)}
+                        className="cursor-pointer lg:hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:pl-4 [&>td]:py-4 md:[&>td]:px-6 md:[&>td]:py-4"
+                    >
+                        <td className="flex items-center">
+                            {item.img_url && (
+                                <img
+                                    src={item.img_url}
+                                    alt={item.event_name}
+                                    className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
+                                />
+                            )}
+                            <div className="w-24 overflow-hidden text-left md:w-fit text-ellipsis whitespace-nowrap">
+                                {item.event_name}
+                            </div>
+                        </td>
+                        <td className="hidden lg:table-cell">
+                            <GenreTag genre={item.genre} />
+                        </td>
+                        <td className="hidden lg:table-cell">
+                            <LocationLink
+                                location={item.location}
+                                onClick={e => e.stopPropagation()}
+                            />
+                        </td>
+                        <td>{formatDate(item.schedule, item.time_start)}</td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
+);
 
 function Home() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState(null);
     const [showConfirmed, setShowConfirmed] = useState(true);
-    const [activeTab, setActiveTab] = useState("current"); // "current" or "past"
+    const [activeTab, setActiveTab] = useState("current");
 
     useEffect(() => {
         const dataRef = ref(database, "data");
-
         const unsubscribe = onValue(dataRef, snapshot => {
             const fetchedData = [];
             snapshot.forEach(childSnapshot => {
@@ -33,129 +93,27 @@ function Home() {
         return () => unsubscribe();
     }, []);
 
-    // 가까운 이벤트
-    const thisWeeksEvents = getThisWeeksEvents(data);
-
-    // 날짜 기준 정렬 및 과거 이벤트 체크를 위한 함수
     const processData = data => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        return data.map(item => ({
-            ...item,
-            scheduleDate: new Date(item.schedule),
-            isPast: new Date(item.schedule) < today,
-        }));
+        return data
+            .filter(item => item.confirm === showConfirmed)
+            .map(item => ({
+                ...item,
+                scheduleDate: new Date(item.schedule),
+                isPast: new Date(item.schedule) < today,
+            }));
     };
 
-    // confirm 상태에 따라 데이터 필터링 및 정렬
-    const filteredData = processData(
-        data.filter(item => item.confirm === showConfirmed)
-    );
-
-    // 현재 이벤트와 과거 이벤트 분리 및 각각 다른 방식으로 정렬
+    const filteredData = processData(data);
+    const thisWeeksEvents = getThisWeeksEvents(data);
     const currentEvents = filteredData
         .filter(item => !item.isPast)
-        .sort((a, b) => a.scheduleDate - b.scheduleDate); // 예정된 이벤트는 날짜순
-
+        .sort((a, b) => a.scheduleDate - b.scheduleDate);
     const pastEvents = filteredData
         .filter(item => item.isPast)
-        .sort((a, b) => b.scheduleDate - a.scheduleDate); // 과거 이벤트는 최신순
-
-    const GenreTag = ({ genre }) => {
-        // 장르 문자열을 ', ' 기준으로 분리하고 공백 제거
-        const genres = genre.split(",").map(g => g.trim());
-
-        // GENRE_COLORS에 정의된 장르와 그렇지 않은 장르를 분리
-        const definedGenres = genres.filter(g => GENRE_COLORS[g]);
-        const undefinedGenres = genres.filter(g => !GENRE_COLORS[g]);
-
-        // 정의되지 않은 장르를 맨 앞에 배치
-        const sortedGenres = [...undefinedGenres, ...definedGenres];
-
-        return (
-            <div className="flex flex-wrap gap-1">
-                {sortedGenres.map((g, index) => {
-                    const genreClass = GENRE_COLORS[g] || GENRE_COLORS.default;
-                    return (
-                        <span
-                            key={index}
-                            className={`px-2 py-1 text-xs font-medium rounded-full ${genreClass}`}
-                        >
-                            {g}
-                        </span>
-                    );
-                })}
-            </div>
-        );
-    };
-
-    const EventTable = ({ events, title, className = "" }) => (
-        <div className={`overflow-x-hidden rounded-lg shadow ${className}`}>
-            <table className="min-w-full table-auto">
-                <thead className="bg-gray-900">
-                    <tr className="[&>th]:px-6 [&>th]:py-3 [&>th]:text-center [&>th]:text-md [&>th]:font-semibold [&>th]:text-gray-300">
-                        <th>이벤트명</th>
-                        <th className="hidden lg:table-cell">장르</th>
-                        <th className="hidden lg:table-cell">장소</th>
-                        <th>일정</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-gray-800 divide-y divide-gray-700">
-                    {events.map(item => (
-                        <tr
-                            key={item.id}
-                            onClick={() => setSelectedItem(item)}
-                            className="cursor-pointer lg:hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:pl-4 [&>td]:py-4 md:[&>td]:px-6 md:[&>td]:py-4"
-                        >
-                            <td className="flex items-center">
-                                {item.img_url && (
-                                    <img
-                                        src={item.img_url}
-                                        alt={item.event_name}
-                                        className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
-                                    />
-                                )}
-                                <div className="w-24 overflow-hidden text-left md:w-fit text-ellipsis whitespace-nowrap">
-                                    {item.event_name}
-                                </div>
-                            </td>
-                            <td className="hidden lg:table-cell">
-                                <GenreTag genre={item.genre} />
-                            </td>
-                            <td className="hidden lg:table-cell">
-                                <a
-                                    href={getNaverMapUrl(item.location)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="px-2 py-1 text-gray-300 bg-gray-600 rounded-full lg:hover:text-indigo-300 lg:hover:underline"
-                                    onClick={e => e.stopPropagation()}
-                                >
-                                    {item.location}
-                                </a>
-                            </td>
-                            <td>
-                                {formatDate(item.schedule, item.time_start)}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    );
-
-    const TabButton = ({ isActive, onClick, children }) => (
-        <button
-            onClick={onClick}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg rounded-b-none transition-colors duration-200 ${
-                isActive
-                    ? "text-white bg-indigo-600"
-                    : "bg-indigo-900 lg:hover:text-gray-300 lg:hover:bg-indigo-700"
-            }`}
-        >
-            {children}
-        </button>
-    );
+        .sort((a, b) => b.scheduleDate - a.scheduleDate);
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -168,7 +126,6 @@ function Home() {
                     </div>
                 </div>
 
-                {/* 가까운 이벤트 Carousel */}
                 {!loading && thisWeeksEvents.length > 0 && (
                     <div className="mb-8">
                         <h2 className="mb-4 text-xl font-semibold text-gray-200">
@@ -187,7 +144,6 @@ function Home() {
                     </div>
                 ) : (
                     <div>
-                        {/* 탭 버튼 */}
                         <div className="flex space-x-2">
                             <TabButton
                                 isActive={activeTab === "current"}
@@ -203,18 +159,19 @@ function Home() {
                             </TabButton>
                         </div>
 
-                        {/* 탭 컨텐츠 */}
                         <div>
                             {activeTab === "current" ? (
                                 <EventTable
                                     events={currentEvents}
                                     title="예정된 이벤트"
+                                    onEventSelect={setSelectedItem}
                                 />
                             ) : (
                                 <EventTable
                                     events={pastEvents}
                                     title="종료된 이벤트"
                                     className="opacity-70"
+                                    onEventSelect={setSelectedItem}
                                 />
                             )}
                         </div>
