@@ -100,7 +100,7 @@ export function Modal({ isOpen, onClose, data }) {
                                             <div className="w-full p-2 font-medium">
                                                 장소
                                             </div>{" "}
-                                            <div className="w-full p-2 text-left">
+                                            <div className="w-full p-2 text-center lg:text-left">
                                                 <LocationLink
                                                     location={data.location}
                                                 />

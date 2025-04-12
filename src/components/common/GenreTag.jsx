@@ -7,7 +7,7 @@ export const GenreTag = ({ genre }) => {
     const sortedGenres = [...undefinedGenres, ...definedGenres];
 
     return (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap justify-center gap-1 lg:justify-start">
             {sortedGenres.map((g, index) => (
                 <span
                     key={index}
