@@ -2,6 +2,36 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate, formatTime } from "../utils/dateUtils";
 import { useEffect } from "react";
+import { GENRE_COLORS } from "../constants";
+import { getNaverMapUrl } from "../utils/urlUtils";
+
+const GenreTag = ({ genre }) => {
+    // 장르 문자열을 ', ' 기준으로 분리하고 공백 제거
+    const genres = genre.split(",").map(g => g.trim());
+
+    // GENRE_COLORS에 정의된 장르와 그렇지 않은 장르를 분리
+    const definedGenres = genres.filter(g => GENRE_COLORS[g]);
+    const undefinedGenres = genres.filter(g => !GENRE_COLORS[g]);
+
+    // 정의되지 않은 장르를 맨 앞에 배치
+    const sortedGenres = [...undefinedGenres, ...definedGenres];
+
+    return (
+        <div className="flex flex-wrap gap-1">
+            {sortedGenres.map((g, index) => {
+                const genreClass = GENRE_COLORS[g] || GENRE_COLORS.default;
+                return (
+                    <span
+                        key={index}
+                        className={`px-2 py-1 text-xs font-medium rounded-full ${genreClass}`}
+                    >
+                        {g}
+                    </span>
+                );
+            })}
+        </div>
+    );
+};
 
 export function Modal({ isOpen, onClose, data }) {
     useEffect(() => {
@@ -83,7 +113,7 @@ export function Modal({ isOpen, onClose, data }) {
                                                 장르
                                             </div>{" "}
                                             <div className="w-full p-2">
-                                                {data.genre}
+                                                <GenreTag genre={data.genre} />
                                             </div>
                                         </div>
                                         <div className="flex flex-col md:flex-row">
@@ -91,7 +121,16 @@ export function Modal({ isOpen, onClose, data }) {
                                                 장소
                                             </div>{" "}
                                             <div className="w-full p-2">
-                                                {data.location}
+                                                <a
+                                                    href={getNaverMapUrl(
+                                                        data.location
+                                                    )}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-300 lg:hover:text-blue-100 lg:hover:underline"
+                                                >
+                                                    {data.location}
+                                                </a>
                                             </div>
                                         </div>
                                         <div className="flex flex-col md:flex-row">
