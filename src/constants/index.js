@@ -22,5 +22,4 @@ export const GENRE_COLORS = {
     리듬게임: "bg-red-900 text-white",
     보컬로이드: "bg-indigo-900 text-white",
     "Any Song (복합)": "bg-orange-900 text-white",
-    default: "bg-gray-900 text-white",
 };
