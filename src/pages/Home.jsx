@@ -81,11 +81,15 @@ const EventTable = ({
                                         <div className="p-2 space-y-1">
                                             {[
                                                 "all",
-                                                ...Object.keys(GENRE_COLORS),
+                                                ...Object.keys(
+                                                    GENRE_COLORS
+                                                ).filter(
+                                                    genre => genre !== "default"
+                                                ),
                                             ].map(genre => (
                                                 <label
                                                     key={genre}
-                                                    className="flex items-center px-2 py-1 text-sm text-white hover:bg-gray-700 rounded cursor-pointer"
+                                                    className="flex items-center px-2 py-1 text-sm text-white rounded cursor-pointer hover:bg-gray-700"
                                                 >
                                                     <input
                                                         type="checkbox"
