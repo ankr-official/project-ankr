@@ -107,7 +107,7 @@ function Home() {
     };
 
     const filteredData = processData(data);
-    const thisWeeksEvents = getThisWeeksEvents(data);
+    const thisWeeksEvents = getThisWeeksEvents(data, showConfirmed);
     const currentEvents = filteredData
         .filter(item => !item.isPast)
         .sort((a, b) => a.scheduleDate - b.scheduleDate);
