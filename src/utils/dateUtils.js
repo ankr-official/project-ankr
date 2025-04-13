@@ -40,7 +40,7 @@ export const formatTime = dateString => {
     }
 };
 
-export const getThisWeeksEvents = data => {
+export const getThisWeeksEvents = (data, showConfirmed = true) => {
     const today = new Date();
     const nextWeek = new Date(today);
     nextWeek.setDate(today.getDate() + 7);
@@ -48,7 +48,11 @@ export const getThisWeeksEvents = data => {
     return data
         .filter(item => {
             const eventDate = new Date(item.schedule);
-            return eventDate >= today && eventDate < nextWeek;
+            return (
+                eventDate >= today &&
+                eventDate < nextWeek &&
+                item.confirm === showConfirmed
+            );
         })
         .sort((a, b) => new Date(a.schedule) - new Date(b.schedule));
 };
