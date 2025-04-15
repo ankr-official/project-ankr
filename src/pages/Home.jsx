@@ -50,7 +50,7 @@ const EventTable = ({
             <table className="min-w-full table-auto min-h-fit">
                 <thead className="bg-gray-900">
                     <tr className="[&>th]:px-6 [&>th]:py-3 [&>th]:text-center [&>th]:text-md [&>th]:font-semibold [&>th]:text-gray-300 [&>th]:h-12">
-                        <th>이벤트명</th>
+                        <th className="w-[100px] md:w-[400px] ">이벤트명</th>
                         <th className="hidden lg:table-cell">
                             <div className="relative h-full" ref={dropdownRef}>
                                 <button
@@ -131,14 +131,14 @@ const EventTable = ({
                                             className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
                                         />
                                     )}
-                                    <div className="w-24 overflow-hidden text-left md:w-fit text-ellipsis whitespace-nowrap">
+                                    <div className="w-24 overflow-hidden text-left md:w-[400px] text-ellipsis whitespace-nowrap">
                                         {item.event_name}
                                     </div>
                                 </td>
-                                <td className="hidden lg:table-cell">
+                                <td className="hidden w-[300px] lg:table-cell">
                                     <GenreTag genre={item.genre} />
                                 </td>
-                                <td className="hidden lg:table-cell">
+                                <td className="hidden  w-[300px] lg:table-cell">
                                     <LocationLink
                                         location={item.location}
                                         onClick={e => e.stopPropagation()}
