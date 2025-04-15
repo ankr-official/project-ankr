@@ -86,7 +86,7 @@ export function EventCarousel({ events, onEventClick }) {
             >
                 <ChevronRightIcon className="w-6 h-6" />
             </button>
-            <div className="absolute left-0 right-0 flex justify-center p-2 space-x-2 bottom-2">
+            <div className="flex justify-center p-2 space-x-2">
                 {events.map((_, index) => (
                     <button
                         key={index}
