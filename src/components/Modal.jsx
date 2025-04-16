@@ -1,11 +1,24 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { formatDate, formatTime } from "../utils/dateUtils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { GenreTag } from "./common/GenreTag";
 import { LocationLink } from "./common/LocationLink";
 
 export function Modal({ isOpen, onClose, data }) {
+    const [isMobile, setIsMobile] = useState(false);
+    const dragControls = useDragControls();
+    const [dragY, setDragY] = useState(0);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
+
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
@@ -18,6 +31,12 @@ export function Modal({ isOpen, onClose, data }) {
         };
     }, [isOpen]);
 
+    const handleDragEnd = (event, info) => {
+        if (info.offset.y > 100) {
+            onClose();
+        }
+    };
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -25,19 +44,56 @@ export function Modal({ isOpen, onClose, data }) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-50 md:p-4"
+                    className={`fixed inset-0 z-50 flex items-center justify-center ${
+                        isMobile
+                            ? "bg-black bg-opacity-30"
+                            : "bg-gray-500 bg-opacity-50"
+                    }`}
                     onClick={onClose}
                 >
                     <motion.div
-                        initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                        animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                        transition={{ type: "spring", duration: 0.5 }}
-                        className="rounded-lg md:max-w-3xl w-full max-h-screen md:max-h-[90vh] overflow-y-auto"
+                        initial={
+                            isMobile
+                                ? { y: "100%" }
+                                : { scale: 0.9, opacity: 0, y: 20 }
+                        }
+                        animate={
+                            isMobile ? { y: 0 } : { scale: 1, opacity: 1, y: 0 }
+                        }
+                        exit={
+                            isMobile
+                                ? { y: "100%" }
+                                : { scale: 0.9, opacity: 0, y: 20 }
+                        }
+                        transition={
+                            isMobile
+                                ? { type: "spring", damping: 20 }
+                                : { type: "spring", duration: 0.5 }
+                        }
+                        className={`${
+                            isMobile
+                                ? "w-full h-[90vh] rounded-t-3xl bg-gray-900 overflow-hidden"
+                                : "rounded-lg md:max-w-3xl w-full max-h-screen md:max-h-[90vh] overflow-y-auto"
+                        }`}
                         onClick={e => e.stopPropagation()}
+                        drag={isMobile ? "y" : false}
+                        dragConstraints={isMobile ? { top: 0 } : false}
+                        dragElastic={isMobile ? 0.1 : 0}
+                        onDragEnd={handleDragEnd}
+                        dragControls={dragControls}
+                        style={{ y: isMobile ? dragY : 0 }}
                     >
+                        {isMobile && (
+                            <div className="w-full p-4">
+                                <div className="w-12 h-1 mx-auto bg-gray-700 rounded-full" />
+                            </div>
+                        )}
                         <motion.div
-                            className="px-8 py-8 bg-gray-900 md:p-12"
+                            className={`${
+                                isMobile
+                                    ? "px-4 py-4"
+                                    : "px-8 py-8 bg-gray-900 md:p-12"
+                            }`}
                             layoutId={`modal-content-${data.id}`}
                         >
                             <div className="flex items-center justify-between mb-4">
@@ -49,7 +105,11 @@ export function Modal({ isOpen, onClose, data }) {
                                 </motion.h2>
                                 <button
                                     onClick={onClose}
-                                    className="p-1 text-indigo-200 bg-indigo-800 rounded-full lg:hover:text-indigo-900 lg:hover:bg-white"
+                                    className={`${
+                                        isMobile
+                                            ? "hidden"
+                                            : "p-1 text-indigo-200 bg-indigo-800 rounded-full lg:hover:text-indigo-900 lg:hover:bg-white"
+                                    }`}
                                 >
                                     <XMarkIcon className="w-6 h-6" />
                                 </button>
@@ -73,7 +133,11 @@ export function Modal({ isOpen, onClose, data }) {
 
                             {/* 기본 정보 섹션 */}
                             <motion.div
-                                className="grid grid-cols-2 gap-6 mb-6 bg-gray-800 rounded-lg"
+                                className={`grid grid-cols-2 gap-6 mb-6 ${
+                                    isMobile
+                                        ? "bg-gray-800 p-4 rounded-xl"
+                                        : "bg-gray-800 rounded-lg"
+                                }`}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 }}
