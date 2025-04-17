@@ -54,18 +54,24 @@ const useModalBodyLock = isOpen => {
     useEffect(() => {
         if (isOpen) {
             const scrollY = window.scrollY;
-            document.body.style.overflow = "hidden";
-            document.body.style.position = "fixed";
-            document.body.style.width = "100%";
-            document.body.style.height = "100%";
-            document.body.style.top = `-${scrollY}px`;
+            const scrollbarWidth =
+                window.innerWidth - document.documentElement.clientWidth;
+            document.body.dataset.scrollY = scrollY;
+            document.body.style.setProperty("--scroll-y", `-${scrollY}px`);
+            document.body.style.setProperty(
+                "--scrollbar-width",
+                `${scrollbarWidth}px`
+            );
+            document.body.classList.add("modal-open");
 
             return () => {
-                document.body.style.overflow = "auto";
-                document.body.style.position = "";
-                document.body.style.width = "";
-                document.body.style.height = "";
-                document.body.style.top = "";
+                const scrollY = parseInt(
+                    document.body.dataset.scrollY || "0",
+                    10
+                );
+                document.body.classList.remove("modal-open");
+                document.body.style.removeProperty("--scroll-y");
+                document.body.style.removeProperty("--scrollbar-width");
                 window.scrollTo(0, scrollY);
             };
         }

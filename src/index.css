@@ -31,6 +31,16 @@ body {
     min-height: 100vh;
 }
 
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    top: var(--scroll-y);
+    left: 0;
+    right: 0;
+    padding-right: var(--scrollbar-width);
+}
+
 h1 {
     font-size: 3.2em;
     line-height: 1.1;
