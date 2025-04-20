@@ -172,6 +172,7 @@ function Home() {
     const [showConfirmed, setShowConfirmed] = useState(true);
     const [activeTab, setActiveTab] = useState("current");
     const [selectedGenres, setSelectedGenres] = useState(["all"]);
+    const [visiblePastEvents, setVisiblePastEvents] = useState(15);
 
     useEffect(() => {
         const dataRef = ref(database, "data");
@@ -239,6 +240,10 @@ function Home() {
         .filter(item => item.isPast)
         .sort((a, b) => b.scheduleDate - a.scheduleDate);
 
+    const loadMorePastEvents = () => {
+        setVisiblePastEvents(prev => prev + 15);
+    };
+
     return (
         <div className="flex flex-col min-h-screen">
             <div className="container flex-grow px-4 py-8 mx-auto">
@@ -293,25 +298,38 @@ function Home() {
                                     onGenreChange={handleGenreChange}
                                 />
                             ) : (
-                                <EventTable
-                                    events={pastEvents}
-                                    title="종료된 이벤트"
-                                    className="opacity-70"
-                                    onEventSelect={setSelectedItem}
-                                    selectedGenres={selectedGenres}
-                                    onGenreChange={handleGenreChange}
-                                />
+                                <div>
+                                    <EventTable
+                                        events={pastEvents.slice(
+                                            0,
+                                            visiblePastEvents
+                                        )}
+                                        title="종료된 이벤트"
+                                        className="opacity-70"
+                                        onEventSelect={setSelectedItem}
+                                        selectedGenres={selectedGenres}
+                                        onGenreChange={handleGenreChange}
+                                    />
+                                    {visiblePastEvents < pastEvents.length && (
+                                        <button
+                                            onClick={loadMorePastEvents}
+                                            className="w-full text-white bg-gray-900 border-gray-700 rounded lg:hover:bg-gray-700"
+                                        >
+                                            더보기
+                                        </button>
+                                    )}
+                                </div>
                             )}
                         </div>
                     </div>
                 )}
 
-                <div className="flex flex-col items-center justify-center w-full gap-4 mt-8 md:flex-row">
+                <div className="flex flex-col items-center justify-center w-full gap-4 mt-16 md:flex-row">
                     <button
                         onClick={() => window.open(FORM_URL, "_blank")}
                         className="w-full px-4 py-2 text-white bg-indigo-600 rounded md:w-fit lg:hover:text-indigo-900 lg:hover:bg-white"
                     >
-                        행사 등록 신청하기
+                        행사 등록하기
                     </button>
                 </div>
                 <Modal
