@@ -6,7 +6,7 @@ function App() {
     const currentYear = new Date().getFullYear();
 
     return (
-        <Router>
+        <Router basename="/project-ankr">
             <div className="rounded-lg">
                 <Routes>
                     <Route path="/" element={<Home />} />
