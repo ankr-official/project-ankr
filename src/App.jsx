@@ -10,9 +10,11 @@ function App() {
             <div className="rounded-lg">
                 <Routes>
                     <Route path="/" element={<Home />} />
+                    <Route path="/event/:id" element={<Home />} />
+                    <Route path="*" element={<Home />} />
                 </Routes>
-                <footer className="w-full bg-gray-900 text-gray-300 py-8 mt-8">
-                    <div className="container mx-auto px-4">
+                <footer className="w-full py-8 mt-8 text-gray-300 bg-gray-900">
+                    <div className="container px-4 mx-auto">
                         <div className="flex flex-col items-center space-y-4">
                             <div className="text-center">
                                 <p className="text-sm">
