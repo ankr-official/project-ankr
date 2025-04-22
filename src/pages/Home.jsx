@@ -9,6 +9,8 @@ import { FORM_URL } from "../constants";
 import { GenreTag } from "../components/common/GenreTag";
 import { LocationLink } from "../components/common/LocationLink";
 import { GENRE_COLORS } from "../constants";
+import { BrowserRouter as Router, useNavigate } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 const TabButton = ({ isActive, onClick, children }) => (
     <button
@@ -174,6 +176,25 @@ function Home() {
     const [selectedGenres, setSelectedGenres] = useState(["all"]);
     const [visiblePastEvents, setVisiblePastEvents] = useState(15);
 
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        const match = location.pathname.match(/^\/event\/(.+)/);
+        if (match && data.length > 0) {
+            const idFromUrl = match[1];
+            const item = data.find(d => d.id === idFromUrl);
+            if (item && item.confirm) {
+                setSelectedItem(item);
+            } else {
+                setSelectedItem(null);
+                navigate("/", { replace: true });
+            }
+        } else if (!match) {
+            setSelectedItem(null);
+        }
+    }, [location.pathname, data, navigate]);
+
     useEffect(() => {
         const dataRef = ref(database, "data");
         const unsubscribe = onValue(dataRef, snapshot => {
@@ -244,8 +265,30 @@ function Home() {
         setVisiblePastEvents(prev => prev + 15);
     };
 
+    const handleModalOpen = item => {
+        if (item.confirm) {
+            setSelectedItem(item);
+            navigate(`/event/${item.id}`, {
+                replace: false,
+                state: { modal: true },
+            });
+        }
+    };
+
+    const handleModalClose = () => {
+        setSelectedItem(null);
+        navigate("/");
+    };
+
     return (
         <div className="flex flex-col min-h-screen">
+            {selectedItem && (
+                <Modal
+                    isOpen={selectedItem !== null}
+                    onClose={handleModalClose}
+                    data={selectedItem || {}}
+                />
+            )}
             <div className="container flex-grow px-4 py-8 mx-auto">
                 <div className="flex flex-col items-center justify-between px-6 mb-6 border-b border-gray-700">
                     <div className="flex items-center justify-center mb-4">
@@ -262,7 +305,7 @@ function Home() {
                         </h2>
                         <EventCarousel
                             events={thisWeeksEvents}
-                            onEventClick={setSelectedItem}
+                            onEventClick={handleModalOpen}
                         />
                     </div>
                 )}
@@ -293,7 +336,7 @@ function Home() {
                                 <EventTable
                                     events={currentEvents}
                                     title="예정된 이벤트"
-                                    onEventSelect={setSelectedItem}
+                                    onEventSelect={handleModalOpen}
                                     selectedGenres={selectedGenres}
                                     onGenreChange={handleGenreChange}
                                 />
@@ -306,7 +349,7 @@ function Home() {
                                         )}
                                         title="종료된 이벤트"
                                         className="opacity-70"
-                                        onEventSelect={setSelectedItem}
+                                        onEventSelect={handleModalOpen}
                                         selectedGenres={selectedGenres}
                                         onGenreChange={handleGenreChange}
                                     />
@@ -332,11 +375,6 @@ function Home() {
                         행사 등록하기
                     </button>
                 </div>
-                <Modal
-                    isOpen={selectedItem !== null}
-                    onClose={() => setSelectedItem(null)}
-                    data={selectedItem || {}}
-                />
             </div>
         </div>
     );

@@ -255,17 +255,17 @@ export function Modal({ isOpen, onClose, data }) {
                     onClick={onClose}
                 >
                     <motion.div
-                        initial={
-                            isMobile
-                                ? { y: "100%" }
-                                : { scale: 0.9, opacity: 0 }
-                        }
+                        // initial={
+                        //     isMobile
+                        //         ? { y: "100%" }
+                        //         : { scale: 0.9, opacity: 0 }
+                        // }
                         animate={isMobile ? { y: 0 } : { scale: 1, opacity: 1 }}
-                        exit={
-                            isMobile
-                                ? { y: "100%" }
-                                : { scale: 0.9, opacity: 0 }
-                        }
+                        // exit={
+                        //     isMobile
+                        //         ? { y: "100%" }
+                        //         : { scale: 0.9, opacity: 0 }
+                        // }
                         transition={
                             isMobile
                                 ? { type: "spring", damping: 20 }
