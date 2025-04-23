@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import "./App.css";
 
@@ -6,7 +6,7 @@ function App() {
     const currentYear = new Date().getFullYear();
 
     return (
-        <Router basename="/project-ankr">
+        <Router>
             <div className="rounded-lg">
                 <Routes>
                     <Route path="/" element={<Home />} />
