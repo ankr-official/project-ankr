@@ -9,7 +9,7 @@ import { FORM_URL } from "../constants";
 import { GenreTag } from "../components/common/GenreTag";
 import { LocationLink } from "../components/common/LocationLink";
 import { GENRE_COLORS } from "../constants";
-import { BrowserRouter as Router, useNavigate } from "react-router-dom";
+import { HashRouter as Router, useNavigate } from "react-router-dom";
 import { useLocation, useParams } from "react-router-dom";
 
 const TabButton = ({ isActive, onClick, children }) => (
