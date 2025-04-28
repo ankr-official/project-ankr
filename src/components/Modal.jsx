@@ -257,7 +257,7 @@ const ModalContent = ({ data, onClose, isMobile }) => (
                 <div className="flex justify-center">
                     <button
                         onClick={() => {
-                            const text = `저는 ${data.location}에서 열리는 「${data.event_name}」 놀러가요!\n${window.location.href}\n#ANKR`;
+                            const text = `저는 ${data.location}에서 열리는 「${data.event_name}」 놀러가요!\n${window.location.href}\n#ANKR_DB`;
                             const encodedText = encodeURIComponent(text);
                             const twitterAppUrl = `twitter://post?message=${encodedText}`;
                             const twitterWebUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
