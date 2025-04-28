@@ -1,9 +1,15 @@
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import {
+    XMarkIcon,
+    ClipboardDocumentListIcon,
+    ShareIcon,
+} from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate, formatTime } from "../utils/dateUtils";
 import { useEffect, useState, useRef } from "react";
 import { GenreTag } from "./common/GenreTag";
 import { LocationLink } from "./common/LocationLink";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useModalScroll = onClose => {
     const contentRef = useRef(null);
@@ -94,136 +100,198 @@ const useMobileDetection = () => {
 };
 
 const ModalContent = ({ data, onClose, isMobile }) => (
-    <motion.div
-        className={`${
-            isMobile ? "px-4 py-4" : "px-8 py-8 bg-gray-900 md:p-12"
-        }`}
-        layoutId={`modal-content-${data.id}`}
-    >
-        <div className="flex items-center justify-between mb-4">
-            <motion.h2
-                className="text-2xl font-bold text-white"
-                layoutId={`title-${data.id}`}
-            >
-                {data.event_name}
-            </motion.h2>
-            {!isMobile && (
-                <button
-                    onClick={onClose}
-                    className="p-1 text-indigo-200 bg-indigo-800 rounded-full lg:hover:text-indigo-900 lg:hover:bg-white"
+    <>
+        <ToastContainer
+            position="bottom-center"
+            autoClose={2000}
+            closeOnClick
+            hideProgressBar
+            theme="dark"
+        />
+        <motion.div
+            className={`${
+                isMobile ? "px-4 py-4" : "px-8 py-8 bg-gray-900 md:p-12"
+            }`}
+            layoutId={`modal-content-${data.id}`}
+        >
+            <div className="flex items-center justify-between mb-4">
+                <motion.h2
+                    className="text-2xl font-bold text-white"
+                    layoutId={`title-${data.id}`}
                 >
-                    <XMarkIcon className="w-6 h-6" />
-                </button>
-            )}
-        </div>
+                    {data.event_name}
+                </motion.h2>
+                {!isMobile && (
+                    <button
+                        onClick={onClose}
+                        className="p-1 text-indigo-200 bg-indigo-800 rounded-full lg:hover:text-indigo-900 lg:hover:bg-white"
+                    >
+                        <XMarkIcon className="w-6 h-6" />
+                    </button>
+                )}
+            </div>
 
-        {data.img_url && (
+            {data.img_url && (
+                <motion.div
+                    className="mb-6"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    <img
+                        src={data.img_url}
+                        alt={data.event_name}
+                        className="object-cover w-full h-auto rounded-lg"
+                    />
+                </motion.div>
+            )}
+
             <motion.div
-                className="mb-6"
+                className={`grid grid-cols-2 gap-6 mb-6 ${
+                    isMobile
+                        ? "bg-gray-800 p-4 rounded-xl"
+                        : "bg-gray-800 rounded-lg"
+                }`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.3 }}
             >
-                <img
-                    src={data.img_url}
-                    alt={data.event_name}
-                    className="object-cover w-full h-auto rounded-lg"
-                />
+                <div>
+                    <div className="py-2 space-y-2 text-gray-300">
+                        <div className="flex flex-col md:flex-row">
+                            <div className="w-full p-2 font-medium">일정</div>
+                            <div className="w-full p-2">
+                                {formatDate(data.schedule)}
+                            </div>
+                        </div>
+                        <div className="flex flex-col md:flex-row">
+                            <div className="w-full p-2 font-medium">장르</div>
+                            <div className="w-full p-2">
+                                <GenreTag genre={data.genre} />
+                            </div>
+                        </div>
+                        <div className="flex flex-col md:flex-row">
+                            <div className="w-full p-2 font-medium">장소</div>
+                            <div className="w-full p-2 text-center lg:text-left">
+                                <LocationLink location={data.location} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div className="py-2 space-y-2 text-gray-300">
+                        {data.time_entrance && (
+                            <div className="flex flex-col md:flex-row">
+                                <div className="w-full p-2 font-medium">
+                                    입장
+                                </div>
+                                <div className="w-full p-2">
+                                    {formatTime(data.time_entrance)}
+                                </div>
+                            </div>
+                        )}
+                        <div className="flex flex-col md:flex-row">
+                            <div className="w-full p-2 font-medium">시작</div>
+                            <div className="w-full p-2">
+                                {formatTime(data.time_start)}
+                            </div>
+                        </div>
+                        {data.time_end && (
+                            <div className="flex flex-col md:flex-row">
+                                <div className="w-full p-2 font-medium">
+                                    종료
+                                </div>
+                                <div className="w-full p-2">
+                                    {formatTime(data.time_end)}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </motion.div>
-        )}
 
-        <motion.div
-            className={`grid grid-cols-2 gap-6 mb-6 ${
-                isMobile
-                    ? "bg-gray-800 p-4 rounded-xl"
-                    : "bg-gray-800 rounded-lg"
-            }`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-        >
-            <div>
-                <div className="py-2 space-y-2 text-gray-300">
-                    <div className="flex flex-col md:flex-row">
-                        <div className="w-full p-2 font-medium">일정</div>
-                        <div className="w-full p-2">
-                            {formatDate(data.schedule)}
+            <motion.div
+                className="space-y-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+            >
+                {data.event_url && (
+                    <div className="flex flex-col items-center">
+                        <h3 className="mb-2 text-lg font-semibold text-gray-200">
+                            이벤트 SNS 링크
+                        </h3>
+                        <div className="flex flex-col items-center justify-center gap-2 lg:flex-row">
+                            <a
+                                href={data.event_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-300 break-all lg:hover:text-blue-100 lg:hover:underline"
+                            >
+                                {data.event_url}
+                            </a>
+                            <ClipboardDocumentListIcon
+                                onClick={() => {
+                                    navigator.clipboard.writeText(
+                                        data.event_url
+                                    );
+                                    toast.info("URL이 복사되었습니다!");
+                                }}
+                                className="hidden w-5 h-5 p-0 ml-2 text-indigo-200 lg:hover:text-gray-100 hover:cursor-pointer lg:block"
+                                aria-label="Copy URL"
+                            />
                         </div>
                     </div>
-                    <div className="flex flex-col md:flex-row">
-                        <div className="w-full p-2 font-medium">장르</div>
-                        <div className="w-full p-2">
-                            <GenreTag genre={data.genre} />
-                        </div>
-                    </div>
-                    <div className="flex flex-col md:flex-row">
-                        <div className="w-full p-2 font-medium">장소</div>
-                        <div className="w-full p-2 text-center lg:text-left">
-                            <LocationLink location={data.location} />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <div className="py-2 space-y-2 text-gray-300">
-                    {data.time_entrance && (
-                        <div className="flex flex-col md:flex-row">
-                            <div className="w-full p-2 font-medium">입장</div>
-                            <div className="w-full p-2">
-                                {formatTime(data.time_entrance)}
-                            </div>
-                        </div>
-                    )}
-                    <div className="flex flex-col md:flex-row">
-                        <div className="w-full p-2 font-medium">시작</div>
-                        <div className="w-full p-2">
-                            {formatTime(data.time_start)}
-                        </div>
-                    </div>
-                    {data.time_end && (
-                        <div className="flex flex-col md:flex-row">
-                            <div className="w-full p-2 font-medium">종료</div>
-                            <div className="w-full p-2">
-                                {formatTime(data.time_end)}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </motion.div>
+                )}
 
-        <motion.div
-            className="space-y-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-        >
-            {data.event_url && (
-                <div>
-                    <h3 className="mb-2 text-lg font-semibold text-gray-200">
-                        이벤트 SNS 링크
-                    </h3>
-                    <a
-                        href={data.event_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-300 break-all lg:hover:text-blue-100 lg:hover:underline"
+                {data.etc && (
+                    <div>
+                        <h3 className="mb-2 text-lg font-semibold text-gray-200">
+                            기타 정보
+                        </h3>
+                        <p className="text-gray-300">{data.etc}</p>
+                    </div>
+                )}
+
+                {/* 트위터 공유 버튼 추가 */}
+                <div className="flex justify-center">
+                    <button
+                        onClick={() => {
+                            const text = `저는 ${data.location}에서 열리는 「${data.event_name}」 놀러가요!\n${window.location.href}\n#ANKR`;
+                            const encodedText = encodeURIComponent(text);
+                            const twitterAppUrl = `twitter://post?message=${encodedText}`;
+                            const twitterWebUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
+
+                            if (
+                                /iPhone|iPad|iPod|Android/i.test(
+                                    navigator.userAgent
+                                )
+                            ) {
+                                window.location.href = twitterAppUrl;
+                                setTimeout(() => {
+                                    window.open(
+                                        twitterWebUrl,
+                                        "_blank",
+                                        "noopener,noreferrer"
+                                    );
+                                }, 5000);
+                            } else {
+                                window.open(
+                                    twitterWebUrl,
+                                    "_blank",
+                                    "noopener,noreferrer"
+                                );
+                            }
+                        }}
+                        className="flex items-center px-4 py-2 text-white bg-blue-500 rounded lg:hover:bg-blue-600"
                     >
-                        {data.event_url}
-                    </a>
+                        <ShareIcon className="w-5 h-5 mr-2" />
+                        X(Twitter)에 공유하기
+                    </button>
                 </div>
-            )}
-
-            {data.etc && (
-                <div>
-                    <h3 className="mb-2 text-lg font-semibold text-gray-200">
-                        기타 정보
-                    </h3>
-                    <p className="text-gray-300">{data.etc}</p>
-                </div>
-            )}
+            </motion.div>
         </motion.div>
-    </motion.div>
+    </>
 );
 
 export function Modal({ isOpen, onClose, data }) {
@@ -255,17 +323,7 @@ export function Modal({ isOpen, onClose, data }) {
                     onClick={onClose}
                 >
                     <motion.div
-                        // initial={
-                        //     isMobile
-                        //         ? { y: "100%" }
-                        //         : { scale: 0.9, opacity: 0 }
-                        // }
                         animate={isMobile ? { y: 0 } : { scale: 1, opacity: 1 }}
-                        // exit={
-                        //     isMobile
-                        //         ? { y: "100%" }
-                        //         : { scale: 0.9, opacity: 0 }
-                        // }
                         transition={
                             isMobile
                                 ? { type: "spring", damping: 20 }
