@@ -45,7 +45,10 @@ export function EventCarousel({ events, onEventClick }) {
                         <div className="flex flex-col items-center w-full md:flex-row">
                             {events[currentIndex].img_url && (
                                 <img
-                                    src={events[currentIndex].img_url}
+                                    src={events[currentIndex].img_url.replace(
+                                        /(name=)[^&]*/,
+                                        "$1small"
+                                    )}
                                     alt={events[currentIndex].event_name}
                                     className="object-cover w-20 h-20 mb-4 rounded-lg md:w-48 md:h-48 md:mb-0"
                                 />
