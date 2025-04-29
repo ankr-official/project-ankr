@@ -263,9 +263,9 @@ const ModalContent = ({ data, onClose, isMobile }) => (
 
                             // 이벤트가 과거인지 확인
                             if (eventDate < today) {
-                                text = `저는 ${data.location}에서 열린 「${data.event_name}」 놀러가봤어요!\n${window.location.href}\n#ANKR_DB`;
+                                text = `저는 ${data.location}에서 열린 ${data.event_name} 놀러가봤어요!\n${window.location.href}\n#ANKR_DB`;
                             } else {
-                                text = `저는 ${data.location}에서 열리는 「${data.event_name}」 놀러가요!\n${window.location.href}\n#ANKR_DB`;
+                                text = `저는 ${data.location}에서 열리는 ${data.event_name} 놀러가요!\n${window.location.href}\n#ANKR_DB`;
                             }
 
                             const encodedText = encodeURIComponent(text);
