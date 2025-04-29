@@ -139,7 +139,7 @@ const ModalContent = ({ data, onClose, isMobile }) => (
                     transition={{ delay: 0.2 }}
                 >
                     <img
-                        src={data.img_url}
+                        src={data.img_url.replace(/(name=)[^&]*/, "$1large")}
                         alt={data.event_name}
                         className="object-cover w-full h-auto rounded-lg"
                     />
