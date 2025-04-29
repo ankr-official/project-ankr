@@ -257,7 +257,17 @@ const ModalContent = ({ data, onClose, isMobile }) => (
                 <div className="flex justify-center">
                     <button
                         onClick={() => {
-                            const text = `저는 ${data.location}에서 열리는 「${data.event_name}」 놀러가요!\n${window.location.href}\n#ANKR_DB`;
+                            const today = new Date();
+                            const eventDate = new Date(data.schedule); // 이벤트 날짜
+                            let text;
+
+                            // 이벤트가 과거인지 확인
+                            if (eventDate < today) {
+                                text = `저는 ${data.location}에서 열린 「${data.event_name}」 놀러가봤어요!\n${window.location.href}\n#ANKR_DB`;
+                            } else {
+                                text = `저는 ${data.location}에서 열리는 「${data.event_name}」 놀러가요!\n${window.location.href}\n#ANKR_DB`;
+                            }
+
                             const encodedText = encodeURIComponent(text);
                             const twitterAppUrl = `twitter://post?message=${encodedText}`;
                             const twitterWebUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
