@@ -126,13 +126,19 @@ const EventTable = ({
                                 className="cursor-pointer lg:hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:pl-4 [&>td]:py-4 md:[&>td]:px-6 md:[&>td]:py-4"
                             >
                                 <td className="flex items-center">
-                                    {item.img_url && (
+                                    {item.img_url ? (
                                         <img
                                             src={item.img_url.replace(
                                                 /(name=)[^&]*/,
                                                 "$1small"
                                             )}
                                             alt={item.event_name}
+                                            className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
+                                        />
+                                    ) : (
+                                        <img
+                                            src="./dummy.svg"
+                                            alt="Dummy"
                                             className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
                                         />
                                     )}

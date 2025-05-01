@@ -211,7 +211,7 @@ const ModalContent = ({ data, onClose, isMobile }) => (
             </motion.div>
 
             <motion.div
-                className="space-y-8"
+                className="space-y-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
@@ -349,11 +349,19 @@ export function Modal({ isOpen, onClose, data }) {
                     >
                         {isMobile && (
                             <div
-                                className="w-full pt-4 pb-2"
+                                className="relative w-full py-6"
                                 onTouchStart={handleTouchStart}
                                 onTouchMove={handleTouchMove}
                                 onTouchEnd={handleTouchEnd}
                             >
+                                {isMobile && (
+                                    <button
+                                        onClick={onClose}
+                                        className="absolute p-1 text-indigo-300 bg-transparent border-0 top-3 left-6 w-fit"
+                                    >
+                                        닫기
+                                    </button>
+                                )}
                                 <div className="w-12 h-1.5 mx-auto bg-gray-300 rounded-full" />
                             </div>
                         )}
