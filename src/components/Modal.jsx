@@ -274,14 +274,32 @@ const ModalContent = ({ data, onClose, isMobile }) => (
                     <button
                         onClick={() => {
                             const today = new Date();
-                            const eventDate = new Date(data.schedule); // 이벤트 날짜
+                            const eventDate = new Date(data.schedule);
+
+                            // 날짜만 비교하기 위해 시간을 00:00:00으로 설정
+                            const todayDate = new Date(
+                                today.getFullYear(),
+                                today.getMonth(),
+                                today.getDate()
+                            );
+                            const eventDateOnly = new Date(
+                                eventDate.getFullYear(),
+                                eventDate.getMonth(),
+                                eventDate.getDate()
+                            );
+
                             let text;
 
-                            // 이벤트가 과거인지 확인
-                            if (eventDate < today) {
-                                text = `저는 ${data.location}에서 열린\n${data.event_name} 놀러갔어요!\n${window.location.href}\n#ANKR_DB`;
+                            // 날짜 비교 후 시간 비교
+                            if (eventDateOnly > todayDate) {
+                                // 미래 날짜
+                                text = `${data.location}에서 열리는 ${data.event_name} 놀러가요!\n${window.location.href}\n#ANKR_DB`;
+                            } else if (eventDateOnly < todayDate) {
+                                // 과거 날짜
+                                text = `${data.location}에서 ${data.event_name} 있었어요!\n${window.location.href}\n#ANKR_DB`;
                             } else {
-                                text = `저는 ${data.location}에서 열리는\n${data.event_name} 놀러가요!\n${window.location.href}\n#ANKR_DB`;
+                                // 오늘 날짜
+                                text = `오늘은 ${data.location}에서 ${data.event_name} 있어요!\n${window.location.href}\n#ANKR_DB`;
                             }
 
                             const encodedText = encodeURIComponent(text);
