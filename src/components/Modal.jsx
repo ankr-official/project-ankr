@@ -147,7 +147,7 @@ const ModalContent = ({ data, onClose, isMobile }) => (
             )}
 
             <motion.div
-                className={`grid grid-cols-2 gap-6 mb-6 ${
+                className={`grid ${data.time_start ? "grid-cols-2" : ""} gap-6 mb-6 ${
                     isMobile
                         ? "bg-gray-800 p-4 rounded-xl"
                         : "bg-gray-800 rounded-lg"
@@ -159,55 +159,71 @@ const ModalContent = ({ data, onClose, isMobile }) => (
                 <div>
                     <div className="py-2 space-y-2 text-gray-300">
                         <div className="flex flex-col md:flex-row">
-                            <div className="w-full p-2 font-medium">일정</div>
-                            <div className="w-full p-2">
+                            <div
+                                className={`p-2 font-medium ${data.time_start ? "w-full" : "w-48"}`}
+                            >
+                                일정
+                            </div>
+                            <div className="w-full p-2 text-left">
                                 {formatDate(data.schedule)}
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row">
-                            <div className="w-full p-2 font-medium">장르</div>
+                            <div
+                                className={`p-2 font-medium ${data.time_start ? "w-full" : "w-48"}`}
+                            >
+                                장르
+                            </div>
                             <div className="w-full p-2">
                                 <GenreTag genre={data.genre} />
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row">
-                            <div className="w-full p-2 font-medium">장소</div>
+                            <div
+                                className={`p-2 font-medium ${data.time_start ? "w-full" : "w-48"}`}
+                            >
+                                장소
+                            </div>
                             <div className="w-full p-2 text-center lg:text-left">
                                 <LocationLink location={data.location} />
                             </div>
                         </div>
                     </div>
                 </div>
-                <div>
-                    <div className="py-2 space-y-2 text-gray-300">
-                        {data.time_entrance && (
+                {data.time_start && (
+                    <div>
+                        <div className="py-2 space-y-2 text-gray-300">
+                            {data.time_entrance && (
+                                <div className="flex flex-col md:flex-row">
+                                    <div className="w-full p-2 font-medium">
+                                        입장
+                                    </div>
+                                    <div className="w-full p-2">
+                                        {formatTime(data.time_entrance)}
+                                    </div>
+                                </div>
+                            )}
                             <div className="flex flex-col md:flex-row">
                                 <div className="w-full p-2 font-medium">
-                                    입장
+                                    시작
                                 </div>
                                 <div className="w-full p-2">
-                                    {formatTime(data.time_entrance)}
+                                    {formatTime(data.time_start)}
                                 </div>
                             </div>
-                        )}
-                        <div className="flex flex-col md:flex-row">
-                            <div className="w-full p-2 font-medium">시작</div>
-                            <div className="w-full p-2">
-                                {formatTime(data.time_start)}
-                            </div>
+                            {data.time_end && (
+                                <div className="flex flex-col md:flex-row">
+                                    <div className="w-full p-2 font-medium">
+                                        종료
+                                    </div>
+                                    <div className="w-full p-2">
+                                        {formatTime(data.time_end)}
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                        {data.time_end && (
-                            <div className="flex flex-col md:flex-row">
-                                <div className="w-full p-2 font-medium">
-                                    종료
-                                </div>
-                                <div className="w-full p-2">
-                                    {formatTime(data.time_end)}
-                                </div>
-                            </div>
-                        )}
                     </div>
-                </div>
+                )}
             </motion.div>
 
             <motion.div
