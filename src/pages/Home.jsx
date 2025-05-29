@@ -15,7 +15,7 @@ import { useLocation, useParams } from "react-router-dom";
 const TabButton = ({ isActive, onClick, children }) => (
     <button
         onClick={onClick}
-        className={`w-full md:w-fit mb-4 md:mb-0 px-4 py-2 text-sm font-medium md:rounded-t-lg md:rounded-b-none transition-colors duration-200 ${
+        className={`w-full lg:w-fit mb-4 lg:mb-0 px-4 py-2 text-sm font-medium lg:rounded-t-lg lg:rounded-b-none transition-colors duration-200 ${
             isActive
                 ? "text-white bg-indigo-600"
                 : "bg-indigo-900 lg:hover:text-gray-300 lg:hover:bg-indigo-700"
@@ -49,7 +49,7 @@ const EventTable = ({
 
     return (
         <div
-            className={`relative rounded-lg shadow-none md:shadow ${className}`}
+            className={`relative rounded-lg shadow-none lg:shadow ${className}`}
         >
             {/* 데스크톱 테이블 뷰 */}
             <div className="hidden w-full overflow-x-auto lg:block">
