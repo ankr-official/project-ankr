@@ -15,7 +15,7 @@ import { useLocation, useParams } from "react-router-dom";
 const TabButton = ({ isActive, onClick, children }) => (
     <button
         onClick={onClick}
-        className={`px-4 py-2 text-sm font-medium rounded-t-lg rounded-b-none transition-colors duration-200 ${
+        className={`w-full md:w-fit mb-4 md:mb-0 px-4 py-2 text-sm font-medium md:rounded-t-lg md:rounded-b-none transition-colors duration-200 ${
             isActive
                 ? "text-white bg-indigo-600"
                 : "bg-indigo-900 lg:hover:text-gray-300 lg:hover:bg-indigo-700"
@@ -48,130 +48,227 @@ const EventTable = ({
     }, [isDropdownOpen]);
 
     return (
-        <div className={`relative rounded-lg shadow ${className}`}>
-            <table className="min-w-full table-auto min-h-fit">
-                <thead className="bg-gray-900">
-                    <tr className="[&>th]:px-6 [&>th]:py-3 [&>th]:text-center [&>th]:text-md [&>th]:font-semibold [&>th]:text-gray-300 [&>th]:h-12">
-                        <th className="w-[100px] md:w-[400px] ">이벤트명</th>
-                        <th className="hidden lg:table-cell">
-                            <div className="relative h-full" ref={dropdownRef}>
-                                <button
-                                    onClick={() =>
-                                        setIsDropdownOpen(!isDropdownOpen)
-                                    }
-                                    className="flex items-center justify-start gap-2 px-2 py-1 text-sm text-white bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        <div
+            className={`relative rounded-lg shadow-none md:shadow ${className}`}
+        >
+            {/* 데스크톱 테이블 뷰 */}
+            <div className="hidden w-full overflow-x-auto lg:block">
+                <table className="min-w-full table-auto min-h-fit">
+                    <thead className="bg-gray-900">
+                        <tr className="[&>th]:px-6 [&>th]:py-3 [&>th]:text-center [&>th]:text-md [&>th]:font-semibold [&>th]:text-gray-300 [&>th]:h-12">
+                            <th className="">이벤트명</th>
+                            <th className="">
+                                <div
+                                    className="relative h-full"
+                                    ref={dropdownRef}
                                 >
-                                    <span>장르</span>
-                                    <svg
-                                        className={`w-4 h-4 transition-transform ${
-                                            isDropdownOpen ? "rotate-180" : ""
-                                        }`}
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
+                                    <button
+                                        onClick={() =>
+                                            setIsDropdownOpen(!isDropdownOpen)
+                                        }
+                                        className="flex items-center justify-start gap-2 px-2 py-1 text-sm text-white bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                     >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M19 9l-7 7-7-7"
-                                        />
-                                    </svg>
-                                </button>
-                                {isDropdownOpen && (
-                                    <div className="absolute z-40 w-48 mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
-                                        <div className="p-2 space-y-1">
-                                            {[
-                                                "all",
-                                                ...Object.keys(
-                                                    GENRE_COLORS
-                                                ).filter(
-                                                    genre => genre !== "default"
-                                                ),
-                                            ].map(genre => (
-                                                <label
-                                                    key={genre}
-                                                    className="flex items-center px-2 py-1 text-sm text-white rounded cursor-pointer hover:bg-gray-700"
-                                                >
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedGenres.includes(
-                                                            genre
-                                                        )}
-                                                        onChange={() =>
-                                                            onGenreChange(genre)
-                                                        }
-                                                        className="mr-2 text-indigo-600 border-gray-600 rounded focus:ring-indigo-500"
-                                                    />
-                                                    {genre === "all"
-                                                        ? "전체"
-                                                        : genre}
-                                                </label>
-                                            ))}
+                                        <span>장르</span>
+                                        <svg
+                                            className={`w-4 h-4 transition-transform ${
+                                                isDropdownOpen
+                                                    ? "rotate-180"
+                                                    : ""
+                                            }`}
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M19 9l-7 7-7-7"
+                                            />
+                                        </svg>
+                                    </button>
+                                    {isDropdownOpen && (
+                                        <div className="absolute z-40 w-48 mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
+                                            <div className="p-2 space-y-1">
+                                                {[
+                                                    "all",
+                                                    ...Object.keys(
+                                                        GENRE_COLORS
+                                                    ).filter(
+                                                        genre =>
+                                                            genre !== "default"
+                                                    ),
+                                                ].map(genre => (
+                                                    <label
+                                                        key={genre}
+                                                        className="flex items-center px-2 py-1 text-sm text-white rounded cursor-pointer hover:bg-gray-700"
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedGenres.includes(
+                                                                genre
+                                                            )}
+                                                            onChange={() =>
+                                                                onGenreChange(
+                                                                    genre
+                                                                )
+                                                            }
+                                                            className="mr-2 text-indigo-600 border-gray-600 rounded focus:ring-indigo-500"
+                                                        />
+                                                        {genre === "all"
+                                                            ? "전체"
+                                                            : genre}
+                                                    </label>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
-                            </div>
-                        </th>
-                        <th className="hidden lg:table-cell">장소</th>
-                        <th>일정</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-gray-800 divide-y divide-gray-700">
-                    {events.length > 0 ? (
-                        events.map(item => (
-                            <tr
-                                key={item.id}
-                                onClick={() => onEventSelect(item)}
-                                className="cursor-pointer lg:hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:pl-4 [&>td]:py-4 md:[&>td]:px-6 md:[&>td]:py-4"
-                            >
-                                <td className="flex items-center">
-                                    {item.img_url ? (
-                                        <img
-                                            src={item.img_url.replace(
-                                                /(name=)[^&]*/,
-                                                "$1small"
-                                            )}
-                                            alt={item.event_name}
-                                            className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
-                                        />
-                                    ) : (
-                                        <img
-                                            src="./dummy.svg"
-                                            alt="Dummy"
-                                            className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
-                                        />
                                     )}
-                                    <div className="w-24 overflow-hidden text-left md:w-[400px] text-ellipsis whitespace-nowrap">
-                                        {item.event_name}
-                                    </div>
-                                </td>
-                                <td className="hidden w-[300px] lg:table-cell">
-                                    <GenreTag genre={item.genre} />
-                                </td>
-                                <td className="hidden  w-[300px] lg:table-cell">
-                                    <LocationLink
-                                        location={item.location}
-                                        onClick={e => e.stopPropagation()}
-                                    />
-                                </td>
-                                <td>
-                                    {formatDate(item.schedule, item.time_start)}
+                                </div>
+                            </th>
+                            <th className="">장소</th>
+                            <th>일정</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-gray-800 divide-y divide-gray-700">
+                        {events.length > 0 ? (
+                            events.map(item => (
+                                <tr
+                                    key={item.id}
+                                    onClick={() => onEventSelect(item)}
+                                    className="cursor-pointer hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:pl-4 [&>td]:py-4 [&>td]:px-6"
+                                >
+                                    <td className="flex items-center">
+                                        {item.img_url ? (
+                                            <img
+                                                src={item.img_url.replace(
+                                                    /(name=)[^&]*/,
+                                                    "$1small"
+                                                )}
+                                                alt={item.event_name}
+                                                className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
+                                            />
+                                        ) : (
+                                            <img
+                                                src="./dummy.svg"
+                                                alt="Dummy"
+                                                className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
+                                            />
+                                        )}
+                                        <div className="overflow-hidden text-left text-ellipsis whitespace-nowrap">
+                                            {item.event_name}
+                                        </div>
+                                    </td>
+                                    <td className="w-[300px]">
+                                        <GenreTag genre={item.genre} />
+                                    </td>
+                                    <td className="w-[300px]">
+                                        <LocationLink
+                                            location={item.location}
+                                            onClick={e => e.stopPropagation()}
+                                        />
+                                    </td>
+                                    <td>
+                                        {formatDate(
+                                            item.schedule,
+                                            item.time_start
+                                        )}
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td
+                                    colSpan="4"
+                                    className="py-8 text-center text-gray-400"
+                                >
+                                    선택한 장르의 이벤트가 존재하지 않습니다.
                                 </td>
                             </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td
-                                colSpan="4"
-                                className="py-8 text-center text-gray-400"
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* 모바일 카드 뷰 */}
+            <div className="grid grid-cols-1 gap-4 lg:hidden">
+                {/* 장르 필터 (모바일) */}
+                <div className="sticky top-0 z-10 p-2 bg-gray-900 bg-opacity-50 rounded-lg shadow-md backdrop-blur-sm">
+                    <div className="flex flex-wrap gap-2">
+                        {[
+                            "all",
+                            ...Object.keys(GENRE_COLORS).filter(
+                                genre => genre !== "default"
+                            ),
+                        ].map(genre => (
+                            <button
+                                key={genre}
+                                onClick={() => onGenreChange(genre)}
+                                className={`px-3 py-1 text-sm font-medium rounded-full transition-colors ${
+                                    selectedGenres.includes(genre)
+                                        ? "bg-indigo-600 text-white"
+                                        : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                                }`}
                             >
-                                선택한 장르의 이벤트가 존재하지 않습니다.
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
+                                {genre === "all" ? "전체" : genre}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* 이벤트 카드 목록 */}
+                {events.length > 0 ? (
+                    events.map(item => (
+                        <div
+                            key={item.id}
+                            onClick={() => onEventSelect(item)}
+                            className="p-4 bg-gray-800 rounded-lg shadow cursor-pointer active:bg-indigo-900"
+                        >
+                            <div className="flex items-center space-x-4">
+                                {item.img_url ? (
+                                    <img
+                                        src={item.img_url.replace(
+                                            /(name=)[^&]*/,
+                                            "$1small"
+                                        )}
+                                        alt={item.event_name}
+                                        className="flex-shrink-0 object-cover w-24 h-32 rounded-lg"
+                                    />
+                                ) : (
+                                    <img
+                                        src="./dummy.svg"
+                                        alt="Dummy"
+                                        className="flex-shrink-0 object-cover w-24 h-32 rounded-lg"
+                                    />
+                                )}
+                                <div className="flex-1 min-w-0 text-left">
+                                    <p className="mb-2 text-sm text-gray-300">
+                                        {formatDate(
+                                            item.schedule,
+                                            item.time_start
+                                        )}
+                                    </p>
+                                    <h3 className="mb-2 text-base font-medium text-white truncate">
+                                        {item.event_name}
+                                    </h3>
+                                    <div className="mb-2">
+                                        <GenreTag genre={item.genre} />
+                                    </div>
+                                    <div className="">
+                                        <LocationLink
+                                            location={item.location}
+                                            onClick={e => e.stopPropagation()}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="p-8 text-center text-gray-400 bg-gray-800 rounded-lg">
+                        선택한 장르의 이벤트가 존재하지 않습니다.
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

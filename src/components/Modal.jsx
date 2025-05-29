@@ -160,27 +160,27 @@ const ModalContent = ({ data, onClose, isMobile }) => (
                     <div className="py-2 space-y-2 text-gray-300">
                         <div className="flex flex-col md:flex-row">
                             <div
-                                className={`p-2 font-medium ${data.time_start ? "w-full" : "w-48"}`}
+                                className={`p-2 font-medium ${data.time_start ? "w-full" : "md:w-48"}`}
                             >
                                 일정
                             </div>
-                            <div className="w-full p-2 text-left">
+                            <div className="w-full p-2 text-center md:text-left">
                                 {formatDate(data.schedule)}
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row">
                             <div
-                                className={`p-2 font-medium ${data.time_start ? "w-full" : "w-48"}`}
+                                className={`p-2 font-medium ${data.time_start ? "w-full" : "md:w-48"}`}
                             >
                                 장르
                             </div>
-                            <div className="w-full p-2">
+                            <div className="p-2 m-auto w-fit md:w-full">
                                 <GenreTag genre={data.genre} />
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row">
                             <div
-                                className={`p-2 font-medium ${data.time_start ? "w-full" : "w-48"}`}
+                                className={`p-2 font-medium ${data.time_start ? "w-full" : "md:w-48"}`}
                             >
                                 장소
                             </div>
