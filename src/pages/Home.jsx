@@ -11,11 +11,12 @@ import { LocationLink } from "../components/common/LocationLink";
 import { GENRE_COLORS } from "../constants";
 import { HashRouter as Router, useNavigate } from "react-router-dom";
 import { useLocation, useParams } from "react-router-dom";
+import EventCalendar from "../components/EventCalendar";
 
 const TabButton = ({ isActive, onClick, children }) => (
     <button
         onClick={onClick}
-        className={`w-full lg:w-fit mb-4 lg:mb-0 px-4 py-2 text-sm font-medium lg:rounded-t-lg lg:rounded-b-none transition-colors duration-200 ${
+        className={`w-full lg:w-fit lg:mb-0 px-4 py-2 text-sm font-medium lg:rounded-t-lg lg:rounded-b-none transition-colors duration-200 ${
             isActive
                 ? "text-white bg-indigo-600"
                 : "bg-indigo-900 lg:hover:text-gray-300 lg:hover:bg-indigo-700"
@@ -281,6 +282,7 @@ function Home() {
     const [activeTab, setActiveTab] = useState("current");
     const [selectedGenres, setSelectedGenres] = useState(["all"]);
     const [visiblePastEvents, setVisiblePastEvents] = useState(15);
+    const [viewMode, setViewMode] = useState("table");
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -418,56 +420,94 @@ function Home() {
 
                 {loading ? (
                     <div className="flex items-center justify-center h-64">
-                        <div className="w-12 h-12 border-b-2 border-gray-900 rounded-full animate-spin"></div>
+                        <div className="w-12 h-12 border-b-2 border-indigo-700 rounded-full animate-spin"></div>
                     </div>
                 ) : (
                     <div>
-                        <div className="flex space-x-2">
-                            <TabButton
-                                isActive={activeTab === "current"}
-                                onClick={() => setActiveTab("current")}
+                        <div
+                            className={`flex flex-col-reverse lg:mb-0 lg:flex-row lg:items-end ${viewMode === "calendar" ? "justify-end" : "justify-between"}`}
+                        >
+                            <div
+                                className={`flex space-x-2 mb-4 lg:mb-0 ${viewMode === "calendar" ? "hidden" : ""}`}
                             >
-                                예정된 이벤트
-                            </TabButton>
-                            <TabButton
-                                isActive={activeTab === "past"}
-                                onClick={() => setActiveTab("past")}
-                            >
-                                종료된 이벤트
-                            </TabButton>
+                                <TabButton
+                                    isActive={activeTab === "current"}
+                                    onClick={() => setActiveTab("current")}
+                                >
+                                    예정된 이벤트
+                                </TabButton>
+                                <TabButton
+                                    isActive={activeTab === "past"}
+                                    onClick={() => setActiveTab("past")}
+                                >
+                                    종료된 이벤트
+                                </TabButton>
+                            </div>
+                            <div className="flex mb-4 space-x-2">
+                                <button
+                                    onClick={() => setViewMode("table")}
+                                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                        viewMode === "table"
+                                            ? "bg-gray-700 text-white"
+                                            : "bg-gray-800 text-gray-300 lg:hover:bg-gray-700"
+                                    }`}
+                                >
+                                    테이블
+                                </button>
+                                <button
+                                    onClick={() => setViewMode("calendar")}
+                                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                        viewMode === "calendar"
+                                            ? "bg-gray-700 text-white"
+                                            : "bg-gray-800 text-gray-300 lg:hover:bg-gray-700"
+                                    }`}
+                                >
+                                    캘린더
+                                </button>
+                            </div>
                         </div>
 
                         <div>
-                            {activeTab === "current" ? (
-                                <EventTable
-                                    events={currentEvents}
-                                    title="예정된 이벤트"
-                                    onEventSelect={handleModalOpen}
-                                    selectedGenres={selectedGenres}
-                                    onGenreChange={handleGenreChange}
-                                />
-                            ) : (
-                                <div>
+                            {viewMode === "table" ? (
+                                activeTab === "current" ? (
                                     <EventTable
-                                        events={pastEvents.slice(
-                                            0,
-                                            visiblePastEvents
-                                        )}
-                                        title="종료된 이벤트"
-                                        className="opacity-70"
+                                        events={currentEvents}
+                                        title="예정된 이벤트"
                                         onEventSelect={handleModalOpen}
                                         selectedGenres={selectedGenres}
                                         onGenreChange={handleGenreChange}
                                     />
-                                    {visiblePastEvents < pastEvents.length && (
-                                        <button
-                                            onClick={loadMorePastEvents}
-                                            className="w-full text-white bg-gray-900 border-gray-700 rounded lg:hover:bg-gray-700"
-                                        >
-                                            더보기
-                                        </button>
-                                    )}
-                                </div>
+                                ) : (
+                                    <div>
+                                        <EventTable
+                                            events={pastEvents.slice(
+                                                0,
+                                                visiblePastEvents
+                                            )}
+                                            title="종료된 이벤트"
+                                            className="opacity-70"
+                                            onEventSelect={handleModalOpen}
+                                            selectedGenres={selectedGenres}
+                                            onGenreChange={handleGenreChange}
+                                        />
+                                        {visiblePastEvents <
+                                            pastEvents.length && (
+                                            <button
+                                                onClick={loadMorePastEvents}
+                                                className="w-full px-4 py-2 mt-4 text-white bg-gray-900 border border-gray-700 rounded hover:bg-gray-700"
+                                            >
+                                                더보기
+                                            </button>
+                                        )}
+                                    </div>
+                                )
+                            ) : (
+                                <EventCalendar
+                                    events={[...currentEvents, ...pastEvents]}
+                                    onEventSelect={handleModalOpen}
+                                    selectedGenres={selectedGenres}
+                                    onGenreChange={handleGenreChange}
+                                />
                             )}
                         </div>
                     </div>
@@ -478,7 +518,7 @@ function Home() {
                         onClick={() => window.open(FORM_URL, "_blank")}
                         className="w-full px-4 py-2 text-white bg-indigo-600 rounded md:w-fit lg:hover:text-indigo-900 lg:hover:bg-white"
                     >
-                        행사 등록하기
+                        행사 제보하기
                     </button>
                 </div>
             </div>
