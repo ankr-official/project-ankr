@@ -397,7 +397,7 @@ function Home() {
                     data={selectedItem || {}}
                 />
             )}
-            <div className="container flex-grow px-4 py-8 mx-auto">
+            <div className="container flex-grow px-2 py-8 mx-auto lg:px-4">
                 <div className="flex flex-col items-center justify-between px-6 mb-6 border-b border-gray-700">
                     <div className="flex items-center justify-center mb-4">
                         <h1 className="text-2xl font-bold md:text-3xl">
