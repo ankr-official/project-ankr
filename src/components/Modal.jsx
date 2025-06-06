@@ -2,15 +2,18 @@ import {
     XMarkIcon,
     ClipboardDocumentListIcon,
     ShareIcon,
+    CalendarIcon,
 } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate, formatTime } from "../utils/dateUtils";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GenreTag } from "./common/GenreTag";
 import { LocationLink } from "./common/LocationLink";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { addToGoogleCalendar } from "../utils/calendarUtils";
 
+// Custom hooks
 const useModalScroll = onClose => {
     const contentRef = useRef(null);
     const [dragY, setDragY] = useState(0);
@@ -88,15 +91,187 @@ const useMobileDetection = () => {
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 768);
-        };
+        const checkMobile = () => setIsMobile(window.innerWidth <= 768);
         checkMobile();
         window.addEventListener("resize", checkMobile);
         return () => window.removeEventListener("resize", checkMobile);
     }, []);
 
     return isMobile;
+};
+
+// Sub-components
+const EventImage = ({ imgUrl, eventName }) => (
+    <motion.div
+        className="mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+    >
+        <img
+            src={imgUrl.replace(/(name=)[^&]*/, "$1large")}
+            alt={eventName}
+            className="object-cover w-full h-auto rounded-lg"
+        />
+    </motion.div>
+);
+
+const EventInfo = ({ data, isMobile }) => (
+    <motion.div
+        className={`grid ${data.time_start ? "grid-cols-2" : ""} gap-6 mb-6 ${
+            isMobile ? "bg-gray-800 p-4 rounded-xl" : "bg-gray-800 rounded-lg"
+        }`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+    >
+        <div>
+            <div className="py-2 space-y-2 text-gray-300">
+                <div className="flex flex-col md:flex-row">
+                    <div
+                        className={`p-2 font-medium ${data.time_start ? "w-full" : "md:w-48"}`}
+                    >
+                        일정
+                    </div>
+                    <div className="w-full p-2 text-center md:text-left">
+                        {formatDate(data.schedule)}
+                    </div>
+                </div>
+                <div className="flex flex-col md:flex-row">
+                    <div
+                        className={`p-2 font-medium ${data.time_start ? "w-full" : "md:w-48"}`}
+                    >
+                        장르
+                    </div>
+                    <div className="p-2 m-auto w-fit md:w-full">
+                        <GenreTag genre={data.genre} />
+                    </div>
+                </div>
+                <div className="flex flex-col md:flex-row">
+                    <div
+                        className={`p-2 font-medium ${data.time_start ? "w-full" : "md:w-48"}`}
+                    >
+                        장소
+                    </div>
+                    <div className="w-full p-2 text-center lg:text-left">
+                        <LocationLink location={data.location} />
+                    </div>
+                </div>
+            </div>
+        </div>
+        {data.time_start && (
+            <div>
+                <div className="py-2 space-y-2 text-gray-300">
+                    {data.time_entrance && (
+                        <div className="flex flex-col md:flex-row">
+                            <div className="w-full p-2 font-medium">입장</div>
+                            <div className="w-full p-2">
+                                {formatTime(data.time_entrance)}
+                            </div>
+                        </div>
+                    )}
+                    <div className="flex flex-col md:flex-row">
+                        <div className="w-full p-2 font-medium">시작</div>
+                        <div className="w-full p-2">
+                            {formatTime(data.time_start)}
+                        </div>
+                    </div>
+                    {data.time_end && (
+                        <div className="flex flex-col md:flex-row">
+                            <div className="w-full p-2 font-medium">종료</div>
+                            <div className="w-full p-2">
+                                {formatTime(data.time_end)}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        )}
+    </motion.div>
+);
+
+const EventUrl = ({ eventUrl }) => (
+    <div className="flex flex-col items-center">
+        <h3 className="mb-2 text-lg font-semibold text-gray-200">
+            이벤트 SNS 링크
+        </h3>
+        <div className="flex flex-col items-center justify-center gap-2 lg:flex-row">
+            <a
+                href={eventUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-300 break-all lg:hover:text-blue-100 lg:hover:underline"
+            >
+                {eventUrl}
+            </a>
+            <ClipboardDocumentListIcon
+                onClick={() => {
+                    navigator.clipboard.writeText(eventUrl);
+                    toast.info("URL이 복사되었습니다!");
+                }}
+                className="hidden w-5 h-5 p-0 ml-2 text-indigo-200 lg:hover:text-gray-100 hover:cursor-pointer lg:block"
+                aria-label="Copy URL"
+            />
+        </div>
+    </div>
+);
+
+const ActionButtons = ({ data }) => {
+    const handleTwitterShare = () => {
+        const today = new Date();
+        const eventDate = new Date(data.schedule);
+        const todayDate = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate()
+        );
+        const eventDateOnly = new Date(
+            eventDate.getFullYear(),
+            eventDate.getMonth(),
+            eventDate.getDate()
+        );
+
+        let text;
+        if (eventDateOnly > todayDate) {
+            text = `${data.location}에서 열리는 ${data.event_name} 놀러가요!\n${window.location.href}\n#ANKR_DB`;
+        } else if (eventDateOnly < todayDate) {
+            text = `${data.location}에서 ${data.event_name} 있었어요!\n${window.location.href}\n#ANKR_DB`;
+        } else {
+            text = `오늘은 ${data.location}에서 ${data.event_name} 있어요!\n${window.location.href}\n#ANKR_DB`;
+        }
+
+        const encodedText = encodeURIComponent(text);
+        const twitterAppUrl = `twitter://post?message=${encodedText}`;
+        const twitterWebUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
+
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            window.location.href = twitterAppUrl;
+            setTimeout(() => {
+                window.open(twitterWebUrl, "_blank", "noopener,noreferrer");
+            }, 5000);
+        } else {
+            window.open(twitterWebUrl, "_blank", "noopener,noreferrer");
+        }
+    };
+
+    return (
+        <div className="flex flex-col items-center gap-3 pt-4 lg:flex-row lg:justify-center">
+            <button
+                onClick={() => addToGoogleCalendar(data)}
+                className="flex items-center justify-center w-full px-4 py-2 text-white bg-indigo-600 rounded lg:w-fit lg:hover:bg-indigo-700"
+            >
+                <CalendarIcon className="w-5 h-5 mr-2" />
+                Google Calendar에 추가
+            </button>
+            <button
+                onClick={handleTwitterShare}
+                className="flex items-center justify-center w-full px-4 py-2 text-white bg-blue-500 rounded lg:w-fit lg:hover:bg-blue-600"
+            >
+                <ShareIcon className="w-5 h-5 mr-2" />
+                X(Twitter)에 공유하기
+            </button>
+        </div>
+    );
 };
 
 const ModalContent = ({ data, onClose, isMobile }) => (
@@ -109,9 +284,7 @@ const ModalContent = ({ data, onClose, isMobile }) => (
             theme="dark"
         />
         <motion.div
-            className={`${
-                isMobile ? "px-4 py-4" : "px-8 py-8 bg-gray-900 md:p-12"
-            }`}
+            className={`${isMobile ? "px-4 py-4" : "px-8 py-8 bg-gray-900 md:p-12"}`}
             layoutId={`modal-content-${data.id}`}
         >
             <div className="flex items-center justify-between mb-4">
@@ -132,99 +305,9 @@ const ModalContent = ({ data, onClose, isMobile }) => (
             </div>
 
             {data.img_url && (
-                <motion.div
-                    className="mb-6"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                >
-                    <img
-                        src={data.img_url.replace(/(name=)[^&]*/, "$1large")}
-                        alt={data.event_name}
-                        className="object-cover w-full h-auto rounded-lg"
-                    />
-                </motion.div>
+                <EventImage imgUrl={data.img_url} eventName={data.event_name} />
             )}
-
-            <motion.div
-                className={`grid ${data.time_start ? "grid-cols-2" : ""} gap-6 mb-6 ${
-                    isMobile
-                        ? "bg-gray-800 p-4 rounded-xl"
-                        : "bg-gray-800 rounded-lg"
-                }`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-            >
-                <div>
-                    <div className="py-2 space-y-2 text-gray-300">
-                        <div className="flex flex-col md:flex-row">
-                            <div
-                                className={`p-2 font-medium ${data.time_start ? "w-full" : "md:w-48"}`}
-                            >
-                                일정
-                            </div>
-                            <div className="w-full p-2 text-center md:text-left">
-                                {formatDate(data.schedule)}
-                            </div>
-                        </div>
-                        <div className="flex flex-col md:flex-row">
-                            <div
-                                className={`p-2 font-medium ${data.time_start ? "w-full" : "md:w-48"}`}
-                            >
-                                장르
-                            </div>
-                            <div className="p-2 m-auto w-fit md:w-full">
-                                <GenreTag genre={data.genre} />
-                            </div>
-                        </div>
-                        <div className="flex flex-col md:flex-row">
-                            <div
-                                className={`p-2 font-medium ${data.time_start ? "w-full" : "md:w-48"}`}
-                            >
-                                장소
-                            </div>
-                            <div className="w-full p-2 text-center lg:text-left">
-                                <LocationLink location={data.location} />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {data.time_start && (
-                    <div>
-                        <div className="py-2 space-y-2 text-gray-300">
-                            {data.time_entrance && (
-                                <div className="flex flex-col md:flex-row">
-                                    <div className="w-full p-2 font-medium">
-                                        입장
-                                    </div>
-                                    <div className="w-full p-2">
-                                        {formatTime(data.time_entrance)}
-                                    </div>
-                                </div>
-                            )}
-                            <div className="flex flex-col md:flex-row">
-                                <div className="w-full p-2 font-medium">
-                                    시작
-                                </div>
-                                <div className="w-full p-2">
-                                    {formatTime(data.time_start)}
-                                </div>
-                            </div>
-                            {data.time_end && (
-                                <div className="flex flex-col md:flex-row">
-                                    <div className="w-full p-2 font-medium">
-                                        종료
-                                    </div>
-                                    <div className="w-full p-2">
-                                        {formatTime(data.time_end)}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-            </motion.div>
+            <EventInfo data={data} isMobile={isMobile} />
 
             <motion.div
                 className="space-y-4"
@@ -232,34 +315,7 @@ const ModalContent = ({ data, onClose, isMobile }) => (
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
             >
-                {data.event_url && (
-                    <div className="flex flex-col items-center">
-                        <h3 className="mb-2 text-lg font-semibold text-gray-200">
-                            이벤트 SNS 링크
-                        </h3>
-                        <div className="flex flex-col items-center justify-center gap-2 lg:flex-row">
-                            <a
-                                href={data.event_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-300 break-all lg:hover:text-blue-100 lg:hover:underline"
-                            >
-                                {data.event_url}
-                            </a>
-                            <ClipboardDocumentListIcon
-                                onClick={() => {
-                                    navigator.clipboard.writeText(
-                                        data.event_url
-                                    );
-                                    toast.info("URL이 복사되었습니다!");
-                                }}
-                                className="hidden w-5 h-5 p-0 ml-2 text-indigo-200 lg:hover:text-gray-100 hover:cursor-pointer lg:block"
-                                aria-label="Copy URL"
-                            />
-                        </div>
-                    </div>
-                )}
-
+                {data.event_url && <EventUrl eventUrl={data.event_url} />}
                 {data.etc && (
                     <div>
                         <h3 className="mb-2 text-lg font-semibold text-gray-200">
@@ -268,71 +324,7 @@ const ModalContent = ({ data, onClose, isMobile }) => (
                         <p className="text-gray-300">{data.etc}</p>
                     </div>
                 )}
-
-                {/* 트위터 공유 버튼 추가 */}
-                <div className="flex justify-center">
-                    <button
-                        onClick={() => {
-                            const today = new Date();
-                            const eventDate = new Date(data.schedule);
-
-                            // 날짜만 비교하기 위해 시간을 00:00:00으로 설정
-                            const todayDate = new Date(
-                                today.getFullYear(),
-                                today.getMonth(),
-                                today.getDate()
-                            );
-                            const eventDateOnly = new Date(
-                                eventDate.getFullYear(),
-                                eventDate.getMonth(),
-                                eventDate.getDate()
-                            );
-
-                            let text;
-
-                            // 날짜 비교 후 시간 비교
-                            if (eventDateOnly > todayDate) {
-                                // 미래 날짜
-                                text = `${data.location}에서 열리는 ${data.event_name} 놀러가요!\n${window.location.href}\n#ANKR_DB`;
-                            } else if (eventDateOnly < todayDate) {
-                                // 과거 날짜
-                                text = `${data.location}에서 ${data.event_name} 있었어요!\n${window.location.href}\n#ANKR_DB`;
-                            } else {
-                                // 오늘 날짜
-                                text = `오늘은 ${data.location}에서 ${data.event_name} 있어요!\n${window.location.href}\n#ANKR_DB`;
-                            }
-
-                            const encodedText = encodeURIComponent(text);
-                            const twitterAppUrl = `twitter://post?message=${encodedText}`;
-                            const twitterWebUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
-
-                            if (
-                                /iPhone|iPad|iPod|Android/i.test(
-                                    navigator.userAgent
-                                )
-                            ) {
-                                window.location.href = twitterAppUrl;
-                                setTimeout(() => {
-                                    window.open(
-                                        twitterWebUrl,
-                                        "_blank",
-                                        "noopener,noreferrer"
-                                    );
-                                }, 5000);
-                            } else {
-                                window.open(
-                                    twitterWebUrl,
-                                    "_blank",
-                                    "noopener,noreferrer"
-                                );
-                            }
-                        }}
-                        className="flex items-center px-4 py-2 text-white bg-blue-500 rounded lg:hover:bg-blue-600"
-                    >
-                        <ShareIcon className="w-5 h-5 mr-2" />
-                        X(Twitter)에 공유하기
-                    </button>
-                </div>
+                <ActionButtons data={data} />
             </motion.div>
         </motion.div>
     </>
@@ -388,14 +380,12 @@ export function Modal({ isOpen, onClose, data }) {
                                 onTouchMove={handleTouchMove}
                                 onTouchEnd={handleTouchEnd}
                             >
-                                {isMobile && (
-                                    <button
-                                        onClick={onClose}
-                                        className="absolute p-1 text-indigo-300 bg-transparent border-0 top-3 left-6 w-fit"
-                                    >
-                                        닫기
-                                    </button>
-                                )}
+                                <button
+                                    onClick={onClose}
+                                    className="absolute p-1 text-indigo-300 bg-transparent border-0 top-3 left-6 w-fit"
+                                >
+                                    닫기
+                                </button>
                                 <div className="w-12 h-1.5 mx-auto bg-gray-300 rounded-full" />
                             </div>
                         )}

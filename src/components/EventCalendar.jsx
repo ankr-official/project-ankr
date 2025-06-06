@@ -16,6 +16,9 @@ import {
 import { ko } from "date-fns/locale";
 import { GENRE_COLORS } from "../constants";
 import { getHolidayForDate, getHolidaysForYear } from "../utils/holidayApi";
+import { GenreTag } from "./common/GenreTag";
+import { LocationLink } from "./common/LocationLink";
+import { formatDate } from "../utils/dateUtils";
 
 const EventCalendar = ({
     events,
@@ -26,6 +29,7 @@ const EventCalendar = ({
     const [currentDate, setCurrentDate] = useState(new Date());
     const [holidays, setHolidays] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null);
     const today = startOfDay(new Date());
 
     // 달력의 시작일과 종료일 계산 (이전 달의 날짜들도 포함)
@@ -104,10 +108,12 @@ const EventCalendar = ({
         );
         const filteredEvents = getFilteredEvents(dayEvents);
 
-        // 장르 색상별로 정렬
         return filteredEvents.sort((a, b) => {
             const genreA = a.genre?.split(",")[0]?.trim() || "";
             const genreB = b.genre?.split(",")[0]?.trim() || "";
+
+            if (genreA === "원곡") return -1;
+            if (genreB === "원곡") return 1;
 
             if (genreA === genreB) {
                 return a.event_name.localeCompare(b.event_name);
@@ -117,12 +123,21 @@ const EventCalendar = ({
         });
     };
 
+    const handleDateClick = day => {
+        setSelectedDate(day);
+        // 스크롤을 이벤트 리스트로 이동
+        const eventListElement = document.getElementById("event-list");
+        if (eventListElement) {
+            eventListElement.scrollIntoView({ behavior: "smooth" });
+        }
+    };
+
     const isPastDate = date => {
         return isBefore(startOfDay(date), today);
     };
 
     return (
-        <div className="bg-gray-800 rounded-lg shadow-lg ">
+        <div className="bg-gray-800 rounded-lg shadow-lg">
             {/* 장르 필터 */}
             <div className="top-0 z-10 p-4 mb-6 bg-gray-900 rounded-lg rounded-bl-none rounded-br-none">
                 <div className="flex flex-wrap gap-1.5 lg:gap-2">
@@ -200,13 +215,18 @@ const EventCalendar = ({
                         return (
                             <div
                                 key={day.toString()}
-                                className={`min-h-[80px] lg:min-h-[100px] p-0.5 lg:p-1 rounded ${
+                                onClick={() => handleDateClick(day)}
+                                className={`min-h-[80px] lg:min-h-[100px] p-0.5 lg:p-1 rounded cursor-pointer ${
                                     !isCurrentMonth
                                         ? "bg-gray-700 bg-opacity-10"
                                         : isPast
                                           ? "bg-gray-700 bg-opacity-40"
                                           : "bg-gray-700 bg-opacity-80"
-                                } ${isToday(day) ? "ring-2 ring-indigo-500" : ""}`}
+                                } ${isToday(day) ? "ring-2 ring-indigo-500" : ""} ${
+                                    selectedDate && isSameDay(day, selectedDate)
+                                        ? "ring-2 ring-indigo-300"
+                                        : ""
+                                }`}
                             >
                                 <div className="flex flex-col">
                                     <div
@@ -251,10 +271,7 @@ const EventCalendar = ({
                                         return (
                                             <div
                                                 key={event.id}
-                                                onClick={() =>
-                                                    onEventSelect(event)
-                                                }
-                                                className={`p-0.5 pt-1 lg:p-1 text-[10px] lg:text-xs truncate rounded cursor-pointer hover:opacity-80 ${genreColor}`}
+                                                className={`p-0.5 pt-1 lg:p-1 text-[10px] lg:text-xs truncate rounded ${genreColor}`}
                                             >
                                                 <div className="font-medium text-white truncate">
                                                     {event.event_name}
@@ -268,6 +285,81 @@ const EventCalendar = ({
                     })}
                 </div>
             </div>
+
+            {selectedDate && (
+                <div
+                    id="event-list"
+                    className="p-4 mt-4 border-t border-gray-700"
+                >
+                    <h3 className="mb-4 text-lg font-semibold text-white">
+                        {format(selectedDate, "yyyy년 MM월 dd일", {
+                            locale: ko,
+                        })}{" "}
+                        이벤트
+                    </h3>
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                        {getEventsForDay(selectedDate).map(event => (
+                            <div
+                                key={event.id}
+                                onClick={() => onEventSelect(event)}
+                                className="p-4 transition-colors bg-gray-700 bg-opacity-50 rounded-lg shadow cursor-pointer lg:hover:bg-gray-600 active:bg-indigo-900"
+                            >
+                                <div className="flex items-center space-x-4">
+                                    {event.img_url ? (
+                                        <img
+                                            src={event.img_url.replace(
+                                                /(name=)[^&]*/,
+                                                "$1small"
+                                            )}
+                                            alt={event.event_name}
+                                            className="flex-shrink-0 object-cover w-24 h-32 rounded-lg"
+                                        />
+                                    ) : (
+                                        <img
+                                            src="./dummy.svg"
+                                            alt="Dummy"
+                                            className="flex-shrink-0 object-cover w-24 h-32 rounded-lg"
+                                        />
+                                    )}
+                                    <div className="flex-1 min-w-0 text-left">
+                                        <p className="mb-2 text-sm text-gray-300">
+                                            {formatDate(
+                                                event.schedule,
+                                                event.time_start
+                                            )}
+                                        </p>
+                                        <h3 className="mb-2 text-base font-medium text-white truncate">
+                                            {event.event_name}
+                                        </h3>
+                                        <div className="mb-2">
+                                            <GenreTag genre={event.genre} />
+                                        </div>
+                                        <div className="">
+                                            <LocationLink
+                                                location={event.location}
+                                                onClick={e =>
+                                                    e.stopPropagation()
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        {getEventsForDay(selectedDate).length === 0 && (
+                            <div className="p-8 text-center rounded-lg col-span-full">
+                                <p className="text-lg text-gray-300">
+                                    등록된 이벤트 정보가 없습니다.
+                                </p>
+                                <p className="text-gray-400">
+                                    (이벤트가 있다면 아래의 버튼을 눌러
+                                    제보해주세요.)
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
