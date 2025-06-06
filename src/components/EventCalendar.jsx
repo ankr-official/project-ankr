@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     format,
     startOfMonth,
@@ -15,7 +15,7 @@ import {
 } from "date-fns";
 import { ko } from "date-fns/locale";
 import { GENRE_COLORS } from "../constants";
-import { KOREAN_HOLIDAYS, getLunarHolidays } from "../constants/holidays";
+import { getHolidayForDate, getHolidaysForYear } from "../utils/holidayApi";
 
 const EventCalendar = ({
     events,
@@ -24,6 +24,8 @@ const EventCalendar = ({
     onGenreChange,
 }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [holidays, setHolidays] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
     const today = startOfDay(new Date());
 
     // 달력의 시작일과 종료일 계산 (이전 달의 날짜들도 포함)
@@ -35,25 +37,49 @@ const EventCalendar = ({
     // 달력에 표시할 모든 날짜 생성
     const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
+    // 공휴일 데이터 가져오기
+    useEffect(() => {
+        const fetchHolidays = async () => {
+            const year = currentDate.getFullYear();
+
+            // 이미 로딩 중이면 중복 요청 방지
+            if (isLoading) return;
+
+            setIsLoading(true);
+            try {
+                // 연도 단위로 데이터를 가져옴 (캐시 활용)
+                const yearHolidays = await getHolidaysForYear(year);
+                setHolidays(yearHolidays);
+            } catch (error) {
+                console.error("공휴일 데이터 로딩 실패:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchHolidays();
+    }, [currentDate.getFullYear()]); // 연도가 변경될 때만 실행
+
     // 공휴일 확인 함수
     const getHoliday = date => {
         const monthDay = format(date, "MMdd");
-        const year = date.getFullYear();
-        const lunarHolidays = getLunarHolidays(year);
-
-        return KOREAN_HOLIDAYS[monthDay] || lunarHolidays[monthDay] || null;
+        return holidays[monthDay] || null;
     };
 
     const prevMonth = () => {
-        setCurrentDate(
-            new Date(currentDate.getFullYear(), currentDate.getMonth() - 1)
+        const newDate = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth() - 1
         );
+        setCurrentDate(newDate);
     };
 
     const nextMonth = () => {
-        setCurrentDate(
-            new Date(currentDate.getFullYear(), currentDate.getMonth() + 1)
+        const newDate = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth() + 1
         );
+        setCurrentDate(newDate);
     };
 
     // 장르 필터링된 이벤트 가져오기
@@ -96,9 +122,9 @@ const EventCalendar = ({
     };
 
     return (
-        <div className="p-2 bg-gray-800 rounded-lg shadow-lg lg:p-4">
+        <div className="bg-gray-800 rounded-lg shadow-lg ">
             {/* 장르 필터 */}
-            <div className="top-0 z-10 p-2 mb-4 bg-gray-700 rounded-lg bg-opacity-20">
+            <div className="top-0 z-10 p-4 mb-6 bg-gray-900 rounded-lg rounded-bl-none rounded-br-none">
                 <div className="flex flex-wrap gap-1.5 lg:gap-2">
                     {[
                         "all",
@@ -120,110 +146,127 @@ const EventCalendar = ({
                     ))}
                 </div>
             </div>
-            {/* 월 이동 컨트롤 */}
-            <div className="flex items-center justify-between mb-4">
-                <button
-                    onClick={prevMonth}
-                    className="p-3 text-lg text-gray-400 bg-indigo-900 lg:pl-6 lg:pr-6 lg:p-2 hover:text-white lg:text-base"
-                >
-                    ←
-                </button>
-                <h2 className="text-lg font-semibold text-white lg:text-xl">
-                    {format(currentDate, "yyyy년 MM월", { locale: ko })}
-                </h2>
-                <button
-                    onClick={nextMonth}
-                    className="p-3 text-lg text-gray-400 bg-indigo-900 lg:p-2 lg:pl-6 lg:pr-6 hover:text-white lg:text-base"
-                >
-                    →
-                </button>
-            </div>
-
-            {/* 요일 헤더 */}
-            <div className="grid grid-cols-7 gap-0.5 lg:gap-1 mb-1 lg:mb-2">
-                {["일", "월", "화", "수", "목", "금", "토"].map(day => (
-                    <div
-                        key={day}
-                        className="py-1.5 lg:py-2 text-xs lg:text-sm font-medium text-center text-gray-400"
+            <div className="p-2 lg:p-4">
+                {/* 월 이동 컨트롤 */}
+                <div className="flex items-center justify-center gap-8 mb-4">
+                    <button
+                        onClick={prevMonth}
+                        disabled={isLoading}
+                        className={`p-3 text-lg text-gray-400 bg-indigo-900 lg:pl-6 lg:pr-6 lg:p-2 hover:text-white lg:text-base ${
+                            isLoading ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
                     >
-                        {day}
+                        ←
+                    </button>
+                    <div className="flex items-center">
+                        <h2 className="text-lg font-semibold text-white lg:text-xl">
+                            {format(currentDate, "yyyy년 MM월", { locale: ko })}
+                        </h2>
+                        {isLoading && (
+                            <div className="w-4 h-4 ml-2 border-b-2 border-indigo-500 rounded-full animate-spin"></div>
+                        )}
                     </div>
-                ))}
-            </div>
+                    <button
+                        onClick={nextMonth}
+                        disabled={isLoading}
+                        className={`p-3 text-lg text-gray-400 bg-indigo-900 lg:p-2 lg:pl-6 lg:pr-6 hover:text-white lg:text-base ${
+                            isLoading ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
+                    >
+                        →
+                    </button>
+                </div>
 
-            {/* 캘린더 그리드 */}
-            <div className="grid grid-cols-7 gap-0.5 lg:gap-1">
-                {days.map((day, dayIdx) => {
-                    const dayEvents = getEventsForDay(day);
-                    const isCurrentMonth = isSameMonth(day, currentDate);
-                    const isPast = isPastDate(day);
-                    const holiday = getHoliday(day);
-
-                    return (
+                {/* 요일 헤더 */}
+                <div className="grid grid-cols-7 gap-0.5 lg:gap-1 mb-1 lg:mb-2">
+                    {["일", "월", "화", "수", "목", "금", "토"].map(day => (
                         <div
-                            key={day.toString()}
-                            className={`min-h-[80px] lg:min-h-[100px] p-0.5 lg:p-1 rounded ${
-                                !isCurrentMonth
-                                    ? "bg-gray-700 bg-opacity-10"
-                                    : isPast
-                                      ? "bg-gray-700 bg-opacity-40"
-                                      : "bg-gray-700 bg-opacity-80"
-                            } ${isToday(day) ? "ring-2 ring-indigo-500" : ""}`}
+                            key={day}
+                            className="py-1.5 lg:py-2 text-xs lg:text-sm font-medium text-center text-gray-400"
                         >
-                            <div className="flex flex-col">
-                                <div
-                                    className={`text-right text-xs lg:text-sm ${
-                                        holiday
-                                            ? "text-red-400"
-                                            : day.getDay() === 0
-                                              ? "text-red-400"
-                                              : day.getDay() === 6
-                                                ? "text-blue-400"
-                                                : "text-gray-300"
-                                    } ${!isCurrentMonth ? "opacity-50" : ""} ${isPast ? "opacity-50" : ""}`}
-                                >
-                                    {format(day, "d")}
-                                </div>
-                                {holiday && (
-                                    <div
-                                        className={`text-right text-[10px] lg:text-xs text-red-400 ${!isCurrentMonth ? "opacity-50" : ""}`}
-                                    >
-                                        {holiday}
-                                    </div>
-                                )}
-                            </div>
-                            <div
-                                className={`mt-0.5 lg:mt-1 space-y-1 ${!isCurrentMonth || isPast ? "opacity-50" : ""}`}
-                            >
-                                {dayEvents.map(event => {
-                                    const firstGenre = event.genre
-                                        ?.split(",")[0]
-                                        ?.trim();
-                                    const genreColor =
-                                        GENRE_COLORS[firstGenre] ||
-                                        GENRE_COLORS.default;
-
-                                    return (
-                                        <div
-                                            key={event.id}
-                                            onClick={() => onEventSelect(event)}
-                                            className={`p-0.5 pt-1 lg:p-1 text-[10px] lg:text-xs truncate rounded cursor-pointer hover:opacity-80 ${genreColor}`}
-                                        >
-                                            <div className="font-medium text-white truncate">
-                                                {event.event_name}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                            {day}
                         </div>
-                    );
-                })}
-            </div>
-            <div className="p-2 pt-4 text-xs text-gray-200 lg:p-4 lg:pt-8 lg:text-sm">
-                <p>
-                    * 현재 대체휴무일 등은 적용되지 않는 점 양해 부탁드립니다.
-                </p>
+                    ))}
+                </div>
+
+                {/* 캘린더 그리드 */}
+                <div className="grid grid-cols-7 gap-0.5 lg:gap-1">
+                    {days.map((day, dayIdx) => {
+                        const dayEvents = getEventsForDay(day);
+                        const isCurrentMonth = isSameMonth(day, currentDate);
+                        const isPast = isPastDate(day);
+                        const holidayList = getHoliday(day);
+
+                        return (
+                            <div
+                                key={day.toString()}
+                                className={`min-h-[80px] lg:min-h-[100px] p-0.5 lg:p-1 rounded ${
+                                    !isCurrentMonth
+                                        ? "bg-gray-700 bg-opacity-10"
+                                        : isPast
+                                          ? "bg-gray-700 bg-opacity-40"
+                                          : "bg-gray-700 bg-opacity-80"
+                                } ${isToday(day) ? "ring-2 ring-indigo-500" : ""}`}
+                            >
+                                <div className="flex flex-col">
+                                    <div
+                                        className={`text-right text-xs lg:text-sm ${
+                                            holidayList
+                                                ? "text-red-400"
+                                                : day.getDay() === 0
+                                                  ? "text-red-400"
+                                                  : day.getDay() === 6
+                                                    ? "text-blue-400"
+                                                    : "text-gray-300"
+                                        } ${!isCurrentMonth ? "opacity-50" : ""} ${isPast ? "opacity-50" : ""}`}
+                                    >
+                                        {format(day, "d")}
+                                    </div>
+                                    {holidayList && (
+                                        <div className="flex flex-col items-end space-y-0.5">
+                                            {holidayList.map(
+                                                (holiday, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className={`text-right text-[10px] lg:text-xs text-red-400 ${!isCurrentMonth ? "opacity-50" : ""}`}
+                                                    >
+                                                        {holiday}
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                                <div
+                                    className={`mt-0.5 lg:mt-1 space-y-1 ${!isCurrentMonth || isPast ? "opacity-50" : ""}`}
+                                >
+                                    {dayEvents.map(event => {
+                                        const firstGenre = event.genre
+                                            ?.split(",")[0]
+                                            ?.trim();
+                                        const genreColor =
+                                            GENRE_COLORS[firstGenre] ||
+                                            GENRE_COLORS.default;
+
+                                        return (
+                                            <div
+                                                key={event.id}
+                                                onClick={() =>
+                                                    onEventSelect(event)
+                                                }
+                                                className={`p-0.5 pt-1 lg:p-1 text-[10px] lg:text-xs truncate rounded cursor-pointer hover:opacity-80 ${genreColor}`}
+                                            >
+                                                <div className="font-medium text-white truncate">
+                                                    {event.event_name}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );
