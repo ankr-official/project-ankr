@@ -282,7 +282,7 @@ function Home() {
     const [activeTab, setActiveTab] = useState("current");
     const [selectedGenres, setSelectedGenres] = useState(["all"]);
     const [visiblePastEvents, setVisiblePastEvents] = useState(15);
-    const [viewMode, setViewMode] = useState("table");
+    const [viewMode, setViewMode] = useState("calendar");
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -445,16 +445,6 @@ function Home() {
                             </div>
                             <div className="flex mb-4 space-x-2">
                                 <button
-                                    onClick={() => setViewMode("table")}
-                                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                        viewMode === "table"
-                                            ? "bg-gray-700 text-white"
-                                            : "bg-gray-800 text-gray-300 lg:hover:bg-gray-700"
-                                    }`}
-                                >
-                                    테이블
-                                </button>
-                                <button
                                     onClick={() => setViewMode("calendar")}
                                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                                         viewMode === "calendar"
@@ -463,6 +453,16 @@ function Home() {
                                     }`}
                                 >
                                     캘린더
+                                </button>
+                                <button
+                                    onClick={() => setViewMode("table")}
+                                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                        viewMode === "table"
+                                            ? "bg-gray-700 text-white"
+                                            : "bg-gray-800 text-gray-300 lg:hover:bg-gray-700"
+                                    }`}
+                                >
+                                    테이블
                                 </button>
                             </div>
                         </div>

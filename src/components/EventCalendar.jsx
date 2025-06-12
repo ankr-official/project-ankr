@@ -29,7 +29,7 @@ const EventCalendar = ({
     const [currentDate, setCurrentDate] = useState(new Date());
     const [holidays, setHolidays] = useState({});
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const today = startOfDay(new Date());
 
     // 달력의 시작일과 종료일 계산 (이전 달의 날짜들도 포함)

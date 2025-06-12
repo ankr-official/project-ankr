@@ -1,7 +1,7 @@
 import { getNaverMapUrl } from "../../utils/urlUtils";
 
 export const LocationLink = ({ location, onClick }) => {
-    const isUndefined = location === "장소 미정";
+    const isUndefined = location === "장소 미정" || location === "장소 비공개";
 
     if (isUndefined) {
         return (
