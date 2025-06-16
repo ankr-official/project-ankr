@@ -12,6 +12,7 @@ import { GENRE_COLORS } from "../constants";
 import { HashRouter as Router, useNavigate } from "react-router-dom";
 import { useLocation, useParams } from "react-router-dom";
 import EventCalendar from "../components/EventCalendar";
+import { SearchModal } from "../components/SearchModal";
 
 const TabButton = ({ isActive, onClick, children }) => (
     <button
@@ -283,6 +284,7 @@ function Home() {
     const [selectedGenres, setSelectedGenres] = useState(["all"]);
     const [visiblePastEvents, setVisiblePastEvents] = useState(15);
     const [viewMode, setViewMode] = useState("calendar");
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -397,12 +399,37 @@ function Home() {
                     data={selectedItem || {}}
                 />
             )}
+            <SearchModal
+                isOpen={isSearchOpen}
+                onClose={() => setIsSearchOpen(false)}
+                events={[...currentEvents, ...pastEvents]}
+                onEventSelect={handleModalOpen}
+            />
             <div className="container flex-grow px-2 py-8 mx-auto lg:px-4">
                 <div className="flex flex-col items-center justify-between px-6 mb-6 border-b border-gray-700">
-                    <div className="flex items-center justify-center mb-4">
-                        <h1 className="text-2xl font-bold md:text-3xl">
+                    <div className="flex items-center justify-center w-full gap-4 mb-4">
+                        <h1 className="text-xl font-bold md:text-3xl">
                             한국 서브컬쳐 DJ 이벤트 DB
                         </h1>
+                        <button
+                            onClick={() => setIsSearchOpen(true)}
+                            className="p-2 text-gray-300 transition-colors bg-indigo-600 rounded-lg lg:hover:bg-gray-700 lg:hover:text-white"
+                            title="검색"
+                        >
+                            <svg
+                                className="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                />
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
