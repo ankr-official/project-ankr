@@ -14,6 +14,46 @@ import { useLocation, useParams } from "react-router-dom";
 import EventCalendar from "../components/EventCalendar";
 import { SearchModal } from "../components/SearchModal";
 
+// localStorage 키 상수
+const STORAGE_KEYS = {
+    SELECTED_GENRES: "ankr_selected_genres",
+    VIEW_MODE: "ankr_view_mode",
+};
+
+// localStorage에서 설정을 불러오는 함수
+const loadUserSettings = () => {
+    try {
+        const settings = {
+            selectedGenres: JSON.parse(
+                localStorage.getItem(STORAGE_KEYS.SELECTED_GENRES)
+            ) || ["all"],
+            viewMode:
+                localStorage.getItem(STORAGE_KEYS.VIEW_MODE) || "calendar",
+        };
+
+        return settings;
+    } catch (error) {
+        console.error("Failed to load user settings:", error);
+        return {
+            selectedGenres: ["all"],
+            viewMode: "calendar",
+        };
+    }
+};
+
+// localStorage에 설정을 저장하는 함수
+const saveUserSettings = (key, value) => {
+    try {
+        // 배열인 경우에만 JSON.stringify 사용
+        const valueToStore = Array.isArray(value)
+            ? JSON.stringify(value)
+            : value;
+        localStorage.setItem(key, valueToStore);
+    } catch (error) {
+        console.error("Failed to save user settings:", error);
+    }
+};
+
 const TabButton = ({ isActive, onClick, children }) => (
     <button
         onClick={onClick}
@@ -54,7 +94,7 @@ const EventTable = ({
             className={`relative rounded-lg shadow-none lg:shadow ${className}`}
         >
             {/* 데스크톱 테이블 뷰 */}
-            <div className="hidden w-full overflow-x-auto lg:block">
+            <div className="hidden overflow-x-auto w-full lg:block">
                 <table className="min-w-full table-auto min-h-fit">
                     <thead className="bg-gray-900">
                         <tr className="[&>th]:px-6 [&>th]:py-3 [&>th]:text-center [&>th]:text-md [&>th]:font-semibold [&>th]:text-gray-300 [&>th]:h-12">
@@ -68,15 +108,14 @@ const EventTable = ({
                                         onClick={() =>
                                             setIsDropdownOpen(!isDropdownOpen)
                                         }
-                                        className="flex items-center justify-start gap-2 px-2 py-1 text-sm text-white bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        className="flex gap-2 justify-start items-center px-2 py-1 text-sm text-white bg-gray-800 rounded-lg border border-gray-700 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                     >
                                         <span>장르</span>
                                         <svg
                                             className={`w-4 h-4 transition-transform ${
                                                 isDropdownOpen
                                                     ? "rotate-180"
-                                                    : ""
-                                            }`}
+                                                    : ""}`}
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -90,7 +129,7 @@ const EventTable = ({
                                         </svg>
                                     </button>
                                     {isDropdownOpen && (
-                                        <div className="absolute z-40 w-48 mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
+                                        <div className="absolute z-40 mt-1 w-48 bg-gray-800 rounded-lg border border-gray-700 shadow-lg">
                                             <div className="p-2 space-y-1">
                                                 {[
                                                     "all",
@@ -115,7 +154,7 @@ const EventTable = ({
                                                                     genre
                                                                 )
                                                             }
-                                                            className="mr-2 text-indigo-600 border-gray-600 rounded focus:ring-indigo-500"
+                                                            className="mr-2 text-indigo-600 rounded border-gray-600 focus:ring-indigo-500"
                                                         />
                                                         {genre === "all"
                                                             ? "전체"
@@ -156,7 +195,7 @@ const EventTable = ({
                                                 className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
                                             />
                                         )}
-                                        <div className="overflow-hidden text-left text-ellipsis whitespace-nowrap">
+                                        <div className="overflow-hidden text-left whitespace-nowrap text-ellipsis">
                                             {item.event_name}
                                         </div>
                                     </td>
@@ -233,13 +272,13 @@ const EventTable = ({
                                             "$1small"
                                         )}
                                         alt={item.event_name}
-                                        className="flex-shrink-0 object-cover w-24 h-32 rounded-lg"
+                                        className="object-cover flex-shrink-0 w-24 h-32 rounded-lg"
                                     />
                                 ) : (
                                     <img
                                         src="./dummy.svg"
                                         alt="Dummy"
-                                        className="flex-shrink-0 object-cover w-24 h-32 rounded-lg"
+                                        className="object-cover flex-shrink-0 w-24 h-32 rounded-lg"
                                     />
                                 )}
                                 <div className="flex-1 min-w-0 text-left">
@@ -279,11 +318,16 @@ function Home() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState(null);
-    const [showConfirmed, setShowConfirmed] = useState(true);
-    const [activeTab, setActiveTab] = useState("current");
-    const [selectedGenres, setSelectedGenres] = useState(["all"]);
+
+    // localStorage에서 사용자 설정 불러오기
+    const userSettings = loadUserSettings();
+    const [showConfirmed] = useState(true); // 항상 확정된 이벤트만 표시
+    const [activeTab, setActiveTab] = useState("current"); // 항상 예정된 이벤트 탭으로 시작
+    const [selectedGenres, setSelectedGenres] = useState(
+        userSettings.selectedGenres
+    );
     const [visiblePastEvents, setVisiblePastEvents] = useState(15);
-    const [viewMode, setViewMode] = useState("calendar");
+    const [viewMode, setViewMode] = useState(userSettings.viewMode);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     const navigate = useNavigate();
@@ -305,6 +349,7 @@ function Home() {
         }
     }, [location.pathname, data, navigate]);
 
+    // 데이터 로딩
     useEffect(() => {
         const dataRef = ref(database, "data");
         const unsubscribe = onValue(dataRef, snapshot => {
@@ -321,6 +366,15 @@ function Home() {
 
         return () => unsubscribe();
     }, []);
+
+    // 사용자 설정 변경 시 localStorage에 저장
+    useEffect(() => {
+        saveUserSettings(STORAGE_KEYS.SELECTED_GENRES, selectedGenres);
+    }, [selectedGenres]);
+
+    useEffect(() => {
+        saveUserSettings(STORAGE_KEYS.VIEW_MODE, viewMode);
+    }, [viewMode]);
 
     const handleGenreChange = genre => {
         if (genre === "all") {
@@ -406,15 +460,16 @@ function Home() {
                 onEventSelect={handleModalOpen}
             />
             <div className="container flex-grow px-2 py-8 mx-auto lg:px-4">
-                <div className="flex flex-col items-center justify-between px-6 mb-6 border-b border-gray-700">
-                    <div className="flex items-center justify-center w-full gap-4 mb-4">
+                <div className="flex flex-col justify-between items-center px-6 mb-6 border-b border-gray-700">
+                    <div className="flex gap-4 justify-center items-center mb-4 w-full">
                         <h1 className="text-xl font-bold md:text-3xl">
                             한국 서브컬쳐 DJ 이벤트 DB
                         </h1>
                         <button
                             onClick={() => setIsSearchOpen(true)}
-                            className="p-2 text-gray-300 transition-colors bg-indigo-600 rounded-lg lg:hover:bg-gray-700 lg:hover:text-white"
+                            className="p-2 text-gray-300 bg-gray-700 rounded-lg transition-colors active:bg-indigo-600 lg:hover:bg-indigo-600 lg:hover:text-white"
                             title="검색"
+                            id="search-button"
                         >
                             <svg
                                 className="w-6 h-6"
@@ -446,8 +501,8 @@ function Home() {
                 )}
 
                 {loading ? (
-                    <div className="flex items-center justify-center h-64">
-                        <div className="w-12 h-12 border-b-2 border-indigo-700 rounded-full animate-spin"></div>
+                    <div className="flex justify-center items-center h-64">
+                        <div className="w-12 h-12 rounded-full border-b-2 border-indigo-700 animate-spin"></div>
                     </div>
                 ) : (
                     <div>
@@ -521,7 +576,7 @@ function Home() {
                                             pastEvents.length && (
                                             <button
                                                 onClick={loadMorePastEvents}
-                                                className="w-full px-4 py-2 mt-4 text-white bg-gray-900 border border-gray-700 rounded hover:bg-gray-700"
+                                                className="px-4 py-2 mt-4 w-full text-white bg-gray-900 rounded border border-gray-700 hover:bg-gray-700"
                                             >
                                                 더보기
                                             </button>
@@ -540,14 +595,19 @@ function Home() {
                     </div>
                 )}
 
-                <div className="flex flex-col items-center justify-center w-full gap-4 mt-16 md:flex-row">
+                <div className="flex flex-col gap-4 justify-center items-center mt-16 w-full md:flex-row">
                     <button
                         onClick={() => window.open(FORM_URL, "_blank")}
-                        className="w-full px-4 py-2 text-white bg-indigo-600 rounded md:w-fit lg:hover:text-indigo-900 lg:hover:bg-white"
+                        className="px-4 py-2 w-full text-white bg-indigo-600 rounded md:w-fit lg:hover:text-indigo-900 active:bg-white active:text-indigo-900 lg:hover:bg-white"
                     >
                         행사 제보하기
                     </button>
                 </div>
+                <a onClick={() => setIsSearchOpen(true)}>
+                    <p className="mt-6 text-center text-indigo-400 underline cursor-pointer active:text-indigo-600 lg:hover:text-indigo-600">
+                        *혹시 이미 등록된 행사일까요?
+                    </p>
+                </a>
             </div>
         </div>
     );
