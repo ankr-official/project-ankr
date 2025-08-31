@@ -604,7 +604,7 @@ function Home() {
                     </button>
                 </div>
                 <a onClick={() => setIsSearchOpen(true)}>
-                    <p className="mt-6 text-center text-indigo-400 underline cursor-pointer active:text-indigo-600 lg:hover:text-indigo-600">
+                    <p className="p-2 m-auto mt-6 text-center text-indigo-400 underline cursor-pointer w-fit active:text-indigo-600 lg:hover:text-indigo-600">
                         *혹시 이미 등록된 행사일까요?
                     </p>
                 </a>
