@@ -1,451 +1,63 @@
-import { useState, useEffect, useRef } from "react";
-import { ref, onValue } from "firebase/database";
-import { database } from "../config/firebase";
+import { useState } from "react";
+
+// Components
 import { Modal } from "../components/Modal";
 import { EventCarousel } from "../components/EventCarousel";
-import { formatDate } from "../utils/dateUtils";
-import { getThisWeeksEvents } from "../utils/dateUtils";
-import { FORM_URL } from "../constants";
-import { GenreTag } from "../components/common/GenreTag";
-import { LocationLink } from "../components/common/LocationLink";
-import { GENRE_COLORS } from "../constants";
-import { HashRouter as Router, useNavigate } from "react-router-dom";
-import { useLocation, useParams } from "react-router-dom";
-import EventCalendar from "../components/EventCalendar";
 import { SearchModal } from "../components/SearchModal";
+import EventCalendar from "../components/EventCalendar";
+import { EventTable } from "../components/events/EventTable";
+import { TabButton } from "../components/ui/TabButton";
+import { ViewModeToggle } from "../components/ui/ViewModeToggle";
+import { Header } from "../components/ui/Header";
+import { ActionButtons } from "../components/ui/ActionButtons";
 
-// localStorage 키 상수
-const STORAGE_KEYS = {
-    SELECTED_GENRES: "ankr_selected_genres",
-    VIEW_MODE: "ankr_view_mode",
-};
-
-// localStorage에서 설정을 불러오는 함수
-const loadUserSettings = () => {
-    try {
-        const settings = {
-            selectedGenres: JSON.parse(
-                localStorage.getItem(STORAGE_KEYS.SELECTED_GENRES)
-            ) || ["all"],
-            viewMode:
-                localStorage.getItem(STORAGE_KEYS.VIEW_MODE) || "calendar",
-        };
-
-        return settings;
-    } catch (error) {
-        console.error("Failed to load user settings:", error);
-        return {
-            selectedGenres: ["all"],
-            viewMode: "calendar",
-        };
-    }
-};
-
-// localStorage에 설정을 저장하는 함수
-const saveUserSettings = (key, value) => {
-    try {
-        // 배열인 경우에만 JSON.stringify 사용
-        const valueToStore = Array.isArray(value)
-            ? JSON.stringify(value)
-            : value;
-        localStorage.setItem(key, valueToStore);
-    } catch (error) {
-        console.error("Failed to save user settings:", error);
-    }
-};
-
-const TabButton = ({ isActive, onClick, children }) => (
-    <button
-        onClick={onClick}
-        className={`w-full lg:w-fit lg:mb-0 px-4 py-2 text-sm font-medium lg:rounded-t-lg lg:rounded-b-none transition-colors duration-200 ${
-            isActive
-                ? "text-white bg-indigo-600"
-                : "bg-indigo-900 lg:hover:text-gray-300 lg:hover:bg-indigo-700"
-        }`}
-    >
-        {children}
-    </button>
-);
-
-const EventTable = ({
-    events,
-    title,
-    className = "",
-    onEventSelect,
-    selectedGenres,
-    onGenreChange,
-}) => {
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const dropdownRef = useRef(null);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            if (isDropdownOpen) {
-                setIsDropdownOpen(false);
-            }
-        };
-
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, [isDropdownOpen]);
-
-    return (
-        <div
-            className={`relative rounded-lg shadow-none lg:shadow ${className}`}
-        >
-            {/* 데스크톱 테이블 뷰 */}
-            <div className="hidden overflow-x-auto w-full lg:block">
-                <table className="min-w-full table-auto min-h-fit">
-                    <thead className="bg-gray-900">
-                        <tr className="[&>th]:px-6 [&>th]:py-3 [&>th]:text-center [&>th]:text-md [&>th]:font-semibold [&>th]:text-gray-300 [&>th]:h-12">
-                            <th className="">이벤트명</th>
-                            <th className="">
-                                <div
-                                    className="relative h-full"
-                                    ref={dropdownRef}
-                                >
-                                    <button
-                                        onClick={() =>
-                                            setIsDropdownOpen(!isDropdownOpen)
-                                        }
-                                        className="flex gap-2 justify-start items-center px-2 py-1 text-sm text-white bg-gray-800 rounded-lg border border-gray-700 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                    >
-                                        <span>장르</span>
-                                        <svg
-                                            className={`w-4 h-4 transition-transform ${
-                                                isDropdownOpen
-                                                    ? "rotate-180"
-                                                    : ""}`}
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M19 9l-7 7-7-7"
-                                            />
-                                        </svg>
-                                    </button>
-                                    {isDropdownOpen && (
-                                        <div className="absolute z-40 mt-1 w-48 bg-gray-800 rounded-lg border border-gray-700 shadow-lg">
-                                            <div className="p-2 space-y-1">
-                                                {[
-                                                    "all",
-                                                    ...Object.keys(
-                                                        GENRE_COLORS
-                                                    ).filter(
-                                                        genre =>
-                                                            genre !== "default"
-                                                    ),
-                                                ].map(genre => (
-                                                    <label
-                                                        key={genre}
-                                                        className="flex items-center px-2 py-1 text-sm text-white rounded cursor-pointer hover:bg-gray-700"
-                                                    >
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={selectedGenres.includes(
-                                                                genre
-                                                            )}
-                                                            onChange={() =>
-                                                                onGenreChange(
-                                                                    genre
-                                                                )
-                                                            }
-                                                            className="mr-2 text-indigo-600 rounded border-gray-600 focus:ring-indigo-500"
-                                                        />
-                                                        {genre === "all"
-                                                            ? "전체"
-                                                            : genre}
-                                                    </label>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </th>
-                            <th className="">장소</th>
-                            <th>일정</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-gray-800 divide-y divide-gray-700">
-                        {events.length > 0 ? (
-                            events.map(item => (
-                                <tr
-                                    key={item.id}
-                                    onClick={() => onEventSelect(item)}
-                                    className="cursor-pointer hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:pl-4 [&>td]:py-4 [&>td]:px-6"
-                                >
-                                    <td className="flex items-center">
-                                        {item.img_url ? (
-                                            <img
-                                                src={item.img_url.replace(
-                                                    /(name=)[^&]*/,
-                                                    "$1small"
-                                                )}
-                                                alt={item.event_name}
-                                                className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
-                                            />
-                                        ) : (
-                                            <img
-                                                src="./dummy.svg"
-                                                alt="Dummy"
-                                                className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
-                                            />
-                                        )}
-                                        <div className="overflow-hidden text-left whitespace-nowrap text-ellipsis">
-                                            {item.event_name}
-                                        </div>
-                                    </td>
-                                    <td className="w-[300px]">
-                                        <GenreTag genre={item.genre} />
-                                    </td>
-                                    <td className="w-[300px]">
-                                        <LocationLink
-                                            location={item.location}
-                                            onClick={e => e.stopPropagation()}
-                                        />
-                                    </td>
-                                    <td>
-                                        {formatDate(
-                                            item.schedule,
-                                            item.time_start
-                                        )}
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td
-                                    colSpan="4"
-                                    className="py-8 text-center text-gray-400"
-                                >
-                                    선택한 장르의 이벤트가 존재하지 않습니다.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
-
-            {/* 모바일 카드 뷰 */}
-            <div className="grid grid-cols-1 gap-4 lg:hidden">
-                {/* 장르 필터 (모바일) */}
-                <div className="sticky top-0 z-10 p-2 bg-gray-900 bg-opacity-50 rounded-lg shadow-md backdrop-blur-sm">
-                    <div className="flex flex-wrap gap-2">
-                        {[
-                            "all",
-                            ...Object.keys(GENRE_COLORS).filter(
-                                genre => genre !== "default"
-                            ),
-                        ].map(genre => (
-                            <button
-                                key={genre}
-                                onClick={() => onGenreChange(genre)}
-                                className={`px-3 py-1 text-sm font-medium rounded-full transition-colors ${
-                                    selectedGenres.includes(genre)
-                                        ? "bg-indigo-600 text-white"
-                                        : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                                }`}
-                            >
-                                {genre === "all" ? "전체" : genre}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* 이벤트 카드 목록 */}
-                {events.length > 0 ? (
-                    events.map(item => (
-                        <div
-                            key={item.id}
-                            onClick={() => onEventSelect(item)}
-                            className="p-4 bg-gray-800 rounded-lg shadow cursor-pointer active:bg-indigo-900"
-                        >
-                            <div className="flex items-center space-x-4">
-                                {item.img_url ? (
-                                    <img
-                                        src={item.img_url.replace(
-                                            /(name=)[^&]*/,
-                                            "$1small"
-                                        )}
-                                        alt={item.event_name}
-                                        className="object-cover flex-shrink-0 w-24 h-32 rounded-lg"
-                                    />
-                                ) : (
-                                    <img
-                                        src="./dummy.svg"
-                                        alt="Dummy"
-                                        className="object-cover flex-shrink-0 w-24 h-32 rounded-lg"
-                                    />
-                                )}
-                                <div className="flex-1 min-w-0 text-left">
-                                    <p className="mb-2 text-sm text-gray-300">
-                                        {formatDate(
-                                            item.schedule,
-                                            item.time_start
-                                        )}
-                                    </p>
-                                    <h3 className="mb-2 text-base font-medium text-white truncate">
-                                        {item.event_name}
-                                    </h3>
-                                    <div className="mb-2">
-                                        <GenreTag genre={item.genre} />
-                                    </div>
-                                    <div className="">
-                                        <LocationLink
-                                            location={item.location}
-                                            onClick={e => e.stopPropagation()}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))
-                ) : (
-                    <div className="p-8 text-center text-gray-400 bg-gray-800 rounded-lg">
-                        선택한 장르의 이벤트가 존재하지 않습니다.
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-};
+// Hooks
+import { useFirebaseData } from "../hooks/useFirebaseData";
+import { useUserSettings } from "../hooks/useUserSettings";
+import { useEventData } from "../hooks/useEventData";
+import { useModalNavigation } from "../hooks/useModalNavigation";
 
 function Home() {
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [selectedItem, setSelectedItem] = useState(null);
-
-    // localStorage에서 사용자 설정 불러오기
-    const userSettings = loadUserSettings();
-    const [showConfirmed] = useState(true); // 항상 확정된 이벤트만 표시
-    const [activeTab, setActiveTab] = useState("current"); // 항상 예정된 이벤트 탭으로 시작
-    const [selectedGenres, setSelectedGenres] = useState(
-        userSettings.selectedGenres
+    // Data and loading state
+    const { data, loading } = useFirebaseData();
+    
+    // User settings (localStorage)
+    const { selectedGenres, viewMode, setViewMode, handleGenreChange } = useUserSettings();
+    
+    // Modal and navigation
+    const { selectedItem, handleModalOpen, handleModalClose } = useModalNavigation(data);
+    
+    // Processed event data
+    const { currentEvents, pastEvents, thisWeeksEvents } = useEventData(
+        data, 
+        selectedGenres, 
+        true // showConfirmed
     );
+
+    // Local state
+    const [activeTab, setActiveTab] = useState("current");
     const [visiblePastEvents, setVisiblePastEvents] = useState(15);
-    const [viewMode, setViewMode] = useState(userSettings.viewMode);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-    const navigate = useNavigate();
-    const location = useLocation();
-
-    useEffect(() => {
-        const match = location.pathname.match(/^\/event\/(.+)/);
-        if (match && data.length > 0) {
-            const idFromUrl = match[1];
-            const item = data.find(d => d.id === idFromUrl);
-            if (item && item.confirm) {
-                setSelectedItem(item);
-            } else {
-                setSelectedItem(null);
-                navigate("/", { replace: true });
-            }
-        } else if (!match) {
-            setSelectedItem(null);
-        }
-    }, [location.pathname, data, navigate]);
-
-    // 데이터 로딩
-    useEffect(() => {
-        const dataRef = ref(database, "data");
-        const unsubscribe = onValue(dataRef, snapshot => {
-            const fetchedData = [];
-            snapshot.forEach(childSnapshot => {
-                fetchedData.push({
-                    id: childSnapshot.key,
-                    ...childSnapshot.val(),
-                });
-            });
-            setData(fetchedData);
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, []);
-
-    // 사용자 설정 변경 시 localStorage에 저장
-    useEffect(() => {
-        saveUserSettings(STORAGE_KEYS.SELECTED_GENRES, selectedGenres);
-    }, [selectedGenres]);
-
-    useEffect(() => {
-        saveUserSettings(STORAGE_KEYS.VIEW_MODE, viewMode);
-    }, [viewMode]);
-
-    const handleGenreChange = genre => {
-        if (genre === "all") {
-            setSelectedGenres(["all"]);
-            return;
-        }
-
-        setSelectedGenres(prev => {
-            const newGenres = prev.filter(g => g !== "all");
-            if (newGenres.includes(genre)) {
-                const updatedGenres = newGenres.filter(g => g !== genre);
-                return updatedGenres.length === 0 ? ["all"] : updatedGenres;
-            }
-            return [...newGenres, genre];
-        });
-    };
-
-    const processData = data => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        return data
-            .filter(item => item.confirm === showConfirmed)
-            .filter(item => {
-                if (selectedGenres.includes("all")) return true;
-                if (selectedGenres.length === 1) {
-                    return selectedGenres.some(genre =>
-                        item.genre.includes(genre)
-                    );
-                }
-                return selectedGenres.every(genre =>
-                    item.genre.includes(genre)
-                );
-            })
-            .map(item => ({
-                ...item,
-                scheduleDate: new Date(item.schedule),
-                isPast: new Date(item.schedule) < today,
-            }));
-    };
-
-    const filteredData = processData(data);
-    const thisWeeksEvents = getThisWeeksEvents(data, showConfirmed);
-    const currentEvents = filteredData
-        .filter(item => !item.isPast)
-        .sort((a, b) => a.scheduleDate - b.scheduleDate);
-    const pastEvents = filteredData
-        .filter(item => item.isPast)
-        .sort((a, b) => b.scheduleDate - a.scheduleDate);
 
     const loadMorePastEvents = () => {
         setVisiblePastEvents(prev => prev + 15);
     };
 
-    const handleModalOpen = item => {
-        if (item.confirm) {
-            setSelectedItem(item);
-            navigate(`/event/${item.id}`, {
-                replace: false,
-                state: { modal: true },
-            });
-        }
-    };
-
-    const handleModalClose = () => {
-        setSelectedItem(null);
-        navigate("/");
-    };
+    if (loading) {
+        return (
+            <div className="flex flex-col min-h-screen">
+                <div className="container flex-grow px-2 py-8 mx-auto lg:px-4">
+                    <div className="flex justify-center items-center h-64">
+                        <div className="w-12 h-12 rounded-full border-b-2 border-indigo-700 animate-spin"></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col min-h-screen">
+            {/* Modals */}
             {selectedItem && (
                 <Modal
                     isOpen={selectedItem !== null}
@@ -453,42 +65,20 @@ function Home() {
                     data={selectedItem || {}}
                 />
             )}
+            
             <SearchModal
                 isOpen={isSearchOpen}
                 onClose={() => setIsSearchOpen(false)}
                 events={[...currentEvents, ...pastEvents]}
                 onEventSelect={handleModalOpen}
             />
-            <div className="container flex-grow px-2 py-8 mx-auto lg:px-4">
-                <div className="flex flex-col justify-between items-center px-6 mb-6 border-b border-gray-700">
-                    <div className="flex gap-4 justify-center items-center mb-4 w-full">
-                        <h1 className="text-xl font-bold md:text-3xl">
-                            한국 서브컬쳐 DJ 이벤트 DB
-                        </h1>
-                        <button
-                            onClick={() => setIsSearchOpen(true)}
-                            className="p-2 text-gray-300 bg-gray-700 rounded-lg transition-colors active:bg-indigo-600 lg:hover:bg-indigo-600 lg:hover:text-white"
-                            title="검색"
-                            id="search-button"
-                        >
-                            <svg
-                                className="w-6 h-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                                />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
 
-                {!loading && thisWeeksEvents.length > 0 && (
+            <div className="container flex-grow px-2 py-8 mx-auto lg:px-4">
+                {/* Header */}
+                <Header onSearchOpen={() => setIsSearchOpen(true)} />
+
+                {/* This Week's Events Carousel */}
+                {thisWeeksEvents.length > 0 && (
                     <div className="mb-8">
                         <h2 className="mb-4 text-xl font-semibold text-gray-200">
                             가까운 이벤트
@@ -500,114 +90,83 @@ function Home() {
                     </div>
                 )}
 
-                {loading ? (
-                    <div className="flex justify-center items-center h-64">
-                        <div className="w-12 h-12 rounded-full border-b-2 border-indigo-700 animate-spin"></div>
-                    </div>
-                ) : (
-                    <div>
+                {/* Main Content */}
+                <div>
+                    {/* Controls */}
+                    <div
+                        className={`flex flex-col-reverse lg:mb-0 lg:flex-row lg:items-end ${
+                            viewMode === "calendar" ? "justify-end" : "justify-between"
+                        }`}
+                    >
+                        {/* Tab Buttons (Hidden in calendar mode) */}
                         <div
-                            className={`flex flex-col-reverse lg:mb-0 lg:flex-row lg:items-end ${viewMode === "calendar" ? "justify-end" : "justify-between"}`}
+                            className={`flex space-x-2 mb-4 lg:mb-0 ${
+                                viewMode === "calendar" ? "hidden" : ""
+                            }`}
                         >
-                            <div
-                                className={`flex space-x-2 mb-4 lg:mb-0 ${viewMode === "calendar" ? "hidden" : ""}`}
+                            <TabButton
+                                isActive={activeTab === "current"}
+                                onClick={() => setActiveTab("current")}
                             >
-                                <TabButton
-                                    isActive={activeTab === "current"}
-                                    onClick={() => setActiveTab("current")}
-                                >
-                                    예정된 이벤트
-                                </TabButton>
-                                <TabButton
-                                    isActive={activeTab === "past"}
-                                    onClick={() => setActiveTab("past")}
-                                >
-                                    종료된 이벤트
-                                </TabButton>
-                            </div>
-                            <div className="flex mb-4 space-x-2">
-                                <button
-                                    onClick={() => setViewMode("calendar")}
-                                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                        viewMode === "calendar"
-                                            ? "bg-gray-700 text-white"
-                                            : "bg-gray-800 text-gray-300 lg:hover:bg-gray-700"
-                                    }`}
-                                >
-                                    캘린더
-                                </button>
-                                <button
-                                    onClick={() => setViewMode("table")}
-                                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                        viewMode === "table"
-                                            ? "bg-gray-700 text-white"
-                                            : "bg-gray-800 text-gray-300 lg:hover:bg-gray-700"
-                                    }`}
-                                >
-                                    테이블
-                                </button>
-                            </div>
+                                예정된 이벤트
+                            </TabButton>
+                            <TabButton
+                                isActive={activeTab === "past"}
+                                onClick={() => setActiveTab("past")}
+                            >
+                                종료된 이벤트
+                            </TabButton>
                         </div>
 
-                        <div>
-                            {viewMode === "table" ? (
-                                activeTab === "current" ? (
-                                    <EventTable
-                                        events={currentEvents}
-                                        title="예정된 이벤트"
-                                        onEventSelect={handleModalOpen}
-                                        selectedGenres={selectedGenres}
-                                        onGenreChange={handleGenreChange}
-                                    />
-                                ) : (
-                                    <div>
-                                        <EventTable
-                                            events={pastEvents.slice(
-                                                0,
-                                                visiblePastEvents
-                                            )}
-                                            title="종료된 이벤트"
-                                            className="opacity-70"
-                                            onEventSelect={handleModalOpen}
-                                            selectedGenres={selectedGenres}
-                                            onGenreChange={handleGenreChange}
-                                        />
-                                        {visiblePastEvents <
-                                            pastEvents.length && (
-                                            <button
-                                                onClick={loadMorePastEvents}
-                                                className="px-4 py-2 mt-4 w-full text-white bg-gray-900 rounded border border-gray-700 hover:bg-gray-700"
-                                            >
-                                                더보기
-                                            </button>
-                                        )}
-                                    </div>
-                                )
-                            ) : (
-                                <EventCalendar
-                                    events={[...currentEvents, ...pastEvents]}
+                        {/* View Mode Toggle */}
+                        <ViewModeToggle
+                            viewMode={viewMode}
+                            onViewModeChange={setViewMode}
+                        />
+                    </div>
+
+                    {/* Content based on view mode */}
+                    <div>
+                        {viewMode === "table" ? (
+                            activeTab === "current" ? (
+                                <EventTable
+                                    events={currentEvents}
                                     onEventSelect={handleModalOpen}
                                     selectedGenres={selectedGenres}
                                     onGenreChange={handleGenreChange}
                                 />
-                            )}
-                        </div>
+                            ) : (
+                                <div>
+                                    <EventTable
+                                        events={pastEvents.slice(0, visiblePastEvents)}
+                                        className="opacity-70"
+                                        onEventSelect={handleModalOpen}
+                                        selectedGenres={selectedGenres}
+                                        onGenreChange={handleGenreChange}
+                                    />
+                                    {visiblePastEvents < pastEvents.length && (
+                                        <button
+                                            onClick={loadMorePastEvents}
+                                            className="px-4 py-2 mt-4 w-full text-white bg-gray-900 rounded border border-gray-700 hover:bg-gray-700"
+                                        >
+                                            더보기
+                                        </button>
+                                    )}
+                                </div>
+                            )
+                        ) : (
+                            <EventCalendar
+                                events={[...currentEvents, ...pastEvents]}
+                                onEventSelect={handleModalOpen}
+                                selectedGenres={selectedGenres}
+                                onGenreChange={handleGenreChange}
+                            />
+                        )}
                     </div>
-                )}
-
-                <div className="flex flex-col gap-4 justify-center items-center mt-16 w-full md:flex-row">
-                    <button
-                        onClick={() => window.open(FORM_URL, "_blank")}
-                        className="px-4 py-2 w-full text-white bg-indigo-600 rounded md:w-fit lg:hover:text-indigo-900 active:bg-white active:text-indigo-900 lg:hover:bg-white"
-                    >
-                        행사 제보하기
-                    </button>
                 </div>
-                <a onClick={() => setIsSearchOpen(true)}>
-                    <p className="p-2 m-auto mt-6 text-center text-indigo-400 underline cursor-pointer w-fit active:text-indigo-600 lg:hover:text-indigo-600">
-                        *혹시 이미 등록된 행사일까요?
-                    </p>
-                </a>
+
+                {/* Action Buttons */}
+                <ActionButtons onSearchOpen={() => setIsSearchOpen(true)} />
             </div>
         </div>
     );
