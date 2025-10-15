@@ -62,6 +62,23 @@ export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
         };
     }, [isOpen, onClose]);
 
+    // ESC key handler for PC browsers
+    useEffect(() => {
+        const handleEscKey = (event) => {
+            if (event.key === 'Escape' && isOpen) {
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener('keydown', handleEscKey);
+        }
+
+        return () => {
+            document.removeEventListener('keydown', handleEscKey);
+        };
+    }, [isOpen, onClose]);
+
     useEffect(() => {
         if (!searchQuery.trim()) {
             setSearchResults([]);

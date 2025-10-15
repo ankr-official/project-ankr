@@ -342,6 +342,23 @@ export function Modal({ isOpen, onClose, data }) {
     } = useModalScroll(onClose);
     useModalBodyLock(isOpen);
 
+    // ESC key handler for PC browsers
+    useEffect(() => {
+        const handleEscKey = (event) => {
+            if (event.key === 'Escape' && isOpen) {
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener('keydown', handleEscKey);
+        }
+
+        return () => {
+            document.removeEventListener('keydown', handleEscKey);
+        };
+    }, [isOpen, onClose]);
+
     return (
         <AnimatePresence>
             {isOpen && (
