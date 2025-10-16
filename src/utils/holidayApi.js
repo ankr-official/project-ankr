@@ -29,7 +29,7 @@ const parseHolidayResponse = xmlText => {
 };
 
 // 타임아웃이 있는 fetch 함수
-const fetchWithTimeout = async (url, timeout = 8000) => {
+const fetchWithTimeout = async (url, timeout = 3000) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -47,7 +47,7 @@ const fetchWithTimeout = async (url, timeout = 8000) => {
 };
 
 // 재시도 로직이 포함된 API 호출 함수
-const fetchWithRetry = async (url, maxRetries = 3, retryDelay = 15000) => {
+const fetchWithRetry = async (url, maxRetries = 2, retryDelay = 5000) => {
     let lastError;
     let attempt = 0;
 
