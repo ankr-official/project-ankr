@@ -43,26 +43,26 @@ const EventCalendar = ({
 
     // 공휴일 데이터 가져오기
     useEffect(() => {
+        let active = true; // 비동기 중간에 월 전환 시 중단 방지
+
         const fetchHolidays = async () => {
             const year = currentDate.getFullYear();
-
-            // 이미 로딩 중이면 중복 요청 방지
-            if (isLoading) return;
-
             setIsLoading(true);
             try {
-                // 연도 단위로 데이터를 가져옴 (캐시 활용)
                 const yearHolidays = await getHolidaysForYear(year);
-                setHolidays(yearHolidays);
+                if (active) setHolidays(yearHolidays);
             } catch (error) {
                 console.error("공휴일 데이터 로딩 실패:", error);
             } finally {
-                setIsLoading(false);
+                if (active) setIsLoading(false);
             }
         };
 
         fetchHolidays();
-    }, [currentDate.getFullYear()]); // 연도가 변경될 때만 실행
+        return () => {
+            active = false; // cleanup
+        };
+    }, [currentDate.getFullYear()]);
 
     // 공휴일 확인 함수
     const getHoliday = date => {
@@ -166,10 +166,7 @@ const EventCalendar = ({
                 <div className="flex items-center justify-center gap-8 mb-4">
                     <button
                         onClick={prevMonth}
-                        disabled={isLoading}
-                        className={`p-3 text-lg text-gray-400 bg-indigo-900 lg:pl-6 lg:pr-6 lg:p-2 hover:text-white lg:text-base ${
-                            isLoading ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
+                        className="p-3 text-lg text-gray-400 bg-indigo-900 lg:pl-6 lg:pr-6 lg:p-2 hover:text-white lg:text-base"
                     >
                         ←
                     </button>
@@ -183,10 +180,7 @@ const EventCalendar = ({
                     </div>
                     <button
                         onClick={nextMonth}
-                        disabled={isLoading}
-                        className={`p-3 text-lg text-gray-400 bg-indigo-900 lg:p-2 lg:pl-6 lg:pr-6 hover:text-white lg:text-base ${
-                            isLoading ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
+                        className="p-3 text-lg text-gray-400 bg-indigo-900 lg:p-2 lg:pl-6 lg:pr-6 hover:text-white lg:text-base"
                     >
                         →
                     </button>
