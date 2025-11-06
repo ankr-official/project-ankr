@@ -34,6 +34,8 @@ function App() {
                                     <a
                                         href="https://x.com/ankr_db"
                                         className="text-indigo-400 hover:text-indigo-300"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                     >
                                         X (Twitter)
                                     </a>
@@ -42,6 +44,8 @@ function App() {
                                     <a
                                         href="https://www.instagram.com/ankr.db.official"
                                         className="text-indigo-400 hover:text-indigo-300"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                     >
                                         Instagram
                                     </a>
