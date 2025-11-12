@@ -12,7 +12,7 @@ export const formatDate = (dateString, timeStart) => {
         if (timeStart) {
             const startTime = new Date(timeStart);
             const hours = startTime.getHours();
-            const timeType = hours >= 6 && hours < 18 ? "☀️" : "🌙"; // 06:00~17:59는 낮, 나머지는 심야
+            const timeType = hours >= 6 && hours < 17 ? "☀️" : "🌙";
             return `${date.toISOString().split("T")[0]} (${dayOfWeek}) ${timeType}`;
         }
 

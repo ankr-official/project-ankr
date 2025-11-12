@@ -13,12 +13,15 @@ export const EventTable = ({
     onGenreChange,
 }) => {
     return (
-        <div className={`relative rounded-lg shadow-none lg:shadow ${className}`}>
+        <div
+            className={`relative rounded-lg shadow-none lg:shadow ${className}`}
+        >
             {/* Desktop Table View */}
             <div className="hidden overflow-x-auto w-full lg:block">
                 <table className="min-w-full table-auto min-h-fit">
                     <thead className="bg-gray-900">
                         <tr className="[&>th]:px-6 [&>th]:py-3 [&>th]:text-center [&>th]:text-md [&>th]:font-semibold [&>th]:text-gray-300 [&>th]:h-12">
+                            <th>일정</th>
                             <th className="">이벤트명</th>
                             <th className="">
                                 <DesktopGenreFilter
@@ -27,7 +30,6 @@ export const EventTable = ({
                                 />
                             </th>
                             <th className="">장소</th>
-                            <th>일정</th>
                         </tr>
                     </thead>
                     <tbody className="bg-gray-800 divide-y divide-gray-700">
@@ -38,6 +40,12 @@ export const EventTable = ({
                                     onClick={() => onEventSelect(item)}
                                     className="cursor-pointer hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:pl-4 [&>td]:py-4 [&>td]:px-6"
                                 >
+                                    <td>
+                                        {formatDate(
+                                            item.schedule,
+                                            item.time_start
+                                        )}
+                                    </td>
                                     <td className="flex items-center">
                                         {item.img_url ? (
                                             <img
@@ -55,7 +63,7 @@ export const EventTable = ({
                                                 className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
                                             />
                                         )}
-                                        <div className="overflow-hidden text-left whitespace-nowrap text-ellipsis">
+                                        <div className="overflow-hidden text-left whitespace-nowrap text-ellipsis max-w-[30vw]">
                                             {item.event_name}
                                         </div>
                                     </td>
@@ -67,9 +75,6 @@ export const EventTable = ({
                                             location={item.location}
                                             onClick={e => e.stopPropagation()}
                                         />
-                                    </td>
-                                    <td>
-                                        {formatDate(item.schedule, item.time_start)}
                                     </td>
                                 </tr>
                             ))
