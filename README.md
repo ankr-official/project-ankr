@@ -13,7 +13,7 @@ SNS 알고리즘이나 트위터 또는 인스타그램에서만 이루어지는
 이 프로젝트는 다음과 같은 기술을 활용하여 제작되었습니다:
 
 - **Vite + React.js + TailwindCSS** - 빠르고 가벼운 프론트엔드 개발 환경 구성
-- **Cursor AI & ChatGPT** - 코드 작성을 비롯한 여러 솔루션 제공
+- **Cursor AI & ChatGPT & Claude Code** - 코드 작성을 비롯한 여러 솔루션 제공
 - **Firebase Realtime Database** - 실시간 데이터 저장 및 연동
 - **Firebase Cloud Functions** - 보안 및 서버 사이드 로직 처리  
 - **GitHub Pages** - 프론트엔드 정적 사이트 배포  
