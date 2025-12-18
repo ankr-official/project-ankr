@@ -16,6 +16,7 @@
         "date-fns": "^2.30.0",
         "firebase": "^11.6.0",
         "framer-motion": "^12.6.3",
+        "html-to-image": "^1.11.13",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
         "react-router-dom": "^7.5.0",
