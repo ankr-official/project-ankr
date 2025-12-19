@@ -134,7 +134,7 @@ function YearEndReceiptPage() {
 
           {/* Right: Receipt Preview & Download */}
           <div className="mt-6 lg:mt-0">
-            <div className="p-1 overflow-x-auto lg:h-[720px] flex items-center justify-start max-w-96 lg:max-w-none">
+            <div className="overflow-x-auto lg:h-[720px] flex items-start max-w-96 lg:max-w-none mb-8">
               <YearEndReceiptView
                 year={currentYear}
                 events={selectedEvents}
