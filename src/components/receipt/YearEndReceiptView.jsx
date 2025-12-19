@@ -127,7 +127,7 @@ export function YearEndReceiptView({
                 key={event.id}
                 type="button"
                 onClick={() => onEventToggle?.(event.id)}
-                className="flex justify-between items-center w-full text-left bg-transparent cursor-pointer hover:text-red-500"
+                className="flex justify-between items-center w-full text-left bg-transparent cursor-pointer lg:hover:text-red-500 focus:text-red-500"
               >
                 <span className="w-1/5">
                   {event.scheduleDate?.toLocaleDateString("ko-KR", {
