@@ -31,6 +31,7 @@ const EventCalendar = ({
     const [isLoading, setIsLoading] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const datePickerRef = useRef(null);
     const today = startOfDay(new Date());
 
@@ -156,18 +157,33 @@ const EventCalendar = ({
     };
 
     const handleDatePickerToggle = () => {
+        if (!showDatePicker) {
+            // Date picker를 열 때 현재 달력에 표시된 년도로 설정
+            setSelectedYear(currentDate.getFullYear());
+        }
         setShowDatePicker(!showDatePicker);
+    };
+
+    const handleYearSelect = (year) => {
+        setSelectedYear(year);
     };
 
     const handleYearMonthSelect = (year, month) => {
         const newDate = new Date(year, month);
         setCurrentDate(newDate);
         setShowDatePicker(false);
+        setSelectedYear(year);
     };
 
-    // 년도 범위 생성 (현재 년도 기준 -5년 ~ +2년)
-    const currentYear = new Date().getFullYear();
-    const years = Array.from({ length: 8 }, (_, i) => currentYear - 5 + i);
+    // 이벤트가 있는 년도 추출
+    const availableYears = [...new Set(events.map(event => new Date(event.schedule).getFullYear()))].sort((a, b) => b - a);
+
+    // 선택된 년도에 이벤트가 있는 월 추출
+    const availableMonths = [...new Set(
+        events
+            .filter(event => new Date(event.schedule).getFullYear() === selectedYear)
+            .map(event => new Date(event.schedule).getMonth())
+    )].sort((a, b) => a - b);
 
     return (
         <div className="bg-gray-800 rounded-lg shadow-lg">
@@ -247,12 +263,12 @@ const EventCalendar = ({
                             <div className="mb-5">
                                 <h3 className="mb-3 text-sm font-medium text-indigo-300">년도</h3>
                                 <div className="grid grid-cols-4 gap-2">
-                                    {years.map(year => (
+                                    {availableYears.map(year => (
                                         <button
                                             key={year}
-                                            onClick={() => handleYearMonthSelect(year, currentDate.getMonth())}
+                                            onClick={() => handleYearSelect(year)}
                                             className={`px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
-                                                year === currentDate.getFullYear()
+                                                year === selectedYear
                                                     ? "bg-indigo-600 text-white shadow-lg scale-105"
                                                     : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
                                             }`}
@@ -266,12 +282,12 @@ const EventCalendar = ({
                             <div>
                                 <h3 className="mb-3 text-sm font-medium text-indigo-300">월</h3>
                                 <div className="grid grid-cols-4 gap-2">
-                                    {Array.from({ length: 12 }, (_, i) => i).map(month => (
+                                    {availableMonths.map(month => (
                                         <button
                                             key={month}
-                                            onClick={() => handleYearMonthSelect(currentDate.getFullYear(), month)}
+                                            onClick={() => handleYearMonthSelect(selectedYear, month)}
                                             className={`px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
-                                                month === currentDate.getMonth()
+                                                month === currentDate.getMonth() && selectedYear === currentDate.getFullYear()
                                                     ? "bg-indigo-600 text-white shadow-lg scale-105"
                                                     : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
                                             }`}
