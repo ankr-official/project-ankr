@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
     format,
     startOfMonth,
@@ -30,6 +30,8 @@ const EventCalendar = ({
     const [holidays, setHolidays] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const datePickerRef = useRef(null);
     const today = startOfDay(new Date());
 
     // 달력의 시작일과 종료일 계산 (이전 달의 날짜들도 포함)
@@ -63,6 +65,23 @@ const EventCalendar = ({
             active = false; // cleanup
         };
     }, [currentDate.getFullYear()]);
+
+    // Date picker 외부 클릭 감지
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
+                setShowDatePicker(false);
+            }
+        };
+
+        if (showDatePicker) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showDatePicker]);
 
     // 공휴일 확인 함수
     const getHoliday = date => {
@@ -136,6 +155,20 @@ const EventCalendar = ({
         return isBefore(startOfDay(date), today);
     };
 
+    const handleDatePickerToggle = () => {
+        setShowDatePicker(!showDatePicker);
+    };
+
+    const handleYearMonthSelect = (year, month) => {
+        const newDate = new Date(year, month);
+        setCurrentDate(newDate);
+        setShowDatePicker(false);
+    };
+
+    // 년도 범위 생성 (현재 년도 기준 -5년 ~ +2년)
+    const currentYear = new Date().getFullYear();
+    const years = Array.from({ length: 8 }, (_, i) => currentYear - 5 + i);
+
     return (
         <div className="bg-gray-800 rounded-lg shadow-lg">
             {/* 장르 필터 */}
@@ -163,7 +196,7 @@ const EventCalendar = ({
             </div>
             <div className="p-2 lg:p-4">
                 {/* 월 이동 컨트롤 */}
-                <div className="flex items-center justify-center gap-8 mb-4">
+                <div className="relative flex items-center justify-center gap-8 mb-4">
                     <button
                         onClick={prevMonth}
                         className="p-3 text-lg text-gray-400 bg-indigo-900 lg:pl-6 lg:pr-6 lg:p-2 hover:text-white lg:text-base"
@@ -171,9 +204,20 @@ const EventCalendar = ({
                         ←
                     </button>
                     <div className="flex items-center">
-                        <h2 className="text-lg font-semibold text-white lg:text-xl">
+                        <button
+                            onClick={handleDatePickerToggle}
+                            className="flex items-center gap-2 px-3 py-1.5 text-lg font-semibold text-white transition-colors bg-gray-800 rounded-lg lg:text-xl hover:bg-gray-700 hover:text-indigo-300"
+                        >
                             {format(currentDate, "yyyy년 MM월", { locale: ko })}
-                        </h2>
+                            <svg
+                                className={`w-4 h-4 transition-transform ${showDatePicker ? "rotate-180" : ""}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
                         {isLoading && (
                             <div className="w-4 h-4 ml-2 border-b-2 border-indigo-500 rounded-full animate-spin"></div>
                         )}
@@ -184,6 +228,61 @@ const EventCalendar = ({
                     >
                         →
                     </button>
+
+                    {/* Date Picker Modal */}
+                    {showDatePicker && (
+                        <div ref={datePickerRef} className="absolute z-50 p-5 bg-gray-900 border border-indigo-700 rounded-lg shadow-2xl top-14 w-80 lg:w-96">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-base font-semibold text-white">날짜 선택</h3>
+                                <button
+                                    onClick={() => setShowDatePicker(false)}
+                                    className="p-1 text-gray-400 transition-colors rounded hover:text-white hover:bg-gray-800"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div className="mb-5">
+                                <h3 className="mb-3 text-sm font-medium text-indigo-300">년도</h3>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {years.map(year => (
+                                        <button
+                                            key={year}
+                                            onClick={() => handleYearMonthSelect(year, currentDate.getMonth())}
+                                            className={`px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
+                                                year === currentDate.getFullYear()
+                                                    ? "bg-indigo-600 text-white shadow-lg scale-105"
+                                                    : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+                                            }`}
+                                        >
+                                            {year}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 className="mb-3 text-sm font-medium text-indigo-300">월</h3>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {Array.from({ length: 12 }, (_, i) => i).map(month => (
+                                        <button
+                                            key={month}
+                                            onClick={() => handleYearMonthSelect(currentDate.getFullYear(), month)}
+                                            className={`px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
+                                                month === currentDate.getMonth()
+                                                    ? "bg-indigo-600 text-white shadow-lg scale-105"
+                                                    : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+                                            }`}
+                                        >
+                                            {month + 1}월
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* 요일 헤더 */}
