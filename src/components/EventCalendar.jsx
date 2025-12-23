@@ -32,6 +32,7 @@ const EventCalendar = ({
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const [showAllYears, setShowAllYears] = useState(false);
     const datePickerRef = useRef(null);
     const today = startOfDay(new Date());
 
@@ -160,6 +161,7 @@ const EventCalendar = ({
         if (!showDatePicker) {
             // Date picker를 열 때 현재 달력에 표시된 년도로 설정
             setSelectedYear(currentDate.getFullYear());
+            setShowAllYears(false); // 펼치기 상태 초기화
         }
         setShowDatePicker(!showDatePicker);
     };
@@ -177,6 +179,14 @@ const EventCalendar = ({
 
     // 이벤트가 있는 년도 추출
     const availableYears = [...new Set(events.map(event => new Date(event.schedule).getFullYear()))].sort((a, b) => b - a);
+
+    // 최근 4년과 나머지로 분리
+    const currentYear = new Date().getFullYear();
+    const recentYears = availableYears.filter(year => year >= currentYear - 2);
+    const olderYears = availableYears.filter(year => year < currentYear - 2);
+
+    // 표시할 년도 결정
+    const displayedYears = showAllYears ? availableYears : recentYears;
 
     // 선택된 년도에 이벤트가 있는 월 추출
     const availableMonths = [...new Set(
@@ -263,7 +273,7 @@ const EventCalendar = ({
                             <div className="mb-5">
                                 <h3 className="mb-3 text-sm font-medium text-indigo-300">년도</h3>
                                 <div className="grid grid-cols-4 gap-2">
-                                    {availableYears.map(year => (
+                                    {displayedYears.map(year => (
                                         <button
                                             key={year}
                                             onClick={() => handleYearSelect(year)}
@@ -277,6 +287,28 @@ const EventCalendar = ({
                                         </button>
                                     ))}
                                 </div>
+                                {olderYears.length > 0 && (
+                                    <button
+                                        onClick={() => setShowAllYears(!showAllYears)}
+                                        className="flex items-center justify-center w-full gap-2 px-3 py-2 mt-3 text-sm font-medium text-indigo-300 transition-colors rounded-lg hover:bg-gray-800"
+                                    >
+                                        {showAllYears ? (
+                                            <>
+                                                <span>접기</span>
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                                </svg>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span>이전 년도 보기 ({olderYears.length}개)</span>
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </>
+                                        )}
+                                    </button>
+                                )}
                             </div>
 
                             <div>
