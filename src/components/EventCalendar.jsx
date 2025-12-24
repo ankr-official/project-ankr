@@ -356,20 +356,31 @@ const EventCalendar = ({
 
               <div>
                 <div className="grid grid-cols-3 gap-2">
-                  {availableMonths.map((month) => (
-                    <button
-                      key={month}
-                      onClick={() => handleYearMonthSelect(selectedYear, month)}
-                      className={`px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
-                        month === currentDate.getMonth() &&
-                        selectedYear === currentDate.getFullYear()
-                          ? "bg-indigo-600 text-white shadow-lg scale-105"
-                          : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
-                      }`}
-                    >
-                      {month + 1}월
-                    </button>
-                  ))}
+                  {Array.from({ length: 12 }, (_, i) => 11 - i).map((month) => {
+                    const hasEvents = availableMonths.includes(month);
+                    const isCurrentMonth =
+                      month === currentDate.getMonth() &&
+                      selectedYear === currentDate.getFullYear();
+                    return (
+                      <button
+                        key={month}
+                        onClick={() =>
+                          hasEvents &&
+                          handleYearMonthSelect(selectedYear, month)
+                        }
+                        disabled={!hasEvents}
+                        className={`px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
+                          !hasEvents
+                            ? "bg-gray-900 text-gray-600 cursor-not-allowed opacity-50"
+                            : isCurrentMonth
+                              ? "bg-indigo-600 text-white shadow-lg scale-105"
+                              : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+                        }`}
+                      >
+                        {month + 1}월
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
