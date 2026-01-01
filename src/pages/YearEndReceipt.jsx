@@ -12,7 +12,7 @@ function YearEndReceiptPage() {
     const [selectedIds, setSelectedIds] = useState([]);
     const [userName, setUserName] = useState("");
 
-    const currentYear = new Date().getFullYear();
+    const currentYear = 2025;
 
     const yearEvents = useMemo(
         () =>
