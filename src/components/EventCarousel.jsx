@@ -75,16 +75,16 @@ export function EventCarousel({ events, onEventClick }) {
                                 />
                             )}
                             <div className="flex-1 md:ml-8">
-                                <h2 className="mb-2 text-2xl font-bold text-white">
+                                <h2 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white transition-colors">
                                     {events[currentIndex].event_name}
                                 </h2>
-                                <p className="mb-2 text-gray-300">
+                                <p className="mb-2 text-gray-700 dark:text-gray-300 transition-colors">
                                     {formatDate(
                                         events[currentIndex].schedule,
                                         events[currentIndex].time_start
                                     )}
                                 </p>
-                                <p className="text-gray-400">
+                                <p className="text-gray-600 dark:text-gray-400 transition-colors">
                                     {events[currentIndex].location}
                                 </p>
                             </div>
@@ -97,7 +97,7 @@ export function EventCarousel({ events, onEventClick }) {
                     e.stopPropagation();
                     prevSlide();
                 }}
-                className="absolute left-4 top-1/2 p-2 text-white bg-transparent rounded-full transform -translate-y-1/2 focus:outline-none active:bg-gray-700 lg:hover:bg-gray-700"
+                className="absolute left-4 top-1/2 p-2 text-gray-900 dark:text-white bg-transparent rounded-full transform -translate-y-1/2 focus:outline-none active:bg-gray-300 dark:active:bg-gray-700 lg:hover:bg-gray-300 dark:lg:hover:bg-gray-700 transition-colors"
             >
                 <ChevronLeftIcon className="w-6 h-6" />
             </button>
@@ -106,7 +106,7 @@ export function EventCarousel({ events, onEventClick }) {
                     e.stopPropagation();
                     nextSlide();
                 }}
-                className="absolute right-4 top-1/2 p-2 text-white bg-transparent rounded-full transform -translate-y-1/2 focus:outline-none active:bg-gray-700 lg:hover:bg-gray-700"
+                className="absolute right-4 top-1/2 p-2 text-gray-900 dark:text-white bg-transparent rounded-full transform -translate-y-1/2 focus:outline-none active:bg-gray-300 dark:active:bg-gray-700 lg:hover:bg-gray-300 dark:lg:hover:bg-gray-700 transition-colors"
             >
                 <ChevronRightIcon className="w-6 h-6" />
             </button>
@@ -127,8 +127,8 @@ export function EventCarousel({ events, onEventClick }) {
                             }
                             setCurrentIndex(index);
                         }}
-                        className={`focus:outline-none p-0 w-[16px] h-[16px] rounded-full ${
-                            index === currentIndex ? "bg-white" : "bg-gray-500"
+                        className={`focus:outline-none p-0 w-[16px] h-[16px] rounded-full transition-colors ${
+                            index === currentIndex ? "bg-gray-900 dark:bg-white" : "bg-gray-400 dark:bg-gray-500"
                         }`}
                     />
                 ))}
