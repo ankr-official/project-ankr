@@ -138,12 +138,12 @@ export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-start justify-start overflow-hidden bg-black bg-opacity-50 sm:justify-center sm:pt-16 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-start justify-start overflow-hidden bg-black dark:bg-black bg-opacity-50 dark:bg-opacity-50 sm:justify-center sm:pt-16 backdrop-blur-sm">
             <div
                 ref={modalRef}
-                className="w-full  sm:max-w-3xl h-full sm:h-auto sm:max-h-[85vh] bg-gray-800 sm:rounded-lg shadow-xl sm:mx-4 sm:mt-16 flex flex-col"
+                className="w-full  sm:max-w-3xl h-full sm:h-auto sm:max-h-[85vh] bg-white dark:bg-gray-800 sm:rounded-lg shadow-xl sm:mx-4 sm:mt-16 flex flex-col transition-colors"
             >
-                <div className="sticky top-0 z-10 p-3 bg-gray-800 border-b border-gray-700 sm:rounded-t-lg sm:p-4">
+                <div className="sticky top-0 z-10 p-3 bg-white dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700 sm:rounded-t-lg sm:p-4 transition-colors">
                     <div className="relative flex items-center gap-2">
                         <div className="relative flex-1">
                             <input
@@ -152,7 +152,7 @@ export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
                                 value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)}
                                 placeholder="이벤트명, 장소, 장르로 검색..."
-                                className="w-full px-4 py-2.5 pl-10 pr-10 text-white bg-gray-700 sm:rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
+                                className="w-full px-4 py-2.5 pl-10 pr-10 text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 sm:rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base transition-colors"
                                 enterKeyHint="search"
                             />
                             <svg
@@ -174,7 +174,7 @@ export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
                                         setSearchQuery("");
                                         inputRef.current?.focus();
                                     }}
-                                    className="absolute p-1 text-gray-300 transition-colors -translate-y-1/2 bg-gray-500 rounded-full right-3 top-1/2 sm:hover:bg-gray-600 sm:hover:text-white active:bg-gray-600 active:text-white"
+                                    className="absolute p-1 text-gray-700 dark:text-gray-300 transition-colors -translate-y-1/2 bg-gray-300 dark:bg-gray-500 rounded-full right-3 top-1/2 sm:hover:bg-gray-400 dark:sm:hover:bg-gray-600 sm:hover:text-gray-900 dark:sm:hover:text-white active:bg-gray-400 dark:active:bg-gray-600 active:text-gray-900 dark:active:text-white"
                                     title="검색어 지우기"
                                 >
                                     <svg
@@ -195,7 +195,7 @@ export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-2.5 text-white transition-colors bg-transparent rounded-lg active:bg-gray-700 sm:hover:bg-gray-700"
+                            className="p-2.5 text-gray-900 dark:text-white transition-colors bg-transparent rounded-lg active:bg-gray-200 dark:active:bg-gray-700 sm:hover:bg-gray-200 dark:sm:hover:bg-gray-700"
                             title="닫기"
                         >
                             닫기
@@ -221,7 +221,7 @@ export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
                                         onEventSelect(event);
                                         onClose();
                                     }}
-                                    className="p-3 transition-colors bg-gray-700 rounded-lg cursor-pointer search-result-item sm:p-4 active:bg-gray-600 sm:hover:bg-gray-600"
+                                    className="p-3 transition-colors bg-gray-100 dark:bg-gray-700 rounded-lg cursor-pointer search-result-item sm:p-4 active:bg-gray-200 dark:active:bg-gray-600 sm:hover:bg-gray-200 dark:sm:hover:bg-gray-600"
                                 >
                                     <div className="flex items-center space-x-3 text-left sm:space-x-4">
                                         {event.img_url ? (
@@ -241,13 +241,13 @@ export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
                                             />
                                         )}
                                         <div className="flex-1 min-w-0">
-                                            <p className="mb-1.5 sm:mb-2 text-sm text-gray-300">
+                                            <p className="mb-1.5 sm:mb-2 text-sm text-gray-600 dark:text-gray-300 transition-colors">
                                                 {formatDate(
                                                     event.schedule,
                                                     event.time_start
                                                 )}
                                             </p>
-                                            <h3 className="mb-1.5 sm:mb-2 text-base sm:text-lg font-medium text-white line-clamp-2">
+                                            <h3 className="mb-1.5 sm:mb-2 text-base sm:text-lg font-medium text-gray-900 dark:text-white line-clamp-2 transition-colors">
                                                 {event.event_name}
                                             </h3>
                                             <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
@@ -264,11 +264,11 @@ export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
                                 </div>
                             ))
                         ) : searchQuery ? (
-                            <div className="p-6 text-center text-gray-400 sm:p-8">
+                            <div className="p-6 text-center text-gray-600 dark:text-gray-400 sm:p-8 transition-colors">
                                 검색 결과가 없습니다.
                             </div>
                         ) : (
-                            <div className="p-6 text-center text-gray-400 sm:p-8">
+                            <div className="p-6 text-center text-gray-600 dark:text-gray-400 sm:p-8 transition-colors">
                                 이벤트를 검색해보세요.
                             </div>
                         )}

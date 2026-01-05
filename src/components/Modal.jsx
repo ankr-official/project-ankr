@@ -119,14 +119,14 @@ const EventImage = ({ imgUrl, eventName }) => (
 const EventInfo = ({ data, isMobile }) => (
     <motion.div
         className={`grid ${data.time_start ? "grid-cols-2" : ""} gap-6 mb-6 ${
-            isMobile ? "bg-gray-800 p-4 rounded-xl" : "bg-gray-800 rounded-lg"
-        }`}
+            isMobile ? "bg-gray-100 dark:bg-gray-800 p-4 rounded-xl" : "bg-gray-100 dark:bg-gray-800 rounded-lg"
+        } transition-colors`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
     >
         <div>
-            <div className="py-2 space-y-2 text-gray-300">
+            <div className="py-2 space-y-2 text-gray-700 dark:text-gray-300 transition-colors">
                 <div className="flex flex-col md:flex-row">
                     <div
                         className={`p-2 font-medium ${data.time_start ? "w-full" : "md:w-48"}`}
@@ -161,7 +161,7 @@ const EventInfo = ({ data, isMobile }) => (
         </div>
         {data.time_start && (
             <div>
-                <div className="py-2 space-y-2 text-gray-300">
+                <div className="py-2 space-y-2 text-gray-700 dark:text-gray-300 transition-colors">
                     {data.time_entrance && (
                         <div className="flex flex-col md:flex-row">
                             <div className="w-full p-2 font-medium">입장</div>
@@ -192,7 +192,7 @@ const EventInfo = ({ data, isMobile }) => (
 
 const EventUrl = ({ eventUrl }) => (
     <div className="flex flex-col items-center">
-        <h3 className="mb-2 text-lg font-semibold text-gray-200">
+        <h3 className="mb-2 text-lg font-semibold text-gray-800 dark:text-gray-200 transition-colors">
             이벤트 SNS 링크
         </h3>
         <div className="flex flex-col items-center justify-center gap-2 lg:flex-row">
@@ -200,7 +200,7 @@ const EventUrl = ({ eventUrl }) => (
                 href={eventUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-300 break-all lg:hover:text-blue-100 lg:hover:underline"
+                className="text-blue-600 dark:text-blue-300 break-all lg:hover:text-blue-500 dark:lg:hover:text-blue-100 lg:hover:underline transition-colors"
             >
                 {eventUrl}
             </a>
@@ -209,7 +209,7 @@ const EventUrl = ({ eventUrl }) => (
                     navigator.clipboard.writeText(eventUrl);
                     toast.info("URL이 복사되었습니다!");
                 }}
-                className="hidden w-5 h-5 p-0 ml-2 text-indigo-200 lg:hover:text-gray-100 hover:cursor-pointer lg:block"
+                className="hidden w-5 h-5 p-0 ml-2 text-indigo-600 dark:text-indigo-200 lg:hover:text-indigo-800 dark:lg:hover:text-gray-100 hover:cursor-pointer lg:block transition-colors"
                 aria-label="Copy URL"
             />
         </div>
@@ -281,15 +281,15 @@ const ModalContent = ({ data, onClose, isMobile }) => (
             autoClose={2000}
             closeOnClick
             hideProgressBar
-            theme="dark"
+            theme="auto"
         />
         <motion.div
-            className={`${isMobile ? "px-4 py-4" : "px-8 py-8 bg-gray-900 md:p-12"}`}
+            className={`${isMobile ? "px-4 py-4" : "px-8 py-8 bg-white dark:bg-gray-900 md:p-12 transition-colors"}`}
             layoutId={`modal-content-${data.id}`}
         >
             <div className="flex items-center justify-between mb-4">
                 <motion.h2
-                    className="text-2xl font-bold text-white"
+                    className="text-2xl font-bold text-gray-900 dark:text-white transition-colors"
                     layoutId={`title-${data.id}`}
                 >
                     {data.event_name}
@@ -297,7 +297,7 @@ const ModalContent = ({ data, onClose, isMobile }) => (
                 {!isMobile && (
                     <button
                         onClick={onClose}
-                        className="p-1 text-indigo-200 bg-indigo-800 rounded-full lg:hover:text-indigo-900 lg:hover:bg-white"
+                        className="p-1 text-indigo-800 dark:text-indigo-200 bg-indigo-100 dark:bg-indigo-800 rounded-full lg:hover:text-white lg:hover:bg-indigo-600 dark:lg:hover:text-indigo-900 dark:lg:hover:bg-white transition-colors"
                     >
                         <XMarkIcon className="w-6 h-6" />
                     </button>
@@ -318,10 +318,10 @@ const ModalContent = ({ data, onClose, isMobile }) => (
                 {data.event_url && <EventUrl eventUrl={data.event_url} />}
                 {data.etc && (
                     <div>
-                        <h3 className="mb-2 text-lg font-semibold text-gray-200">
+                        <h3 className="mb-2 text-lg font-semibold text-gray-800 dark:text-gray-200 transition-colors">
                             기타 정보
                         </h3>
-                        <p className="text-gray-300">{data.etc}</p>
+                        <p className="text-gray-700 dark:text-gray-300 transition-colors">{data.etc}</p>
                     </div>
                 )}
                 <ActionButtons data={data} />
@@ -370,8 +370,8 @@ export function Modal({ isOpen, onClose, data }) {
                         isMobile ? "items-end" : "items-center"
                     } justify-center ${
                         isMobile
-                            ? "bg-black bg-opacity-30"
-                            : "bg-gray-500 bg-opacity-50"
+                            ? "bg-black dark:bg-black bg-opacity-30 dark:bg-opacity-30"
+                            : "bg-gray-300 dark:bg-gray-500 bg-opacity-50 dark:bg-opacity-50"
                     }`}
                     onClick={onClose}
                 >
@@ -384,9 +384,9 @@ export function Modal({ isOpen, onClose, data }) {
                         }
                         className={`${
                             isMobile
-                                ? "w-full h-[80vh] rounded-t-3xl bg-gray-900"
-                                : "rounded-lg md:max-w-3xl w-full max-h-[90vh] overflow-y-auto bg-gray-900"
-                        }`}
+                                ? "w-full h-[80vh] rounded-t-3xl bg-white dark:bg-gray-900"
+                                : "rounded-lg md:max-w-3xl w-full max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900"
+                        } transition-colors`}
                         onClick={e => e.stopPropagation()}
                         style={{ y: isMobile ? dragY : 0 }}
                     >
@@ -399,11 +399,11 @@ export function Modal({ isOpen, onClose, data }) {
                             >
                                 <button
                                     onClick={onClose}
-                                    className="absolute p-1 text-indigo-300 bg-transparent border-0 top-3 left-6 w-fit"
+                                    className="absolute p-1 text-indigo-600 dark:text-indigo-300 bg-transparent border-0 top-3 left-6 w-fit transition-colors"
                                 >
                                     닫기
                                 </button>
-                                <div className="w-12 h-1.5 mx-auto bg-gray-300 rounded-full" />
+                                <div className="w-12 h-1.5 mx-auto bg-gray-400 dark:bg-gray-300 rounded-full" />
                             </div>
                         )}
                         <div

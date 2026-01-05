@@ -1,4 +1,5 @@
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import YearEndReceiptPage from "./pages/YearEndReceipt";
 import "./App.css";
@@ -7,15 +8,16 @@ function App() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <Router>
-      <div className="rounded-lg">
+    <ThemeProvider>
+      <Router>
+        <div className="rounded-lg bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/event/:id" element={<Home />} />
           <Route path="/year-end-receipt" element={<YearEndReceiptPage />} />
           <Route path="*" element={<Home />} />
         </Routes>
-        <footer className="w-full py-8 mt-8 text-gray-300 bg-gray-900">
+        <footer className="w-full py-8 mt-8 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-900 transition-colors">
           <div className="container px-4 mx-auto">
             <div className="flex flex-col items-center space-y-4">
               <div className="text-center">
@@ -23,11 +25,11 @@ function App() {
                   © {currentYear} ANKR. All rights reserved.
                 </p>
               </div>
-              <div className="text-sm flex divide-x divide-gray-700 [&>*]:px-2">
+              <div className="text-sm flex divide-x divide-gray-300 dark:divide-gray-700 [&>*]:px-2">
                 <p>
                   <a
                     href="mailto:ankr.web.official@gmail.com"
-                    className="text-indigo-400 hover:text-indigo-300"
+                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
                   >
                     Email
                   </a>
@@ -35,7 +37,7 @@ function App() {
                 <p>
                   <a
                     href="https://x.com/ankr_db"
-                    className="text-indigo-400 hover:text-indigo-300"
+                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -45,7 +47,7 @@ function App() {
                 <p>
                   <a
                     href="https://www.instagram.com/ankr.db.official"
-                    className="text-indigo-400 hover:text-indigo-300"
+                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -56,8 +58,9 @@ function App() {
             </div>
           </div>
         </footer>
-      </div>
-    </Router>
+        </div>
+      </Router>
+    </ThemeProvider>
   );
 }
 

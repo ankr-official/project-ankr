@@ -86,7 +86,7 @@ function Home() {
         {/* This Week's Events Carousel */}
         {thisWeeksEvents.length > 0 && (
           <div className="mb-8">
-            <h2 className="mb-4 text-xl font-semibold text-gray-200">
+            <h2 className="mb-4 text-xl font-semibold text-gray-800 dark:text-gray-200 transition-colors">
               가까운 이벤트
             </h2>
             <EventCarousel
@@ -153,7 +153,7 @@ function Home() {
                   {visiblePastEvents < pastEvents.length && (
                     <button
                       onClick={loadMorePastEvents}
-                      className="px-4 py-2 mt-4 w-full text-white bg-gray-900 rounded border border-gray-700 hover:bg-gray-700"
+                      className="px-4 py-2 mt-4 w-full text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-900 rounded border border-gray-300 dark:border-gray-700 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
                     >
                       더보기
                     </button>
