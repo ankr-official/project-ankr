@@ -81,7 +81,7 @@ function Home() {
         <Header onSearchOpen={() => setIsSearchOpen(true)} />
 
         {/* Year-End Receipt Entry Banner (non-sticky, part of normal content) */}
-        <YearEndReceiptBanner />
+        {/* <YearEndReceiptBanner /> */}
 
         {/* This Week's Events Carousel */}
         {thisWeeksEvents.length > 0 && (

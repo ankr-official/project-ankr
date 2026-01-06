@@ -229,14 +229,14 @@ const EventCalendar = ({
         <div className="relative flex items-center justify-center gap-8 mb-4">
           <button
             onClick={prevMonth}
-            className="p-3 text-lg text-gray-700 dark:text-gray-400 bg-indigo-200 dark:bg-indigo-900 lg:pl-6 lg:pr-6 lg:p-2 hover:text-gray-900 dark:hover:text-white lg:text-base transition-colors"
+            className="p-3 text-lg text-gray-700 dark:text-gray-400 bg-indigo-100 dark:bg-indigo-900 lg:pl-6 lg:pr-6 lg:p-2 lg:hover:bg-indigo-200 dark:lg:hover:bg-indigo-800 hover:text-gray-900 dark:hover:text-white lg:text-base transition-colors"
           >
             ←
           </button>
           <div className="flex items-center">
             <button
               onClick={handleDatePickerToggle}
-              className="flex items-center gap-2 px-3 py-1.5 text-lg font-semibold text-gray-900 dark:text-white transition-colors bg-gray-300 dark:bg-gray-800 rounded-lg lg:text-xl hover:bg-gray-400 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-300"
+              className="flex items-center gap-2 px-3 py-1.5 text-lg font-semibold text-gray-900 dark:text-white transition-colors bg-gray-200/50 dark:bg-gray-800 rounded-lg lg:text-xl lg:hover:bg-gray-200 dark:lg:hover:bg-gray-700 lg:hover:text-indigo-600 dark:lg:hover:text-indigo-300"
             >
               {format(currentDate, "yyyy년 MM월", { locale: ko })}
               <svg
@@ -259,7 +259,7 @@ const EventCalendar = ({
           </div>
           <button
             onClick={nextMonth}
-            className="p-3 text-lg text-gray-700 dark:text-gray-400 bg-indigo-200 dark:bg-indigo-900 lg:p-2 lg:pl-6 lg:pr-6 hover:text-gray-900 dark:hover:text-white lg:text-base transition-colors"
+            className="p-3 text-lg text-gray-700 dark:text-gray-400 bg-indigo-100 dark:bg-indigo-900 lg:p-2 lg:pl-6 lg:pr-6 lg:hover:bg-indigo-200 dark:lg:hover:bg-indigo-800 hover:text-gray-900 dark:hover:text-white lg:text-base transition-colors"
           >
             →
           </button>
@@ -415,8 +415,8 @@ const EventCalendar = ({
                   !isCurrentMonth
                     ? "bg-gray-200 dark:bg-gray-700 bg-opacity-10 dark:bg-opacity-10"
                     : isPast
-                      ? "bg-gray-300 dark:bg-gray-700 bg-opacity-40 dark:bg-opacity-40"
-                      : "bg-gray-300 dark:bg-gray-700 bg-opacity-80 dark:bg-opacity-80"
+                      ? "bg-gray-200 dark:bg-gray-700 bg-opacity-40 dark:bg-opacity-40"
+                      : "bg-gray-300/50 dark:bg-gray-700 bg-opacity-80 dark:bg-opacity-80"
                 } ${isToday(day) ? "ring-2 ring-indigo-500 dark:ring-indigo-500" : ""} ${
                   selectedDate && isSameDay(day, selectedDate)
                     ? "ring-2 ring-indigo-400 dark:ring-indigo-300"
@@ -477,8 +477,8 @@ const EventCalendar = ({
       </div>
 
       {selectedDate && (
-        <div id="event-list" className="p-4 mt-4 border-t border-gray-300 dark:border-gray-700 transition-colors">
-          <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white transition-colors">
+        <div id="event-list" className="px-4 pt-4 pb-8 mt-4">
+          <h3 className="mb-8 text-lg font-semibold text-gray-900 dark:text-white transition-colors">
             {format(selectedDate, "yyyy년 MM월 dd일", {
               locale: ko,
             })}{" "}
@@ -489,7 +489,7 @@ const EventCalendar = ({
               <div
                 key={event.id}
                 onClick={() => onEventSelect(event)}
-                className="p-4 transition-colors bg-gray-200 dark:bg-gray-700 bg-opacity-50 dark:bg-opacity-50 rounded-lg shadow cursor-pointer lg:hover:bg-gray-300 dark:lg:hover:bg-gray-600 active:bg-indigo-200 dark:active:bg-indigo-900"
+                className="p-4 transition-colors bg-gray-300/50 dark:bg-gray-700 bg-opacity-50 dark:bg-opacity-50 rounded-lg shadow cursor-pointer lg:hover:bg-gray-300 dark:lg:hover:bg-gray-600 active:bg-indigo-200 dark:active:bg-indigo-900"
               >
                 <div className="flex items-center space-x-4">
                   {event.img_url ? (
