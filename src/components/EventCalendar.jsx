@@ -202,9 +202,9 @@ const EventCalendar = ({
   ].sort((a, b) => b - a);
 
   return (
-    <div className="bg-gray-800 rounded-lg shadow-lg">
+    <div className="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg transition-colors">
       {/* 장르 필터 */}
-      <div className="top-0 z-10 p-4 mb-6 bg-gray-900 rounded-lg rounded-bl-none rounded-br-none">
+      <div className="top-0 z-10 p-4 mb-6 bg-gray-200 dark:bg-gray-900 rounded-lg rounded-bl-none rounded-br-none transition-colors">
         <div className="flex flex-wrap gap-1.5 lg:gap-2">
           {[
             "all",
@@ -215,8 +215,8 @@ const EventCalendar = ({
               onClick={() => onGenreChange(genre)}
               className={`px-2.5 py-1.5 lg:px-3 lg:py-1 text-sm font-medium rounded-full transition-colors ${
                 selectedGenres.includes(genre)
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                  ? "bg-indigo-600 dark:bg-indigo-600 text-white"
+                  : "bg-gray-300 dark:bg-gray-800 text-gray-800 dark:text-gray-300 hover:bg-gray-400 dark:hover:bg-gray-700"
               }`}
             >
               {genre === "all" ? "전체" : genre}
@@ -229,14 +229,14 @@ const EventCalendar = ({
         <div className="relative flex items-center justify-center gap-8 mb-4">
           <button
             onClick={prevMonth}
-            className="p-3 text-lg text-gray-400 bg-indigo-900 lg:pl-6 lg:pr-6 lg:p-2 hover:text-white lg:text-base"
+            className="p-3 text-lg text-gray-700 dark:text-gray-400 bg-indigo-100 dark:bg-indigo-900 lg:pl-6 lg:pr-6 lg:p-2 lg:hover:bg-indigo-200 dark:lg:hover:bg-indigo-800 hover:text-gray-900 dark:hover:text-white lg:text-base transition-colors"
           >
             ←
           </button>
           <div className="flex items-center">
             <button
               onClick={handleDatePickerToggle}
-              className="flex items-center gap-2 px-3 py-1.5 text-lg font-semibold text-white transition-colors bg-gray-800 rounded-lg lg:text-xl hover:bg-gray-700 hover:text-indigo-300"
+              className="flex items-center gap-2 px-3 py-1.5 text-lg font-semibold text-gray-900 dark:text-white transition-colors bg-gray-200/50 dark:bg-gray-800 rounded-lg lg:text-xl lg:hover:bg-gray-200 dark:lg:hover:bg-gray-700 lg:hover:text-indigo-600 dark:lg:hover:text-indigo-300"
             >
               {format(currentDate, "yyyy년 MM월", { locale: ko })}
               <svg
@@ -259,7 +259,7 @@ const EventCalendar = ({
           </div>
           <button
             onClick={nextMonth}
-            className="p-3 text-lg text-gray-400 bg-indigo-900 lg:p-2 lg:pl-6 lg:pr-6 hover:text-white lg:text-base"
+            className="p-3 text-lg text-gray-700 dark:text-gray-400 bg-indigo-100 dark:bg-indigo-900 lg:p-2 lg:pl-6 lg:pr-6 lg:hover:bg-indigo-200 dark:lg:hover:bg-indigo-800 hover:text-gray-900 dark:hover:text-white lg:text-base transition-colors"
           >
             →
           </button>
@@ -268,15 +268,15 @@ const EventCalendar = ({
           {showDatePicker && (
             <div
               ref={datePickerRef}
-              className="absolute z-50 p-5 bg-gray-900 border border-indigo-700 rounded-lg shadow-2xl top-14 w-80 lg:w-96"
+              className="absolute z-50 p-5 bg-white dark:bg-gray-900 border border-indigo-400 dark:border-indigo-700 rounded-lg shadow-2xl top-14 w-80 lg:w-96 transition-colors"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-center w-full font-semibold text-white">
+                <h3 className="text-center w-full font-semibold text-gray-900 dark:text-white transition-colors">
                   년/월 바로가기
                 </h3>
                 <button
                   onClick={() => setShowDatePicker(false)}
-                  className="p-1 text-gray-400 transition-colors rounded hover:text-white hover:bg-gray-800"
+                  className="p-1 text-gray-600 dark:text-gray-400 transition-colors rounded hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-800"
                 >
                   <svg
                     className="w-5 h-5"
@@ -302,8 +302,8 @@ const EventCalendar = ({
                       onClick={() => handleYearSelect(year)}
                       className={`px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
                         year === selectedYear
-                          ? "bg-indigo-600 text-white shadow-lg scale-105"
-                          : "bg-gray-800 text-gray-300 hover:bg-gray-700 lg:hover:text-white focus:text-white"
+                          ? "bg-indigo-600 dark:bg-indigo-600 text-white shadow-lg scale-105"
+                          : "bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 lg:hover:text-gray-900 dark:lg:hover:text-white focus:text-gray-900 dark:focus:text-white"
                       }`}
                     >
                       {year}
@@ -313,7 +313,7 @@ const EventCalendar = ({
                 {olderYears.length > 0 && (
                   <button
                     onClick={() => setShowAllYears(!showAllYears)}
-                    className="flex items-center justify-center w-full gap-2 px-3 py-2 mt-3 text-sm font-medium text-indigo-300 transition-colors rounded-lg bg-gray-900 lg:hover:bg-gray-800 focus:bg-gray-800"
+                    className="flex items-center justify-center w-full gap-2 px-3 py-2 mt-3 text-sm font-medium text-indigo-600 dark:text-indigo-300 transition-colors rounded-lg bg-gray-200 dark:bg-gray-900 lg:hover:bg-gray-300 dark:lg:hover:bg-gray-800 focus:bg-gray-300 dark:focus:bg-gray-800"
                   >
                     {showAllYears ? (
                       <>
@@ -371,10 +371,10 @@ const EventCalendar = ({
                         disabled={!hasEvents}
                         className={`px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
                           !hasEvents
-                            ? "bg-gray-900 text-gray-600 cursor-not-allowed opacity-50"
+                            ? "bg-gray-300 dark:bg-gray-900 text-gray-500 dark:text-gray-600 cursor-not-allowed opacity-50"
                             : isCurrentMonth
-                              ? "bg-indigo-600 text-white shadow-lg scale-105"
-                              : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+                              ? "bg-indigo-600 dark:bg-indigo-600 text-white shadow-lg scale-105"
+                              : "bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
                         }`}
                       >
                         {month + 1}월
@@ -392,7 +392,7 @@ const EventCalendar = ({
           {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
             <div
               key={day}
-              className="py-1.5 lg:py-2 text-xs lg:text-sm font-medium text-center text-gray-400"
+              className="py-1.5 lg:py-2 text-xs lg:text-sm font-medium text-center text-gray-600 dark:text-gray-400 transition-colors"
             >
               {day}
             </div>
@@ -411,28 +411,28 @@ const EventCalendar = ({
               <div
                 key={day.toString()}
                 onClick={() => handleDateClick(day)}
-                className={`min-h-[80px] lg:min-h-[100px] p-0.5 lg:p-1 rounded cursor-pointer ${
+                className={`min-h-[80px] lg:min-h-[100px] p-0.5 lg:p-1 rounded cursor-pointer transition-colors ${
                   !isCurrentMonth
-                    ? "bg-gray-700 bg-opacity-10"
+                    ? "bg-gray-200 dark:bg-gray-700 bg-opacity-10 dark:bg-opacity-10"
                     : isPast
-                      ? "bg-gray-700 bg-opacity-40"
-                      : "bg-gray-700 bg-opacity-80"
-                } ${isToday(day) ? "ring-2 ring-indigo-500" : ""} ${
+                      ? "bg-gray-200 dark:bg-gray-700 bg-opacity-40 dark:bg-opacity-40"
+                      : "bg-gray-300/50 dark:bg-gray-700 bg-opacity-80 dark:bg-opacity-80"
+                } ${isToday(day) ? "ring-2 ring-indigo-500 dark:ring-indigo-500" : ""} ${
                   selectedDate && isSameDay(day, selectedDate)
-                    ? "ring-2 ring-indigo-300"
+                    ? "ring-2 ring-indigo-400 dark:ring-indigo-300"
                     : ""
                 }`}
               >
                 <div className="flex flex-col">
                   <div
-                    className={`text-right text-xs lg:text-sm ${
+                    className={`text-right text-xs lg:text-sm transition-colors ${
                       holidayList
-                        ? "text-red-400"
+                        ? "text-red-600 dark:text-red-400"
                         : day.getDay() === 0
-                          ? "text-red-400"
+                          ? "text-red-600 dark:text-red-400"
                           : day.getDay() === 6
-                            ? "text-blue-400"
-                            : "text-gray-300"
+                            ? "text-blue-600 dark:text-blue-400"
+                            : "text-gray-700 dark:text-gray-300"
                     } ${!isCurrentMonth ? "opacity-50" : ""} ${isPast ? "opacity-50" : ""}`}
                   >
                     {format(day, "d")}
@@ -442,7 +442,7 @@ const EventCalendar = ({
                       {holidayList.map((holiday, index) => (
                         <div
                           key={index}
-                          className={`text-right text-[10px] lg:text-xs text-red-400 ${!isCurrentMonth ? "opacity-50" : ""}`}
+                          className={`text-right text-[10px] lg:text-xs text-red-600 dark:text-red-400 transition-colors ${!isCurrentMonth ? "opacity-50" : ""}`}
                         >
                           {holiday}
                         </div>
@@ -461,9 +461,9 @@ const EventCalendar = ({
                     return (
                       <div
                         key={event.id}
-                        className={`p-0.5 pt-1 lg:p-1 text-[10px] lg:text-xs truncate rounded ${genreColor}`}
+                        className={`p-0.5 pt-1 lg:p-1 text-[10px] lg:text-xs truncate rounded ${genreColor} transition-colors`}
                       >
-                        <div className="font-medium text-white truncate">
+                        <div className="font-medium truncate">
                           {event.event_name}
                         </div>
                       </div>
@@ -477,8 +477,8 @@ const EventCalendar = ({
       </div>
 
       {selectedDate && (
-        <div id="event-list" className="p-4 mt-4 border-t border-gray-700">
-          <h3 className="mb-4 text-lg font-semibold text-white">
+        <div id="event-list" className="px-4 pt-4 pb-8 mt-4">
+          <h3 className="mb-8 text-lg font-semibold text-gray-900 dark:text-white transition-colors">
             {format(selectedDate, "yyyy년 MM월 dd일", {
               locale: ko,
             })}{" "}
@@ -489,7 +489,7 @@ const EventCalendar = ({
               <div
                 key={event.id}
                 onClick={() => onEventSelect(event)}
-                className="p-4 transition-colors bg-gray-700 bg-opacity-50 rounded-lg shadow cursor-pointer lg:hover:bg-gray-600 active:bg-indigo-900"
+                className="p-4 transition-colors bg-gray-300/50 dark:bg-gray-700 bg-opacity-50 dark:bg-opacity-50 rounded-lg shadow cursor-pointer lg:hover:bg-gray-300 dark:lg:hover:bg-gray-600 active:bg-indigo-200 dark:active:bg-indigo-900"
               >
                 <div className="flex items-center space-x-4">
                   {event.img_url ? (
@@ -506,10 +506,10 @@ const EventCalendar = ({
                     />
                   )}
                   <div className="flex-1 min-w-0 text-left">
-                    <p className="mb-2 text-sm text-gray-300">
+                    <p className="mb-2 text-sm text-gray-600 dark:text-gray-300 transition-colors">
                       {formatDate(event.schedule, event.time_start)}
                     </p>
-                    <h3 className="mb-2 text-base font-medium text-white truncate">
+                    <h3 className="mb-2 text-base font-medium text-gray-900 dark:text-white truncate transition-colors">
                       {event.event_name}
                     </h3>
                     <div className="mb-2">
@@ -527,10 +527,10 @@ const EventCalendar = ({
             ))}
             {getEventsForDay(selectedDate).length === 0 && (
               <div className="p-8 text-center rounded-lg col-span-full">
-                <p className="text-lg text-gray-300">
+                <p className="text-lg text-gray-700 dark:text-gray-300 transition-colors">
                   등록된 이벤트 정보가 없습니다.
                 </p>
-                <p className="text-gray-400">
+                <p className="text-gray-600 dark:text-gray-400 transition-colors">
                   (이벤트가 있다면 아래의 버튼을 눌러 제보해주세요.)
                 </p>
               </div>
