@@ -22,7 +22,7 @@ function App() {
               <div className="flex flex-col items-center space-y-4">
                 <div className="text-center">
                   <p className="text-sm">
-                    © {currentYear} ANKR. All rights reserved.
+                    © {currentYear} ANKR.KR, All rights reserved.
                   </p>
                 </div>
                 <div className="text-sm flex divide-x divide-gray-300 dark:divide-gray-700 [&>*]:px-2">

@@ -85,10 +85,10 @@ function Home() {
 
         {/* This Week's Events Carousel */}
         {thisWeeksEvents.length > 0 && (
-          <div className="mb-8">
-            <h2 className="mb-4 text-xl font-semibold text-gray-800 dark:text-gray-200 transition-colors">
+          <div className="mb-8 ">
+            {/* <h2 className="mb-4 text-xl font-semibold text-gray-800 dark:text-gray-200 transition-colors">
               가까운 이벤트
-            </h2>
+            </h2> */}
             <EventCarousel
               events={thisWeeksEvents}
               onEventClick={handleModalOpen}
@@ -100,13 +100,18 @@ function Home() {
         <div>
           {/* Controls */}
           <div
-            className={`flex flex-col-reverse lg:mb-0 lg:flex-row lg:items-end ${
-              viewMode === "calendar" ? "justify-end" : "justify-between"
+            className={`flex flex-col justify-between lg:mb-0 lg:items-end ${
+              viewMode === "calendar" ? "justify-end" : "lg:flex-row-reverse"
             }`}
           >
+            {/* View Mode Toggle */}
+            <ViewModeToggle
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+            />
             {/* Tab Buttons (Hidden in calendar mode) */}
             <div
-              className={`flex space-x-2 mb-4 lg:mb-0 ${
+              className={`flex space-x-2 mb-0 ${
                 viewMode === "calendar" ? "hidden" : ""
               }`}
             >
@@ -124,11 +129,7 @@ function Home() {
               </TabButton>
             </div>
 
-            {/* View Mode Toggle */}
-            <ViewModeToggle
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
-            />
+
           </div>
 
           {/* Content based on view mode */}

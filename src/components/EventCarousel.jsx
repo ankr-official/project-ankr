@@ -6,7 +6,7 @@ import { formatDate } from "../utils/dateUtils";
 export function EventCarousel({ events, onEventClick }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const autoAdvanceTimeout = useRef(null);
-  const AUTO_DELAY_MS = 3000;
+  const AUTO_DELAY_MS = 5000;
 
   const scheduleNextAutoAdvance = () => {
     if (autoAdvanceTimeout.current) {
@@ -48,56 +48,70 @@ export function EventCarousel({ events, onEventClick }) {
 
   if (events.length === 0) return null;
 
+  const currentEvent = events[currentIndex];
+
   return (
     <div
-      className="overflow-hidden relative m-auto mb-8 w-full rounded-lg cursor-pointer"
-      onClick={() => onEventClick(events[currentIndex])}
+      className="relative m-auto mb-8 w-full max-w-5xl overflow-hidden rounded-lg bg-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-900 dark:to-black border dark:border-gray-900 cursor-pointer transition-colors"
+      onClick={() => onEventClick(currentEvent)}
     >
-      <div className="relative h-72">
+      <div className="relative h-32 md:h-60">
+        {/* 배경 이미지 - 부드러운 페이드 전환 */}
+        <AnimatePresence mode="wait">
+          {currentEvent.img_url && (
+            <motion.img
+              key={currentIndex}
+              initial={{ opacity: 0, scale: 1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              src={currentEvent.img_url.replace(/(name=)[^&]*/, "$1large")}
+              alt={currentEvent.event_name}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          )}
+        </AnimatePresence>
+
+        {/* 어두운 오버레이 (라이트/다크 모드 각각 튜닝) */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/70 via-white/80 to-white/40 dark:from-black/85 dark:via-black/60 dark:to-black/40" />
+
+        {/* 내용 */}
         <AnimatePresence mode="wait">
           <motion.div
             key={currentIndex}
-            initial={{ opacity: 0, x: 100 }}
+            initial={{ opacity: 0, x: 80 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.3 }}
-            className="flex absolute inset-0 items-center px-20 pb-8"
+            exit={{ opacity: 0, x: -80 }}
+            transition={{ duration: 0.35 }}
+            className="relative z-10 flex h-full items-center px-6 md:px-16"
           >
-            <div className="flex flex-col items-center w-full md:flex-row">
-              {events[currentIndex].img_url && (
-                <img
-                  src={events[currentIndex].img_url.replace(
-                    /(name=)[^&]*/,
-                    "$1small"
-                  )}
-                  alt={events[currentIndex].event_name}
-                  className="object-cover mb-4 w-20 h-20 rounded-lg md:w-48 md:h-48 md:mb-0"
-                />
-              )}
-              <div className="flex-1 md:ml-8">
-                <h2 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white transition-colors">
-                  {events[currentIndex].event_name}
-                </h2>
-                <p className="mb-2 text-gray-700 dark:text-gray-300 transition-colors">
-                  {formatDate(
-                    events[currentIndex].schedule,
-                    events[currentIndex].time_start
-                  )}
-                </p>
-                <p className="text-gray-600 dark:text-gray-400 transition-colors">
-                  {events[currentIndex].location}
-                </p>
-              </div>
+            <div className="w-full text-center md:text-left flex flex-col items-center md:items-start gap-2 md:gap-3">
+              {/* 상단 날짜/시간 */}
+              <p className="text-xs md:text-sm font-medium dark:text-gray-200/90 tracking-wide">
+                {formatDate(currentEvent.schedule, currentEvent.time_start)}
+              </p>
+
+              {/* 이벤트 이름 */}
+              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight  dark:text-white">
+                {currentEvent.event_name}
+              </h2>
+
+              {/* 장소 정보 */}
+              <p className="text-sm md:text-base dark:text-gray-200/80">
+                {currentEvent.location}
+              </p>
             </div>
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* 좌우 네비게이션 버튼 */}
       <button
         onClick={(e) => {
           e.stopPropagation();
           prevSlide();
         }}
-        className="absolute left-4 top-1/2 p-2 text-gray-900 dark:text-white bg-transparent rounded-full transform -translate-y-1/2 focus:outline-none active:bg-gray-300 dark:active:bg-gray-700 lg:hover:bg-gray-300 dark:lg:hover:bg-gray-700 transition-colors"
+        className="absolute left-4 top-1/2 z-20 p-2 text-gray-900 dark:text-white bg-transparent rounded-full transform -translate-y-1/2 focus:outline-none active:bg-gray-300 dark:active:bg-gray-700 lg:hover:bg-gray-300 dark:lg:hover:bg-gray-700 transition-colors"
       >
         <ChevronLeftIcon className="w-6 h-6" />
       </button>
@@ -106,11 +120,16 @@ export function EventCarousel({ events, onEventClick }) {
           e.stopPropagation();
           nextSlide();
         }}
-        className="absolute right-4 top-1/2 p-2 text-gray-900 dark:text-white bg-transparent rounded-full transform -translate-y-1/2 focus:outline-none active:bg-gray-300 dark:active:bg-gray-700 lg:hover:bg-gray-300 dark:lg:hover:bg-gray-700 transition-colors"
+        className="absolute right-4 top-1/2 z-20 p-2 text-gray-900 dark:text-white bg-transparent rounded-full transform -translate-y-1/2 focus:outline-none active:bg-gray-300 dark:active:bg-gray-700 lg:hover:bg-gray-300 dark:lg:hover:bg-gray-700 transition-colors"
       >
         <ChevronRightIcon className="w-6 h-6" />
       </button>
-      <div className="flex justify-center p-2 space-x-2">
+
+      {/* 인디케이터 불릿 - 이 영역 클릭 시 상세 모달이 열리지 않도록 이벤트 버블링 방지 */}
+      <div
+        className="flex justify-center py-4 space-x-2"
+        onClick={(e) => e.stopPropagation()}
+      >
         {events.map((_, index) => (
           <button
             key={index}
