@@ -49,7 +49,7 @@ function Home() {
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen">
-        <div className="container flex-grow px-2 py-8 mx-auto lg:px-4">
+        <div className="container flex-grow px-2 py-6 mx-auto lg:px-4">
           <div className="flex justify-center items-center h-64">
             <div className="w-12 h-12 rounded-full border-b-2 border-indigo-700 animate-spin"></div>
           </div>
@@ -76,7 +76,7 @@ function Home() {
         onEventSelect={handleModalOpen}
       />
 
-      <div className="container flex-grow px-2 py-8 mx-auto lg:px-4">
+      <div className="container flex-grow px-2 py-6 mx-auto lg:px-4">
         {/* Header */}
         <Header onSearchOpen={() => setIsSearchOpen(true)} />
 

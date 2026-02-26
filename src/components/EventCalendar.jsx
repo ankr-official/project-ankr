@@ -202,9 +202,9 @@ const EventCalendar = ({
   ].sort((a, b) => b - a);
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg transition-colors">
+    <div>
       {/* 장르 필터 */}
-      <div className="top-0 z-10 p-4 mb-6 bg-gray-200 dark:bg-gray-900 rounded-lg rounded-bl-none rounded-br-none transition-colors">
+      <div className="top-0 z-10 p-2 lg:p-4 mb-4 lg:mb-0 bg-gray-200 dark:bg-gray-900 rounded-lg lg:rounded-bl-none lg:rounded-br-none transition-colors">
         <div className="flex flex-wrap gap-1.5 lg:gap-2">
           {[
             "all",
@@ -224,7 +224,7 @@ const EventCalendar = ({
           ))}
         </div>
       </div>
-      <div className="p-2 lg:p-4">
+      <div className="px-2 py-4 lg:p-4 lg:pt-6 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg transition-colors">
         {/* 월 이동 컨트롤 */}
         <div className="relative flex items-center justify-center gap-8 mb-4">
           <button
@@ -474,8 +474,6 @@ const EventCalendar = ({
             );
           })}
         </div>
-      </div>
-
       {selectedDate && (
         <div id="event-list" className="px-4 pt-4 pb-8 mt-4">
           <h3 className="mb-8 text-lg font-semibold text-gray-900 dark:text-white transition-colors">
@@ -538,6 +536,8 @@ const EventCalendar = ({
           </div>
         </div>
       )}
+      </div>
+
     </div>
   );
 };

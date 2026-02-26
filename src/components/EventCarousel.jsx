@@ -52,7 +52,7 @@ export function EventCarousel({ events, onEventClick }) {
 
   return (
     <div
-      className="relative m-auto mb-8 w-full max-w-5xl overflow-hidden rounded-lg bg-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-900 dark:to-black border dark:border-gray-900 cursor-pointer transition-colors"
+      className="relative m-auto mb-8 w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-900 dark:to-black border dark:border-gray-900 cursor-pointer transition-colors"
       onClick={() => onEventClick(currentEvent)}
     >
       <div className="relative h-32 md:h-60">
