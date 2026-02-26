@@ -2,9 +2,9 @@ import ThemeToggle from "./ThemeToggle";
 
 export const Header = ({ onSearchOpen }) => {
   return (
-    <div className="flex lg:flex-row flex-col gap-3 lg:gap-4 justify-between items-center lg:px-6   mb-6 transition-colors">
+    <div className="flex lg:flex-row flex-col gap-3 lg:gap-4 justify-between items-center lg:px-2 mb-6 transition-colors">
       {/* 타이틀 영역: 모바일/데스크톱 공통 사용, 다크모드 토글은 모바일에서만 표시 */}
-      <div className="flex-1 w-full px-4 lg:px-0 flex items-center justify-between">
+      <div className="flex-1 w-full flex items-center justify-between">
         <a
           href="/"
           className="flex-1 inline-flex items-center gap-2 text-balance text-xl font-bold md:text-3xl text-gray-900 dark:text-white transition-colors text-left lg:hover:opacity-50 transition-opacity p-2"
