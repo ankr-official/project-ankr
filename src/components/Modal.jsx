@@ -9,8 +9,7 @@ import { formatDate, formatTime } from "../utils/dateUtils";
 import { useEffect, useRef, useState } from "react";
 import { GenreTag } from "./common/GenreTag";
 import { LocationLink } from "./common/LocationLink";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import { addToGoogleCalendar } from "../utils/calendarUtils";
 
 // Custom hooks
@@ -69,7 +68,7 @@ const useModalBodyLock = (isOpen) => {
       document.body.style.setProperty("--scroll-y", `-${scrollY}px`);
       document.body.style.setProperty(
         "--scrollbar-width",
-        `${scrollbarWidth}px`
+        `${scrollbarWidth}px`,
       );
       document.body.classList.add("modal-open");
 
@@ -216,12 +215,12 @@ const ActionButtons = ({ data }) => {
     const todayDate = new Date(
       today.getFullYear(),
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     );
     const eventDateOnly = new Date(
       eventDate.getFullYear(),
       eventDate.getMonth(),
-      eventDate.getDate()
+      eventDate.getDate(),
     );
 
     let text;
@@ -269,13 +268,6 @@ const ActionButtons = ({ data }) => {
 
 const ModalContent = ({ data, onClose, isMobile }) => (
   <>
-    <ToastContainer
-      position="bottom-center"
-      autoClose={2000}
-      closeOnClick
-      hideProgressBar
-      theme="auto"
-    />
     <motion.div
       className={`${isMobile ? "px-4 py-4" : "px-8 py-8 bg-gray-200 dark:bg-gray-900 md:p-12 transition-colors"}`}
       layoutId={`modal-content-${data.id}`}

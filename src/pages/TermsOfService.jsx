@@ -1,0 +1,236 @@
+import { Link } from "react-router-dom";
+
+const Section = ({ number, title, children }) => (
+  <section className="mb-10">
+    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">
+      제{number}조 {title}
+    </h2>
+    <div className="text-gray-700 dark:text-gray-300 space-y-2 text-sm leading-relaxed">
+      {children}
+    </div>
+  </section>
+);
+
+export default function TermsOfService() {
+  return (
+    <div className="min-h-screen text-left">
+      <div className="max-w-3xl mx-auto px-4 py-12">
+        {/* Header */}
+        <div className="mb-10">
+          <Link
+            to="/"
+            className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline mb-6 inline-block"
+          >
+            ← 홈으로
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            이용약관
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            시행일: 2026년 3월 16일 &nbsp;·&nbsp; 최종 수정일: 2026년 3월 16일
+          </p>
+          <p className="mt-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+            본 이용약관은 ANKR.KR(이하 "서비스")이 제공하는 모든 서비스의 이용
+            조건 및 절차, 이용자와 운영자의 권리·의무에 관한 사항을 규정합니다.
+            서비스를 이용함으로써 본 약관에 동의한 것으로 간주합니다.
+          </p>
+        </div>
+
+        {/* Section 1 */}
+        <Section number="1" title="목적">
+          <p>
+            본 약관은 ANKR.KR이 운영하는 웹 서비스(이하 "서비스")의 이용과
+            관련하여 서비스 운영자(이하 "운영자")와 이용자 간의 권리, 의무 및
+            책임 사항, 기타 필요한 사항을 규정함을 목적으로 합니다.
+          </p>
+        </Section>
+
+        {/* Section 2 */}
+        <Section number="2" title="서비스 내용">
+          <p>서비스는 다음과 같은 기능을 제공합니다.</p>
+          <ul className="list-disc list-inside space-y-1 mt-2">
+            <li>국내 서브컬처 관련 DJ 행사 정보 조회 및 검색</li>
+            <li>DJ 행사 일정 캘린더 및 목록 뷰 제공</li>
+            <li>Google 캘린더 일정 추가 및 SNS(X/Twitter) 공유</li>
+            <li>로그인 이용자의 행사 정보 제보 기능</li>
+            <li>운영자의 제보 내용 검토 후 서비스 반영</li>
+          </ul>
+          <p className="mt-2">
+            서비스는 행사 정보의 정확성을 보장하지 않으며, 이용자는 행사 참여 전
+            반드시 공식 정보를 확인해야 합니다.
+          </p>
+        </Section>
+
+        {/* Section 3 */}
+        <Section number="3" title="회원가입 및 계정">
+          <p>
+            서비스는 별도의 회원가입 절차 없이 Google OAuth 2.0 인증을 통한 소셜
+            로그인 방식을 사용합니다.
+          </p>
+          <ul className="list-disc list-inside space-y-1 mt-2">
+            <li>
+              이용자는 Google 계정으로 로그인하여 행사 제보 등 인증이 필요한
+              기능을 이용할 수 있습니다.
+            </li>
+            <li>
+              로그인 시 Firebase Authentication을 통해 Firebase UID 및 이메일
+              주소가 수집됩니다. (상세 내용은{" "}
+              <Link
+                to="/privacy"
+                className="text-indigo-600 dark:text-indigo-400 hover:underline"
+              >
+                개인정보처리방침
+              </Link>
+              을 참고하시기 바랍니다.)
+            </li>
+            <li>
+              이용자는 타인의 계정을 사용하거나 허위 정보로 서비스를 이용할 수
+              없습니다.
+            </li>
+            <li>
+              계정 삭제 요청은{" "}
+              <a
+                href="mailto:ankr.web.official@gmail.com"
+                className="text-indigo-600 dark:text-indigo-400 hover:underline"
+              >
+                ankr.web.official@gmail.com
+              </a>
+              으로 문의하시기 바랍니다.
+            </li>
+          </ul>
+        </Section>
+
+        {/* Section 4 */}
+        <Section number="4" title="이용자 의무">
+          <p>이용자는 서비스 이용 시 다음 행위를 해서는 안 됩니다.</p>
+          <ul className="list-disc list-inside space-y-1 mt-2">
+            <li>허위 행사 정보 또는 조작된 내용의 제보</li>
+            <li>스팸성·광고성 정보의 반복 제보</li>
+            <li>타인의 명예를 훼손하거나 프라이버시를 침해하는 행위</li>
+            <li>저작권 등 지식재산권을 침해하는 콘텐츠 제출</li>
+            <li>불법 콘텐츠 또는 유해 정보 유포</li>
+            <li>서비스의 정상적인 운영을 방해하는 행위</li>
+            <li>기타 관련 법령에 위반되는 행위</li>
+          </ul>
+          <p className="mt-2">
+            위 의무를 위반할 경우 운영자는 사전 통보 없이 해당 콘텐츠를
+            삭제하거나 서비스 이용을 제한할 수 있습니다.
+          </p>
+        </Section>
+
+        {/* Section 5 */}
+        <Section number="5" title="콘텐츠 관리">
+          <p>
+            이용자가 서비스에 게시한 콘텐츠(행사 제보 등)에 대한 책임은 해당
+            이용자에게 있습니다.
+          </p>
+          <ul className="list-disc list-inside space-y-1 mt-2">
+            <li>
+              운영자는 제보된 콘텐츠를 검토하여 서비스에 반영하거나 거부할 수
+              있습니다.
+            </li>
+            <li>
+              다음의 경우 운영자는 사전 통보 없이 콘텐츠를 수정하거나 삭제할 수
+              있습니다.
+              <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
+                <li>허위 또는 부정확한 정보로 판단되는 경우</li>
+                <li>제4조의 이용자 의무를 위반한 경우</li>
+                <li>관련 법령에 위반되는 경우</li>
+                <li>서비스의 성격에 부합하지 않는 경우</li>
+              </ul>
+            </li>
+            <li>
+              이용자는 자신이 제보한 콘텐츠의 삭제 또는 수정을{" "}
+              <a
+                href="mailto:ankr.web.official@gmail.com"
+                className="text-indigo-600 dark:text-indigo-400 hover:underline"
+              >
+                ankr.web.official@gmail.com
+              </a>
+              으로 요청할 수 있습니다.
+            </li>
+          </ul>
+        </Section>
+
+        {/* Section 6 */}
+        <Section number="6" title="서비스 변경 및 중단">
+          <ul className="list-disc list-inside space-y-1">
+            <li>
+              운영자는 서비스의 내용, 기능, UI 등을 사전 공지 없이 변경할 수
+              있습니다.
+            </li>
+            <li>
+              운영자는 서버 점검, 시스템 장애, 기타 운영상의 사유로 서비스를
+              일시적으로 중단할 수 있으며, 이 경우 사전 또는 사후에 공지할 수
+              있습니다.
+            </li>
+            <li>
+              운영자는 서비스를 영구적으로 종료할 수 있으며, 이 경우 서비스 종료
+              30일 전까지 서비스 내 공지 또는 이메일을 통해 안내합니다.
+            </li>
+            <li>
+              서비스 변경 또는 중단으로 인해 이용자에게 발생한 손해에 대해
+              운영자는 고의 또는 중과실이 없는 한 책임을 지지 않습니다.
+            </li>
+          </ul>
+        </Section>
+
+        {/* Section 7 */}
+        <Section number="7" title="책임 제한">
+          <ul className="list-disc list-inside space-y-1">
+            <li>
+              서비스는 행사 정보의 정확성, 완전성, 최신성을 보장하지 않습니다.
+              이용자는 행사 참여 전 반드시 공식 채널을 통해 정보를 확인해야
+              합니다.
+            </li>
+            <li>
+              이용자가 서비스에 게시한 콘텐츠에 대한 법적 책임은 해당 이용자에게
+              있으며, 운영자는 이로 인해 발생한 분쟁에 대해 책임을 지지
+              않습니다.
+            </li>
+            <li>
+              운영자는 천재지변, 서버 장애, 인터넷 장애 등 불가항력적인 사유로
+              인한 서비스 중단에 대해 책임을 지지 않습니다.
+            </li>
+            <li>
+              서비스는 Firebase, Google Cloud 등 제3자 인프라에 의존하며, 해당
+              서비스의 장애로 인한 손해에 대해 운영자는 책임을 지지 않습니다.
+            </li>
+            <li>
+              이용자 간 또는 이용자와 제3자 간 서비스를 매개로 발생한 분쟁에
+              대해 운영자는 개입 의무가 없으며 이로 인한 손해를 배상할 책임이
+              없습니다.
+            </li>
+          </ul>
+        </Section>
+
+        {/* Contact */}
+        <section className="mt-12 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <h2 className="text-base font-bold text-gray-900 dark:text-white mb-2">
+            문의
+          </h2>
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            본 약관에 관한 문의 사항은 아래로 연락주시기 바랍니다.
+          </p>
+          <p className="text-sm mt-2">
+            <span className="font-medium text-gray-800 dark:text-gray-200">
+              운영자:{" "}
+            </span>
+            ANKR
+          </p>
+          <p className="text-sm mt-1">
+            <span className="font-medium text-gray-800 dark:text-gray-200">
+              이메일:{" "}
+            </span>
+            <a
+              href="mailto:ankr.web.official@gmail.com"
+              className="text-indigo-600 dark:text-indigo-400 hover:underline"
+            >
+              ankr.web.official@gmail.com
+            </a>
+          </p>
+        </section>
+      </div>
+    </div>
+  );
+}
