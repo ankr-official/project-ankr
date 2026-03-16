@@ -1,10 +1,23 @@
+import { useState, useRef, useEffect } from "react";
 import ThemeToggle from "./ThemeToggle";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import LoginDropdown from "../LoginDropdown";
 
 export const Header = ({ onSearchOpen }) => {
   const navigate = useNavigate();
   const { isLoggedIn, role, signOut } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
+  const loginRef = useRef(null);
+
+  useEffect(() => {
+    if (!showLogin) return;
+    const handleClick = (e) => {
+      if (loginRef.current && !loginRef.current.contains(e.target)) setShowLogin(false);
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showLogin]);
 
   const handleAuthClick = async () => {
     if (isLoggedIn) {
@@ -12,7 +25,7 @@ export const Header = ({ onSearchOpen }) => {
       navigate("/");
       return;
     }
-    navigate("/login");
+    setShowLogin((prev) => !prev);
   };
 
   return (
@@ -32,17 +45,24 @@ export const Header = ({ onSearchOpen }) => {
         </Link>
         <div className="lg:hidden flex items-center gap-2">
           <ThemeToggle />
-          <button
-            type="button"
-            onClick={handleAuthClick}
-            className="inline-flex items-center rounded-full px-3 py-2 text-sm bg-white/70 dark:bg-white/10 text-gray-900 dark:text-gray-100 border border-gray-300/70 dark:border-gray-700/70 shadow-sm hover:bg-white dark:hover:bg-white/15 transition-colors"
-          >
-            {isLoggedIn
-              ? role === "admin"
-                ? "관리자 로그아웃"
-                : "로그아웃"
-              : "로그인"}
-          </button>
+          {isLoggedIn && role === "admin" && (
+            <Link
+              to="/admin"
+              className="inline-flex items-center rounded-full px-3 py-2 text-sm bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/70 shadow-sm hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors"
+            >
+              관리자
+            </Link>
+          )}
+          <div className="relative" ref={loginRef}>
+            <button
+              type="button"
+              onClick={handleAuthClick}
+              className="inline-flex items-center rounded-full px-3 py-2 text-sm bg-white/70 dark:bg-white/10 text-gray-900 dark:text-gray-100 border border-gray-300/70 dark:border-gray-700/70 shadow-sm hover:bg-white dark:hover:bg-white/15 transition-colors"
+            >
+              {isLoggedIn ? "로그아웃" : "로그인"}
+            </button>
+            {showLogin && <LoginDropdown onClose={() => setShowLogin(false)} />}
+          </div>
         </div>
       </div>
 
@@ -74,17 +94,24 @@ export const Header = ({ onSearchOpen }) => {
       </button>
       <div className="flex-1 text-right hidden lg:flex items-center justify-end gap-2">
         <ThemeToggle />
-        <button
-          type="button"
-          onClick={handleAuthClick}
-          className="inline-flex items-center rounded-full px-3 py-2 text-sm bg-white/70 dark:bg-white/10 text-gray-900 dark:text-gray-100 border border-gray-300/70 dark:border-gray-700/70 shadow-sm hover:bg-white dark:hover:bg-white/15 transition-colors"
-        >
-          {isLoggedIn
-            ? role === "admin"
-              ? "관리자 | 로그아웃"
-              : "로그아웃"
-            : "로그인"}
-        </button>
+        {isLoggedIn && role === "admin" && (
+          <Link
+            to="/admin"
+            className="inline-flex items-center rounded-full px-3 py-2 text-sm bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/70 shadow-sm hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors"
+          >
+            관리자
+          </Link>
+        )}
+        <div className="relative" ref={loginRef}>
+          <button
+            type="button"
+            onClick={handleAuthClick}
+            className="inline-flex items-center rounded-full px-3 py-2 text-sm bg-white/70 dark:bg-white/10 text-gray-900 dark:text-gray-100 border border-gray-300/70 dark:border-gray-700/70 shadow-sm hover:bg-white dark:hover:bg-white/15 transition-colors"
+          >
+            {isLoggedIn ? "로그아웃" : "로그인"}
+          </button>
+          {showLogin && <LoginDropdown onClose={() => setShowLogin(false)} />}
+        </div>
       </div>
     </div>
   );

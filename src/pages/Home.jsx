@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { ref, push, get, set } from "firebase/database";
+import { toast } from "react-toastify";
+import { database } from "../config/firebase";
 
 // Components
 import { Modal } from "../components/Modal";
@@ -11,16 +14,21 @@ import { ViewModeToggle } from "../components/ui/ViewModeToggle";
 import { Header } from "../components/ui/Header";
 import { ActionButtons } from "../components/ui/ActionButtons";
 import { YearEndReceiptBanner } from "../components/YearEndReceiptBanner";
+import ReportEventModal from "../components/ReportEventModal";
 
 // Hooks
 import { useFirebaseData } from "../hooks/useFirebaseData";
 import { useUserSettings } from "../hooks/useUserSettings";
 import { useEventData } from "../hooks/useEventData";
 import { useModalNavigation } from "../hooks/useModalNavigation";
+import { useAuth } from "../contexts/AuthContext";
 
 function Home() {
   // Data and loading state
   const { data, loading } = useFirebaseData();
+
+  // Auth
+  const { isLoggedIn, user, role } = useAuth();
 
   // User settings (localStorage)
   const { selectedGenres, viewMode, setViewMode, handleGenreChange } =
@@ -41,6 +49,44 @@ function Home() {
   const [activeTab, setActiveTab] = useState("current");
   const [visiblePastEvents, setVisiblePastEvents] = useState(15);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const DAILY_LIMIT = 10;
+  const [reportCount, setReportCount] = useState(0);
+  const isLimitReached = role !== "admin" && reportCount >= DAILY_LIMIT;
+
+  useEffect(() => {
+    if (!user?.uid || role === "admin") return;
+    const today = new Date().toISOString().slice(0, 10);
+    get(ref(database, `reportLimits/${user.uid}`)).then((snap) => {
+      const data = snap.val();
+      setReportCount(data?.date === today ? (data.count ?? 0) : 0);
+    }).catch(() => setReportCount(0));
+  }, [user?.uid, role]);
+
+  const handleReportSubmit = async (formData) => {
+    if (isLimitReached) return;
+    setIsSaving(true);
+    try {
+      await push(ref(database, "reports"), {
+        ...formData,
+        submittedAt: new Date().toISOString(),
+        submittedBy: user?.email || user?.uid || "unknown",
+      });
+      const today = new Date().toISOString().slice(0, 10);
+      const newCount = reportCount + 1;
+      await set(ref(database, `reportLimits/${user.uid}`), { date: today, count: newCount });
+      setReportCount(newCount);
+      setIsReportOpen(false);
+      toast.success("제보가 완료되었습니다!");
+    } catch (err) {
+      console.error("제보 저장 실패:", err);
+      alert("저장에 실패했습니다. 다시 시도해 주세요.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const loadMorePastEvents = () => {
     setVisiblePastEvents((prev) => prev + 15);
@@ -58,6 +104,9 @@ function Home() {
     );
   }
 
+  const locationSuggestions = [...new Set(data.map((e) => e.location).filter(Boolean))];
+  const eventNameSuggestions = [...new Set(data.map((e) => e.event_name).filter(Boolean))];
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Modals */}
@@ -66,6 +115,19 @@ function Home() {
           isOpen={selectedItem !== null}
           onClose={handleModalClose}
           data={selectedItem || {}}
+        />
+      )}
+
+      {isReportOpen && (
+        <ReportEventModal
+          onSubmit={handleReportSubmit}
+          onClose={() => setIsReportOpen(false)}
+          isSaving={isSaving}
+          isLimitReached={isLimitReached}
+          reportCount={reportCount}
+          dailyLimit={DAILY_LIMIT}
+          locationSuggestions={locationSuggestions}
+          eventNameSuggestions={eventNameSuggestions}
         />
       )}
 
@@ -173,7 +235,11 @@ function Home() {
         </div>
 
         {/* Action Buttons */}
-        <ActionButtons onSearchOpen={() => setIsSearchOpen(true)} />
+        <ActionButtons
+          onSearchOpen={() => setIsSearchOpen(true)}
+          isLoggedIn={isLoggedIn}
+          onReportClick={() => setIsReportOpen(true)}
+        />
       </div>
     </div>
   );
