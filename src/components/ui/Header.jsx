@@ -1,13 +1,27 @@
 import ThemeToggle from "./ThemeToggle";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 export const Header = ({ onSearchOpen }) => {
+  const navigate = useNavigate();
+  const { isLoggedIn, role, signOut } = useAuth();
+
+  const handleAuthClick = async () => {
+    if (isLoggedIn) {
+      await signOut();
+      navigate("/");
+      return;
+    }
+    navigate("/login");
+  };
+
   return (
     <div className="flex lg:flex-row flex-col gap-3 lg:gap-4 justify-between items-center lg:px-2 mb-6 transition-colors">
       {/* 타이틀 영역: 모바일/데스크톱 공통 사용, 다크모드 토글은 모바일에서만 표시 */}
       <div className="flex-1 w-full flex items-center justify-between">
-        <a
-          href="/"
-          className="flex-1 inline-flex items-center gap-2 text-balance text-xl font-bold md:text-3xl text-gray-900 dark:text-white transition-colors text-left lg:hover:opacity-50 transition-opacity p-2"
+        <Link
+          to="/"
+          className="flex-1 inline-flex items-center gap-2 text-balance text-xl font-bold md:text-3xl text-gray-900 dark:text-white text-left lg:hover:opacity-50 transition-opacity p-2"
         >
           <img
             src="/favicon.svg"
@@ -15,9 +29,20 @@ export const Header = ({ onSearchOpen }) => {
             className="w-7 h-7 md:w-8 md:h-8"
           />
           <span>ANKR.KR</span>
-        </a>
-        <div className="lg:hidden">
+        </Link>
+        <div className="lg:hidden flex items-center gap-2">
           <ThemeToggle />
+          <button
+            type="button"
+            onClick={handleAuthClick}
+            className="inline-flex items-center rounded-full px-3 py-2 text-sm bg-white/70 dark:bg-white/10 text-gray-900 dark:text-gray-100 border border-gray-300/70 dark:border-gray-700/70 shadow-sm hover:bg-white dark:hover:bg-white/15 transition-colors"
+          >
+            {isLoggedIn
+              ? role === "admin"
+                ? "관리자 로그아웃"
+                : "로그아웃"
+              : "로그인"}
+          </button>
         </div>
       </div>
 
@@ -47,8 +72,19 @@ export const Header = ({ onSearchOpen }) => {
           </svg>
         </span>
       </button>
-      <div className="flex-1 text-right hidden lg:block">
+      <div className="flex-1 text-right hidden lg:flex items-center justify-end gap-2">
         <ThemeToggle />
+        <button
+          type="button"
+          onClick={handleAuthClick}
+          className="inline-flex items-center rounded-full px-3 py-2 text-sm bg-white/70 dark:bg-white/10 text-gray-900 dark:text-gray-100 border border-gray-300/70 dark:border-gray-700/70 shadow-sm hover:bg-white dark:hover:bg-white/15 transition-colors"
+        >
+          {isLoggedIn
+            ? role === "admin"
+              ? "관리자 | 로그아웃"
+              : "로그아웃"
+            : "로그인"}
+        </button>
       </div>
     </div>
   );
