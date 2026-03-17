@@ -156,7 +156,7 @@ const EventInfo = ({ data, isMobile }) => (
           >
             장소
           </div>
-          <div className="w-full p-2 text-center lg:text-left">
+          <div className="min-w-0 overflow-hidden w-full p-2 text-center lg:text-left">
             <LocationLink location={data.location} />
           </div>
         </div>

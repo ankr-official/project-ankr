@@ -62,7 +62,7 @@ export const EventTable = ({
                   <td className="w-[300px]">
                     <GenreTag genre={item.genre} />
                   </td>
-                  <td className="w-[300px]">
+                  <td className="w-[300px] max-w-[300px] overflow-hidden">
                     <LocationLink
                       location={item.location}
                       onClick={(e) => e.stopPropagation()}
