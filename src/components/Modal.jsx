@@ -3,6 +3,7 @@ import {
   ClipboardDocumentListIcon,
   ShareIcon,
   CalendarIcon,
+  PencilSquareIcon,
 } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate, formatTime } from "../utils/dateUtils";
@@ -11,6 +12,10 @@ import { GenreTag } from "./common/GenreTag";
 import { LocationLink } from "./common/LocationLink";
 import { toast } from "react-toastify";
 import { addToGoogleCalendar } from "../utils/calendarUtils";
+import { useAuth } from "../contexts/AuthContext";
+import EditRequestModal from "./EditRequestModal";
+import { ref, push } from "firebase/database";
+import { database } from "../config/firebase";
 
 // Custom hooks
 const useModalScroll = (onClose) => {
@@ -266,7 +271,13 @@ const ActionButtons = ({ data }) => {
   );
 };
 
-const ModalContent = ({ data, onClose, isMobile }) => (
+const ModalContent = ({
+  data,
+  onClose,
+  isMobile,
+  onEditRequest,
+  isLoggedIn,
+}) => (
   <>
     <motion.div
       className={`${isMobile ? "px-4 py-4" : "px-8 py-8 bg-gray-200 dark:bg-gray-900 md:p-12 transition-colors"}`}
@@ -279,14 +290,26 @@ const ModalContent = ({ data, onClose, isMobile }) => (
         >
           {data.event_name}
         </motion.h2>
-        {!isMobile && (
-          <button
-            onClick={onClose}
-            className="p-1 text-indigo-800 dark:text-indigo-200 bg-indigo-100 dark:bg-indigo-800 rounded-full lg:hover:text-white lg:hover:bg-indigo-600 dark:lg:hover:text-indigo-900 dark:lg:hover:bg-white transition-colors"
-          >
-            <XMarkIcon className="w-6 h-6" />
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {isLoggedIn && (
+            <button
+              onClick={onEditRequest}
+              title="정보 수정 요청"
+              className="p-1 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full lg:hover:text-indigo-600 lg:hover:bg-indigo-100 dark:lg:hover:text-indigo-300 dark:lg:hover:bg-indigo-900/40 transition-colors flex px-2 gap-1"
+            >
+              <PencilSquareIcon className="w-5 h-5" />
+              <span>수정 요청</span>
+            </button>
+          )}
+          {!isMobile && (
+            <button
+              onClick={onClose}
+              className="p-1 text-indigo-800 dark:text-indigo-200 bg-indigo-100 dark:bg-indigo-800 rounded-full lg:hover:text-white lg:hover:bg-indigo-600 dark:lg:hover:text-indigo-900 dark:lg:hover:bg-white transition-colors"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+          )}
+        </div>
       </div>
 
       {data.img_url && (
@@ -317,8 +340,11 @@ const ModalContent = ({ data, onClose, isMobile }) => (
   </>
 );
 
-export function Modal({ isOpen, onClose, data }) {
+export function Modal({ isOpen, onClose, data, locationSuggestions = [], eventNameSuggestions = [] }) {
   const isMobile = useMobileDetection();
+  const { isLoggedIn, user } = useAuth();
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
   const {
     contentRef,
     dragY,
@@ -332,7 +358,7 @@ export function Modal({ isOpen, onClose, data }) {
   // ESC key handler for PC browsers
   useEffect(() => {
     const handleEscKey = (event) => {
-      if (event.key === "Escape" && isOpen) {
+      if (event.key === "Escape" && isOpen && !isEditOpen) {
         onClose();
       }
     };
@@ -344,67 +370,105 @@ export function Modal({ isOpen, onClose, data }) {
     return () => {
       document.removeEventListener("keydown", handleEscKey);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, isEditOpen, onClose]);
+
+  const handleEditSubmit = async (formData, reason) => {
+    setIsSavingEdit(true);
+    try {
+      await push(ref(database, "editRequests"), {
+        ...formData,
+        eventId: data.id,
+        eventName: data.event_name,
+        reason,
+        submittedAt: new Date().toISOString(),
+        submittedBy: user?.email || user?.uid || "unknown",
+      });
+      setIsEditOpen(false);
+      toast.success("요청이 접수되었습니다!");
+    } catch {
+      toast.error("요청 전송에 실패했습니다. 다시 시도해 주세요.");
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className={`fixed inset-0 z-50 flex ${
-            isMobile ? "items-end" : "items-center"
-          } justify-center ${
-            isMobile
-              ? "bg-black dark:bg-black bg-opacity-50 dark:bg-opacity-30"
-              : "bg-gray-500 dark:bg-gray-500 bg-opacity-50 dark:bg-opacity-50"
-          }`}
-          onClick={onClose}
-        >
-          <motion.div
-            animate={isMobile ? { y: 0 } : { scale: 1, opacity: 1 }}
-            transition={
-              isMobile
-                ? { type: "spring", damping: 20 }
-                : { type: "spring", duration: 0.5 }
-            }
-            className={`${
-              isMobile
-                ? "w-full h-[80vh] rounded-t-3xl bg-gray-200 dark:bg-gray-900"
-                : "rounded-lg md:max-w-3xl w-full max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900"
-            } transition-colors`}
-            onClick={(e) => e.stopPropagation()}
-            style={{ y: isMobile ? dragY : 0 }}
-          >
-            {isMobile && (
-              <div
-                className="relative w-full py-6"
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-              >
-                <button
-                  onClick={onClose}
-                  className="absolute p-1 text-indigo-600 dark:text-indigo-300 bg-transparent border-0 top-3 left-6 w-fit transition-colors"
-                >
-                  닫기
-                </button>
-                <div className="w-12 h-1.5 mx-auto bg-gray-400 dark:bg-gray-300 rounded-full" />
-              </div>
-            )}
-            <div
-              ref={contentRef}
-              className={`${
-                isMobile ? "h-[calc(80vh-4rem)] overflow-y-auto" : "h-full"
-              }`}
-              onScroll={handleScroll}
-            >
-              <ModalContent data={data} onClose={onClose} isMobile={isMobile} />
-            </div>
-          </motion.div>
-        </motion.div>
+    <>
+      {isEditOpen && (
+        <EditRequestModal
+          event={data}
+          onSubmit={handleEditSubmit}
+          onClose={() => setIsEditOpen(false)}
+          isSaving={isSavingEdit}
+          locationSuggestions={locationSuggestions}
+          eventNameSuggestions={eventNameSuggestions}
+        />
       )}
-    </AnimatePresence>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={`fixed inset-0 z-50 flex ${
+              isMobile ? "items-end" : "items-center"
+            } justify-center ${
+              isMobile
+                ? "bg-black dark:bg-black bg-opacity-50 dark:bg-opacity-30"
+                : "bg-gray-500 dark:bg-gray-500 bg-opacity-50 dark:bg-opacity-50"
+            }`}
+            onClick={onClose}
+          >
+            <motion.div
+              animate={isMobile ? { y: 0 } : { scale: 1, opacity: 1 }}
+              transition={
+                isMobile
+                  ? { type: "spring", damping: 20 }
+                  : { type: "spring", duration: 0.5 }
+              }
+              className={`${
+                isMobile
+                  ? "w-full h-[80vh] rounded-t-3xl bg-gray-200 dark:bg-gray-900"
+                  : "rounded-lg md:max-w-3xl w-full max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900"
+              } transition-colors`}
+              onClick={(e) => e.stopPropagation()}
+              style={{ y: isMobile ? dragY : 0 }}
+            >
+              {isMobile && (
+                <div
+                  className="relative w-full py-6"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                >
+                  <button
+                    onClick={onClose}
+                    className="absolute p-1 text-indigo-600 dark:text-indigo-300 bg-transparent border-0 top-3 left-6 w-fit transition-colors"
+                  >
+                    닫기
+                  </button>
+                  <div className="w-12 h-1.5 mx-auto bg-gray-400 dark:bg-gray-300 rounded-full" />
+                </div>
+              )}
+              <div
+                ref={contentRef}
+                className={`${
+                  isMobile ? "h-[calc(80vh-4rem)] overflow-y-auto" : "h-full"
+                }`}
+                onScroll={handleScroll}
+              >
+                <ModalContent
+                  data={data}
+                  onClose={onClose}
+                  isMobile={isMobile}
+                  onEditRequest={() => setIsEditOpen(true)}
+                  isLoggedIn={isLoggedIn}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

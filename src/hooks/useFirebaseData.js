@@ -7,7 +7,7 @@ export const useFirebaseData = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const dataRef = ref(database, "data");
+        const dataRef = ref(database, "data_v2");
         const unsubscribe = onValue(dataRef, snapshot => {
             const fetchedData = [];
             snapshot.forEach(childSnapshot => {
