@@ -2,21 +2,19 @@ export const formatDate = (dateString, timeStart) => {
     if (!dateString) return "";
     try {
         const date = new Date(dateString);
-        date.setDate(date.getDate() + 1); // Subtract one day
         const days = ["일", "월", "화", "수", "목", "금", "토"];
-        let dayIndex = date.getDay();
-        dayIndex = (dayIndex - 1 + 7) % 7; // Subtract one day and handle negative values
-        const dayOfWeek = days[dayIndex];
+        const dayOfWeek = days[date.getDay()];
+        const pad = n => String(n).padStart(2, "0");
+        const localDate = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 
-        // time_start가 있는 경우에만 시간 정보 추가
         if (timeStart) {
             const startTime = new Date(timeStart);
             const hours = startTime.getHours();
             const timeType = hours >= 6 && hours < 17 ? "☀️" : "🌙";
-            return `${date.toISOString().split("T")[0]} (${dayOfWeek}) ${timeType}`;
+            return `${localDate} (${dayOfWeek}) ${timeType}`;
         }
 
-        return `${date.toISOString().split("T")[0]} (${dayOfWeek})`;
+        return `${localDate} (${dayOfWeek})`;
     } catch (e) {
         return dateString;
     }
