@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useEventForm } from "../hooks/useEventForm";
-import { buildSubmitData, inputClass } from "../utils/eventFormUtils";
+import { buildSubmitData, inputClass, isoToTime, isoToLocal, toArray } from "../utils/eventFormUtils";
 import { ModalShell, ModalCloseButton } from "./form/ModalShell";
 import { AutocompleteInput } from "./form/AutocompleteInput";
 import { LocationField } from "./form/LocationField";
@@ -14,6 +14,9 @@ export default function EditRequestModal({
   isSaving,
   locationSuggestions = [],
   eventNameSuggestions = [],
+  isLimitReached = false,
+  requestCount = 0,
+  dailyLimit = 10,
 }) {
   const {
     form,
@@ -28,6 +31,30 @@ export default function EditRequestModal({
   const [reason, setReason] = useState("");
   const [deleteRequest, setDeleteRequest] = useState(false);
 
+  const initial = useMemo(() => ({
+    event_name: event?.event_name ?? "",
+    schedule: isoToLocal(event?.schedule) || "",
+    location: event?.location ?? "",
+    genre: toArray(event?.genre).slice().sort().join(","),
+    event_url: event?.event_url ?? "",
+    time_start: isoToTime(event?.time_start),
+    time_entrance: isoToTime(event?.time_entrance),
+    time_end: isoToTime(event?.time_end),
+    etc: event?.etc ?? "",
+  }), [event]);
+
+  const hasChanges = useMemo(() => (
+    form.event_name !== initial.event_name ||
+    form.schedule !== initial.schedule ||
+    form.location !== initial.location ||
+    form.genre.slice().sort().join(",") !== initial.genre ||
+    form.event_url !== initial.event_url ||
+    form.time_start !== initial.time_start ||
+    form.time_entrance !== initial.time_entrance ||
+    form.time_end !== initial.time_end ||
+    form.etc !== initial.etc
+  ), [form, initial]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (deleteRequest) {
@@ -40,7 +67,9 @@ export default function EditRequestModal({
 
   const isDisabled =
     isSaving ||
+    isLimitReached ||
     !reason.trim() ||
+    (!deleteRequest && !hasChanges) ||
     (!deleteRequest &&
       (!form.event_name.trim() || !form.schedule || form.genre.length === 0));
 
@@ -188,26 +217,33 @@ export default function EditRequestModal({
       </form>
 
       {/* Footer */}
-      <div className="flex gap-2 px-6 py-4 border-t border-gray-200/70 dark:border-gray-800">
-        <button
-          type="button"
-          onClick={onClose}
-          disabled={isSaving}
-          className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-        >
-          취소
-        </button>
-        <button
-          type="submit"
-          form="edit-request-form"
-          disabled={isDisabled}
-          className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          {isSaving && (
-            <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          )}
-          요청
-        </button>
+      <div className="px-6 py-4 border-t border-gray-200/70 dark:border-gray-800 space-y-2">
+        {isLimitReached && (
+          <p className="text-xs text-center text-red-500 dark:text-red-400">
+            오늘 수정 요청 가능 횟수({dailyLimit}회)를 초과했습니다. 내일 다시 시도해 주세요.
+          </p>
+        )}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSaving}
+            className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+          >
+            취소
+          </button>
+          <button
+            type="submit"
+            form="edit-request-form"
+            disabled={isDisabled}
+            className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isSaving && (
+              <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            )}
+            요청 {requestCount} / {dailyLimit}
+          </button>
+        </div>
       </div>
     </ModalShell>
   );

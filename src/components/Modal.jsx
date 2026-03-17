@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 import { addToGoogleCalendar } from "../utils/calendarUtils";
 import { useAuth } from "../contexts/AuthContext";
 import EditRequestModal from "./EditRequestModal";
-import { ref, push } from "firebase/database";
+import { ref, push, get, set } from "firebase/database";
 import { database } from "../config/firebase";
 
 // Custom hooks
@@ -340,11 +340,26 @@ const ModalContent = ({
   </>
 );
 
+const EDIT_DAILY_LIMIT = 10;
+
 export function Modal({ isOpen, onClose, data, locationSuggestions = [], eventNameSuggestions = [] }) {
   const isMobile = useMobileDetection();
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, role } = useAuth();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editRequestCount, setEditRequestCount] = useState(0);
+  const isEditLimitReached = role !== "admin" && editRequestCount >= EDIT_DAILY_LIMIT;
+
+  useEffect(() => {
+    if (!user?.uid || role === "admin") return;
+    const today = new Date().toISOString().slice(0, 10);
+    get(ref(database, `editRequestLimits/${user.uid}`))
+      .then((snap) => {
+        const val = snap.val();
+        setEditRequestCount(val?.date === today ? (val.count ?? 0) : 0);
+      })
+      .catch(() => setEditRequestCount(0));
+  }, [user?.uid, role]);
   const {
     contentRef,
     dragY,
@@ -373,6 +388,7 @@ export function Modal({ isOpen, onClose, data, locationSuggestions = [], eventNa
   }, [isOpen, isEditOpen, onClose]);
 
   const handleEditSubmit = async (formData, reason) => {
+    if (isEditLimitReached) return;
     setIsSavingEdit(true);
     try {
       await push(ref(database, "editRequests"), {
@@ -383,6 +399,10 @@ export function Modal({ isOpen, onClose, data, locationSuggestions = [], eventNa
         submittedAt: new Date().toISOString(),
         submittedBy: user?.email || user?.uid || "unknown",
       });
+      const today = new Date().toISOString().slice(0, 10);
+      const newCount = editRequestCount + 1;
+      await set(ref(database, `editRequestLimits/${user.uid}`), { date: today, count: newCount });
+      setEditRequestCount(newCount);
       setIsEditOpen(false);
       toast.success("요청이 접수되었습니다!");
     } catch {
@@ -402,6 +422,9 @@ export function Modal({ isOpen, onClose, data, locationSuggestions = [], eventNa
           isSaving={isSavingEdit}
           locationSuggestions={locationSuggestions}
           eventNameSuggestions={eventNameSuggestions}
+          isLimitReached={isEditLimitReached}
+          requestCount={editRequestCount}
+          dailyLimit={EDIT_DAILY_LIMIT}
         />
       )}
       <AnimatePresence>
