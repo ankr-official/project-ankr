@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
+import { toast } from "react-toastify";
 import { auth } from "../config/firebase";
 
 const AuthContext = createContext(null);
@@ -8,9 +9,18 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [claims, setClaims] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isInitial = useRef(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (nextUser) => {
+      if (isInitial.current) {
+        isInitial.current = false;
+      } else if (nextUser) {
+        toast.success("로그인되었습니다.");
+      } else {
+        toast.info("로그아웃되었습니다.");
+      }
+
       setUser(nextUser);
 
       if (!nextUser) {
