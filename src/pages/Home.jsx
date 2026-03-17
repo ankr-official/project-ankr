@@ -115,6 +115,8 @@ function Home() {
           isOpen={selectedItem !== null}
           onClose={handleModalClose}
           data={selectedItem || {}}
+          locationSuggestions={locationSuggestions}
+          eventNameSuggestions={eventNameSuggestions}
         />
       )}
 

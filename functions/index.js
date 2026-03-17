@@ -15,8 +15,7 @@ const serviceAccount = require("./service-account-key.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  // 시크릿 값은 런타임에 일반 환경변수로 주입되므로 process.env에서만 읽습니다.
-  databaseURL: process.env.ANKR_DATABASE_URL,
+  databaseURL: "https://ankr-db-default-rtdb.asia-southeast1.firebasedatabase.app",
 });
 
 exports.onReportCreated = onValueCreated(
@@ -83,6 +82,156 @@ exports.onReportCreated = onValueCreated(
     });
 
     console.log("✅ Report notification email sent for:", report.event_name);
+  },
+);
+
+exports.onEditRequestCreated = onValueCreated(
+  {
+    ref: "/editRequests/{requestId}",
+    instance: "ankr-db-default-rtdb",
+    region: "asia-southeast1",
+    secrets: [GMAIL_USER, GMAIL_APP_PASSWORD],
+  },
+  async (event) => {
+    const request = event.data.val();
+    if (!request) return;
+
+    const gmailUser = process.env.ANKR_GMAIL_USER;
+    const gmailPassword = process.env.ANKR_GMAIL_APP_PASSWORD;
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: gmailUser,
+        pass: gmailPassword,
+      },
+    });
+
+    const formatDate = (iso) => {
+      if (!iso) return "-";
+      try {
+        return new Date(iso).toLocaleDateString("ko-KR", {
+          year: "numeric", month: "2-digit", day: "2-digit", weekday: "short",
+        });
+      } catch { return iso; }
+    };
+
+    const formatTime = (iso) => {
+      if (!iso) return "-";
+      try {
+        const d = new Date(iso);
+        return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+      } catch { return iso; }
+    };
+
+    const eventName = request.eventName || request.event_name || "(이름 없음)";
+    const metaRows = [
+      ["대상 이벤트", eventName],
+      ["사유", request.reason || "-"],
+      ["요청자", request.submittedBy || "-"],
+      ["요청 시각", request.submittedAt ? new Date(request.submittedAt).toLocaleString("ko-KR") : "-"],
+    ];
+    const metaTableRows = metaRows
+      .map(([label, value]) => `<tr><td style="padding:6px 12px;color:#6b7280;white-space:nowrap">${label}</td><td style="padding:6px 12px;color:#111827">${value}</td></tr>`)
+      .join("");
+
+    let html;
+    let subject;
+
+    if (request.deleteRequest) {
+      // 삭제 요청 메일
+      subject = `[ANKR] 삭제요청: ${eventName}`;
+      html = `
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+          <h2 style="color:#dc2626;margin-bottom:4px">이벤트 삭제 요청이 접수되었습니다</h2>
+          <p style="color:#6b7280;font-size:14px;margin-top:0">ANKR.KR 관리자 페이지에서 승인 또는 거절해 주세요.</p>
+          <table style="width:100%;border-collapse:collapse;background:#fef2f2;border-radius:8px;overflow:hidden;margin-top:16px">
+            <tbody>${metaTableRows}</tbody>
+          </table>
+          <p style="color:#dc2626;font-size:13px;margin-top:16px;font-weight:600">⚠️ 승인 시 이 이벤트가 영구 삭제됩니다.</p>
+        </div>
+      `;
+    } else {
+      // 수정 요청 메일 — diff 계산
+      const originalSnap = await admin.database().ref(`data_v2/${request.eventId}`).once("value");
+      const original = originalSnap.val();
+
+      const toLocalDate = (iso) => {
+        if (!iso) return "";
+        const d = new Date(iso);
+        if (isNaN(d)) return "";
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+      };
+      const toArray = (val) => {
+        if (!val) return [];
+        if (Array.isArray(val)) return val;
+        if (typeof val === "string") return val.split(",").map(s => s.trim()).filter(Boolean);
+        return Object.values(val);
+      };
+
+      const diffs = [];
+      if (original) {
+        if ((original.event_name ?? "") !== (request.event_name ?? ""))
+          diffs.push(["이벤트명", original.event_name || "-", request.event_name || "-"]);
+        if (toLocalDate(original.schedule) !== toLocalDate(request.schedule))
+          diffs.push(["날짜", formatDate(original.schedule), formatDate(request.schedule)]);
+        if ((original.location ?? "") !== (request.location ?? ""))
+          diffs.push(["장소", original.location || "-", request.location || "-"]);
+        const origGenre = toArray(original.genre).slice().sort().join(",");
+        const reqGenre = toArray(request.genre).slice().sort().join(",");
+        if (origGenre !== reqGenre)
+          diffs.push(["장르", toArray(original.genre).join(", ") || "-", toArray(request.genre).join(", ") || "-"]);
+        [["time_start","시작"], ["time_entrance","입장"], ["time_end","종료"]].forEach(([field, label]) => {
+          if (formatTime(original[field]) !== formatTime(request[field]))
+            diffs.push([`시간(${label})`, formatTime(original[field]) || "-", formatTime(request[field]) || "-"]);
+        });
+        if ((original.event_url ?? "") !== (request.event_url ?? ""))
+          diffs.push(["SNS 링크", original.event_url || "-", request.event_url || "-"]);
+        if ((original.etc ?? "") !== (request.etc ?? ""))
+          diffs.push(["기타", original.etc || "-", request.etc || "-"]);
+      }
+
+      const diffTableRows = diffs.length > 0
+        ? diffs.map(([label, from, to]) =>
+            `<tr>
+              <td style="padding:6px 12px;color:#6b7280;white-space:nowrap">${label}</td>
+              <td style="padding:6px 12px;color:#9ca3af;text-decoration:line-through">${from}</td>
+              <td style="padding:6px 12px;color:#111827;font-weight:600">${to}</td>
+            </tr>`
+          ).join("")
+        : `<tr><td colspan="3" style="padding:6px 12px;color:#9ca3af">변경된 항목 없음</td></tr>`;
+
+      subject = `[ANKR] 수정요청: ${eventName}`;
+      html = `
+        <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
+          <h2 style="color:#d97706;margin-bottom:4px">수정 요청이 접수되었습니다</h2>
+          <p style="color:#6b7280;font-size:14px;margin-top:0">ANKR.KR 관리자 페이지에서 승인 또는 거절해 주세요.</p>
+          <table style="width:100%;border-collapse:collapse;background:#f9fafb;border-radius:8px;overflow:hidden;margin-top:16px">
+            <tbody>${metaTableRows}</tbody>
+          </table>
+          <p style="color:#6b7280;font-size:13px;margin-top:16px;margin-bottom:4px">변경 항목 (${diffs.length}개)</p>
+          <table style="width:100%;border-collapse:collapse;background:#fffbeb;border-radius:8px;overflow:hidden">
+            <thead>
+              <tr style="background:#fef3c7">
+                <th style="padding:6px 12px;color:#92400e;text-align:left;font-size:12px">항목</th>
+                <th style="padding:6px 12px;color:#92400e;text-align:left;font-size:12px">기존</th>
+                <th style="padding:6px 12px;color:#92400e;text-align:left;font-size:12px">변경</th>
+              </tr>
+            </thead>
+            <tbody>${diffTableRows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    await transporter.sendMail({
+      from: `"ANKR.KR" <${gmailUser}>`,
+      to: gmailUser,
+      subject,
+      html,
+    });
+
+    console.log("✅ Edit request notification email sent:", subject);
   },
 );
 
