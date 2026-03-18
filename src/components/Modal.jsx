@@ -283,15 +283,15 @@ const ModalContent = ({
       className={`${isMobile ? "px-4 py-4" : "px-8 py-8 bg-gray-200 dark:bg-gray-900 md:p-12 transition-colors"}`}
       layoutId={`modal-content-${data.id}`}
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 gap-2 min-w-0">
         <motion.h2
-          className="text-2xl font-bold text-gray-900 dark:text-white transition-colors"
+          className="text-2xl font-bold text-gray-900 dark:text-white transition-colors truncate min-w-0"
           layoutId={`title-${data.id}`}
         >
           {data.event_name}
         </motion.h2>
         <div className="flex items-center gap-2">
-          {isLoggedIn && (
+          {isLoggedIn && !isMobile && (
             <button
               onClick={onEditRequest}
               title="정보 수정 요청"
@@ -342,13 +342,20 @@ const ModalContent = ({
 
 const EDIT_DAILY_LIMIT = 10;
 
-export function Modal({ isOpen, onClose, data, locationSuggestions = [], eventNameSuggestions = [] }) {
+export function Modal({
+  isOpen,
+  onClose,
+  data,
+  locationSuggestions = [],
+  eventNameSuggestions = [],
+}) {
   const isMobile = useMobileDetection();
   const { isLoggedIn, user, role } = useAuth();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [editRequestCount, setEditRequestCount] = useState(0);
-  const isEditLimitReached = role !== "admin" && editRequestCount >= EDIT_DAILY_LIMIT;
+  const isEditLimitReached =
+    role !== "admin" && editRequestCount >= EDIT_DAILY_LIMIT;
 
   useEffect(() => {
     if (!user?.uid || role === "admin") return;
@@ -401,7 +408,10 @@ export function Modal({ isOpen, onClose, data, locationSuggestions = [], eventNa
       });
       const today = new Date().toISOString().slice(0, 10);
       const newCount = editRequestCount + 1;
-      await set(ref(database, `editRequestLimits/${user.uid}`), { date: today, count: newCount });
+      await set(ref(database, `editRequestLimits/${user.uid}`), {
+        date: today,
+        count: newCount,
+      });
       setEditRequestCount(newCount);
       setIsEditOpen(false);
       toast.success("요청이 접수되었습니다!");
@@ -471,6 +481,14 @@ export function Modal({ isOpen, onClose, data, locationSuggestions = [], eventNa
                     닫기
                   </button>
                   <div className="w-12 h-1.5 mx-auto bg-gray-400 dark:bg-gray-300 rounded-full" />
+                  {isLoggedIn && (
+                    <button
+                      onClick={() => setIsEditOpen(true)}
+                      className="absolute p-1 text-indigo-600 dark:text-indigo-300 bg-transparent border-0 top-3 right-6 w-fit transition-colors"
+                    >
+                      수정 요청
+                    </button>
+                  )}
                 </div>
               )}
               <div
