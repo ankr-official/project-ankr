@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useScrollLock } from "../hooks/useScrollLock";
 import { GenreTag } from "./common/GenreTag";
 import { LocationLink } from "./common/LocationLink";
 import { formatDate } from "../utils/dateUtils";
@@ -8,37 +9,9 @@ export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
   const [searchResults, setSearchResults] = useState([]);
   const modalRef = useRef(null);
   const inputRef = useRef(null);
-  const scrollPosition = useRef(0);
   const touchStartY = useRef(0);
 
-  useEffect(() => {
-    if (isOpen) {
-      // 현재 스크롤 위치 저장
-      scrollPosition.current = window.pageYOffset;
-
-      // iOS Safari를 포함한 모든 모바일 브라우저에서 스크롤 방지
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollPosition.current}px`;
-      document.body.style.width = "100%";
-      document.body.style.overflow = "hidden";
-    } else {
-      // 스크롤 위치 복원
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.width = "";
-      document.body.style.overflow = "";
-      window.scrollTo(0, scrollPosition.current);
-    }
-
-    return () => {
-      // 컴포넌트 언마운트 시 스타일 초기화
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.width = "";
-      document.body.style.overflow = "";
-      window.scrollTo(0, scrollPosition.current);
-    };
-  }, [isOpen]);
+  useScrollLock(isOpen);
 
   useEffect(() => {
     if (isOpen) {

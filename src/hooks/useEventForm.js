@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { isoToTime, isoToLocal, toArray } from "../utils/eventFormUtils";
+import { useScrollLock } from "./useScrollLock";
 
 /**
  * Shared form state and side-effects for event-related modals.
@@ -29,11 +30,7 @@ export function useEventForm(initialData = {}, onClose) {
         return () => document.removeEventListener("keydown", handle);
     }, [onClose]);
 
-    // Body scroll lock
-    useEffect(() => {
-        document.body.style.overflow = "hidden";
-        return () => { document.body.style.overflow = ""; };
-    }, []);
+    useScrollLock(true);
 
     const set = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
 

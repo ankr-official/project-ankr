@@ -43,6 +43,7 @@ export default function ReportEventModal({
   const missingFields = [
     !form.event_name.trim() && "이벤트명",
     !form.schedule && "날짜",
+    !form.location.trim() && "장소",
     form.genre.length === 0 && "장르",
     !form.event_url.trim() && "이벤트 SNS 링크",
   ].filter(Boolean);
@@ -52,6 +53,7 @@ export default function ReportEventModal({
     isLimitReached ||
     !form.event_name.trim() ||
     !form.schedule ||
+    !form.location.trim() ||
     form.genre.length === 0 ||
     !form.event_url.trim();
 

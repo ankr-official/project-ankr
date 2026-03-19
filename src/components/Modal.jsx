@@ -8,6 +8,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate, formatTime } from "../utils/dateUtils";
 import { useEffect, useRef, useState } from "react";
+import { useScrollLock } from "../hooks/useScrollLock";
 import { GenreTag } from "./common/GenreTag";
 import { LocationLink } from "./common/LocationLink";
 import { toast } from "react-toastify";
@@ -64,30 +65,6 @@ const useModalScroll = (onClose) => {
   };
 };
 
-const useModalBodyLock = (isOpen) => {
-  useEffect(() => {
-    if (isOpen) {
-      const scrollY = window.scrollY;
-      const scrollbarWidth =
-        window.innerWidth - document.documentElement.clientWidth;
-      document.body.dataset.scrollY = scrollY;
-      document.body.style.setProperty("--scroll-y", `-${scrollY}px`);
-      document.body.style.setProperty(
-        "--scrollbar-width",
-        `${scrollbarWidth}px`,
-      );
-      document.body.classList.add("modal-open");
-
-      return () => {
-        const scrollY = parseInt(document.body.dataset.scrollY || "0", 10);
-        document.body.classList.remove("modal-open");
-        document.body.style.removeProperty("--scroll-y");
-        document.body.style.removeProperty("--scrollbar-width");
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [isOpen]);
-};
 
 const useMobileDetection = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -376,7 +353,7 @@ export function Modal({
     handleTouchMove,
     handleTouchEnd,
   } = useModalScroll(onClose);
-  useModalBodyLock(isOpen);
+  useScrollLock(isOpen);
 
   // ESC key handler for PC browsers
   useEffect(() => {

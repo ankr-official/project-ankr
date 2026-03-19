@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useFirebaseData } from "../hooks/useFirebaseData";
+import { useRealtimeData } from "../hooks/useRealtimeData";
 import { useEventData } from "../hooks/useEventData";
 import { EventSelection } from "../components/receipt/EventSelection";
 import { YearEndReceiptView } from "../components/receipt/YearEndReceiptView";
 import * as htmlToImage from "html-to-image";
 
 function YearEndReceiptPage() {
-    const { data, loading } = useFirebaseData();
+    const { data, loading } = useRealtimeData("data_v2");
     const { currentEvents, pastEvents } = useEventData(data, ["all"], true);
     const [selectedIds, setSelectedIds] = useState([]);
     const [userName, setUserName] = useState("");
