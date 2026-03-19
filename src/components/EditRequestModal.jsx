@@ -1,6 +1,13 @@
 import { useState, useMemo } from "react";
 import { useEventForm } from "../hooks/useEventForm";
-import { buildSubmitData, inputClass, isoToTime, isoToLocal, toArray } from "../utils/eventFormUtils";
+import { useAuth } from "../contexts/AuthContext";
+import {
+  buildSubmitData,
+  inputClass,
+  isoToTime,
+  isoToLocal,
+  toArray,
+} from "../utils/eventFormUtils";
 import { ModalShell, ModalCloseButton } from "./form/ModalShell";
 import { AutocompleteInput } from "./form/AutocompleteInput";
 import { LocationField } from "./form/LocationField";
@@ -18,6 +25,9 @@ export default function EditRequestModal({
   requestCount = 0,
   dailyLimit = 10,
 }) {
+  const { role } = useAuth();
+  const isAdmin = role === "admin";
+
   const {
     form,
     set,
@@ -31,29 +41,34 @@ export default function EditRequestModal({
   const [reason, setReason] = useState("");
   const [deleteRequest, setDeleteRequest] = useState(false);
 
-  const initial = useMemo(() => ({
-    event_name: event?.event_name ?? "",
-    schedule: isoToLocal(event?.schedule) || "",
-    location: event?.location ?? "",
-    genre: toArray(event?.genre).slice().sort().join(","),
-    event_url: event?.event_url ?? "",
-    time_start: isoToTime(event?.time_start),
-    time_entrance: isoToTime(event?.time_entrance),
-    time_end: isoToTime(event?.time_end),
-    etc: event?.etc ?? "",
-  }), [event]);
+  const initial = useMemo(
+    () => ({
+      event_name: event?.event_name ?? "",
+      schedule: isoToLocal(event?.schedule) || "",
+      location: event?.location ?? "",
+      genre: toArray(event?.genre).slice().sort().join(","),
+      event_url: event?.event_url ?? "",
+      time_start: isoToTime(event?.time_start),
+      time_entrance: isoToTime(event?.time_entrance),
+      time_end: isoToTime(event?.time_end),
+      etc: event?.etc ?? "",
+    }),
+    [event],
+  );
 
-  const hasChanges = useMemo(() => (
-    form.event_name !== initial.event_name ||
-    form.schedule !== initial.schedule ||
-    form.location !== initial.location ||
-    form.genre.slice().sort().join(",") !== initial.genre ||
-    form.event_url !== initial.event_url ||
-    form.time_start !== initial.time_start ||
-    form.time_entrance !== initial.time_entrance ||
-    form.time_end !== initial.time_end ||
-    form.etc !== initial.etc
-  ), [form, initial]);
+  const hasChanges = useMemo(
+    () =>
+      form.event_name !== initial.event_name ||
+      form.schedule !== initial.schedule ||
+      form.location !== initial.location ||
+      form.genre.slice().sort().join(",") !== initial.genre ||
+      form.event_url !== initial.event_url ||
+      form.time_start !== initial.time_start ||
+      form.time_entrance !== initial.time_entrance ||
+      form.time_end !== initial.time_end ||
+      form.etc !== initial.etc,
+    [form, initial],
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -64,6 +79,20 @@ export default function EditRequestModal({
       onSubmit(data, reason.trim());
     }
   };
+
+  const [showHint, setShowHint] = useState(false);
+
+  const missingFields = deleteRequest
+    ? !reason.trim()
+      ? ["수정 사유"]
+      : []
+    : [
+        !reason.trim() && "수정 사유",
+        !form.event_name.trim() && "이벤트명",
+        !form.schedule && "날짜",
+        form.genre.length === 0 && "장르",
+        !hasChanges && "변경점",
+      ].filter(Boolean);
 
   const isDisabled =
     isSaving ||
@@ -220,7 +249,14 @@ export default function EditRequestModal({
       <div className="px-6 py-4 border-t border-gray-200/70 dark:border-gray-800 space-y-2">
         {isLimitReached && (
           <p className="text-xs text-center text-red-500 dark:text-red-400">
-            오늘 수정 요청 가능 횟수({dailyLimit}회)를 초과했습니다. 내일 다시 시도해 주세요.
+            오늘 수정 요청 가능 횟수({dailyLimit}회)를 초과했습니다. 내일 다시
+            시도해 주세요.
+          </p>
+        )}
+        {showHint && missingFields.length > 0 && (
+          <p className="text-xs text-amber-600 dark:text-amber-400 text-center">
+            필수 항목을 채워주세요:{" "}
+            <span className="font-medium">{missingFields.join(", ")}</span>
           </p>
         )}
         <div className="flex gap-2">
@@ -232,17 +268,24 @@ export default function EditRequestModal({
           >
             취소
           </button>
-          <button
-            type="submit"
-            form="edit-request-form"
-            disabled={isDisabled}
-            className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          <div
+            className="flex-1"
+            onClick={() => {
+              if (isDisabled && !isSaving && !isLimitReached) setShowHint(true);
+            }}
           >
-            {isSaving && (
-              <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            )}
-            요청 {requestCount} / {dailyLimit}
-          </button>
+            <button
+              type="submit"
+              form="edit-request-form"
+              disabled={isDisabled}
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none flex items-center justify-center gap-2"
+            >
+              {isSaving && (
+                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              )}
+              요청하기{!isAdmin && ` ${requestCount} / ${dailyLimit}`}
+            </button>
+          </div>
         </div>
       </div>
     </ModalShell>

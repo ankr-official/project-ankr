@@ -313,6 +313,7 @@ export default function Admin() {
           reason,
           submittedAt,
           submittedBy,
+          _snap,
           ...data
         } = request;
         await update(ref(database, `data_v2/${eventId}`), data);
