@@ -14,6 +14,7 @@ export default function EventEditModal({
     isSaving,
     locationSuggestions = [],
     eventNameSuggestions = [],
+    genreSuggestions = [],
 }) {
     const isNew = !event?.id;
 
@@ -104,6 +105,7 @@ export default function EventEditModal({
                         onToggle={toggleGenre}
                         onAdd={addCustomGenres}
                         onRemove={removeGenre}
+                        suggestions={genreSuggestions}
                     />
                 </div>
 

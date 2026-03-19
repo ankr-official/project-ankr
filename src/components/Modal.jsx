@@ -326,6 +326,7 @@ export function Modal({
   data,
   locationSuggestions = [],
   eventNameSuggestions = [],
+  genreSuggestions = [],
 }) {
   const isMobile = useMobileDetection();
   const { isLoggedIn, user, role } = useAuth();
@@ -421,6 +422,7 @@ export function Modal({
           isSaving={isSavingEdit}
           locationSuggestions={locationSuggestions}
           eventNameSuggestions={eventNameSuggestions}
+          genreSuggestions={genreSuggestions}
           isLimitReached={isEditLimitReached}
           requestCount={editRequestCount}
           dailyLimit={EDIT_DAILY_LIMIT}

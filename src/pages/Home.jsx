@@ -18,6 +18,7 @@ import ReportEventModal from "../components/ReportEventModal";
 
 // Hooks
 import { useRealtimeData } from "../hooks/useRealtimeData";
+import { GENRES, toArray } from "../utils/eventFormUtils";
 import { useUserSettings } from "../hooks/useUserSettings";
 import { useEventData } from "../hooks/useEventData";
 import { useModalNavigation } from "../hooks/useModalNavigation";
@@ -106,6 +107,7 @@ function Home() {
 
   const locationSuggestions = [...new Set(data.map((e) => e.location).filter(Boolean))];
   const eventNameSuggestions = [...new Set(data.map((e) => e.event_name).filter(Boolean))];
+  const genreSuggestions = [...new Set(data.flatMap((e) => toArray(e.genre)).filter((g) => g && !GENRES.includes(g)))];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -117,6 +119,7 @@ function Home() {
           data={selectedItem || {}}
           locationSuggestions={locationSuggestions}
           eventNameSuggestions={eventNameSuggestions}
+          genreSuggestions={genreSuggestions}
         />
       )}
 
@@ -130,6 +133,7 @@ function Home() {
           dailyLimit={DAILY_LIMIT}
           locationSuggestions={locationSuggestions}
           eventNameSuggestions={eventNameSuggestions}
+          genreSuggestions={genreSuggestions}
         />
       )}
 
