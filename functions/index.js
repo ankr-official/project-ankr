@@ -43,9 +43,15 @@ exports.onReportCreated = onValueCreated(
     const formatDate = (iso) => {
       if (!iso) return "-";
       try {
-        return new Date(iso).toLocaleDateString("ko-KR", {
-          year: "numeric", month: "2-digit", day: "2-digit", weekday: "short",
-        });
+        const d = new Date(iso);
+        if (isNaN(d)) return iso;
+        const seoulDate = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+        const y = seoulDate.getUTCFullYear();
+        const m = String(seoulDate.getUTCMonth() + 1).padStart(2, "0");
+        const day = String(seoulDate.getUTCDate()).padStart(2, "0");
+        const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+        const wd = weekdays[seoulDate.getUTCDay()];
+        return `${y}. ${m}. ${day}. (${wd})`;
       } catch { return iso; }
     };
 
@@ -57,7 +63,7 @@ exports.onReportCreated = onValueCreated(
       ["SNS 링크", report.event_url || "-"],
       ["기타", report.etc || "-"],
       ["제보자", report.submittedBy || "-"],
-      ["제보 시각", report.submittedAt ? new Date(report.submittedAt).toLocaleString("ko-KR") : "-"],
+      ["제보 시각", report.submittedAt ? new Date(report.submittedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }) : "-"],
     ];
 
     const tableRows = rows
@@ -110,9 +116,15 @@ exports.onEditRequestCreated = onValueCreated(
     const formatDate = (iso) => {
       if (!iso) return "-";
       try {
-        return new Date(iso).toLocaleDateString("ko-KR", {
-          year: "numeric", month: "2-digit", day: "2-digit", weekday: "short",
-        });
+        const d = new Date(iso);
+        if (isNaN(d)) return iso;
+        const seoulDate = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+        const y = seoulDate.getUTCFullYear();
+        const m = String(seoulDate.getUTCMonth() + 1).padStart(2, "0");
+        const day = String(seoulDate.getUTCDate()).padStart(2, "0");
+        const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+        const wd = weekdays[seoulDate.getUTCDay()];
+        return `${y}. ${m}. ${day}. (${wd})`;
       } catch { return iso; }
     };
 
@@ -120,7 +132,11 @@ exports.onEditRequestCreated = onValueCreated(
       if (!iso) return "-";
       try {
         const d = new Date(iso);
-        return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+        if (isNaN(d)) return iso; // "HH:MM" 문자열 그대로 반환
+        const seoulDate = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+        const h = String(seoulDate.getUTCHours()).padStart(2, "0");
+        const m = String(seoulDate.getUTCMinutes()).padStart(2, "0");
+        return `${h}:${m}`;
       } catch { return iso; }
     };
 
@@ -129,7 +145,7 @@ exports.onEditRequestCreated = onValueCreated(
       ["대상 이벤트", eventName],
       ["사유", request.reason || "-"],
       ["요청자", request.submittedBy || "-"],
-      ["요청 시각", request.submittedAt ? new Date(request.submittedAt).toLocaleString("ko-KR") : "-"],
+      ["요청 시각", request.submittedAt ? new Date(request.submittedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }) : "-"],
     ];
     const metaTableRows = metaRows
       .map(([label, value]) => `<tr><td style="padding:6px 12px;color:#6b7280;white-space:nowrap">${label}</td><td style="padding:6px 12px;color:#111827">${value}</td></tr>`)
@@ -153,14 +169,22 @@ exports.onEditRequestCreated = onValueCreated(
       `;
     } else {
       // 수정 요청 메일 — diff 계산
-      const originalSnap = await admin.database().ref(`data_v2/${request.eventId}`).once("value");
-      const original = originalSnap.val();
+      // _snap: 요청 제출 시점의 원본 값 스냅샷 (브라우저에서 저장). 없으면 DB에서 읽음.
+      let original = request._snap ?? null;
+      if (!original) {
+        const originalSnap = await admin.database().ref(`data_v2/${request.eventId}`).once("value");
+        original = originalSnap.val();
+      }
 
       const toLocalDate = (iso) => {
         if (!iso) return "";
         const d = new Date(iso);
-        if (isNaN(d)) return "";
-        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+        if (isNaN(d)) return iso.slice(0, 10);
+        const seoulDate = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+        const y = seoulDate.getUTCFullYear();
+        const m = String(seoulDate.getUTCMonth() + 1).padStart(2, "0");
+        const day = String(seoulDate.getUTCDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
       };
       const toArray = (val) => {
         if (!val) return [];

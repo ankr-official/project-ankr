@@ -15,6 +15,7 @@ import { addToGoogleCalendar } from "../utils/calendarUtils";
 import { useAuth } from "../contexts/AuthContext";
 import EditRequestModal from "./EditRequestModal";
 import { ref, push, get, set } from "firebase/database";
+import { isoToTime, isoToLocal } from "../utils/eventFormUtils";
 import { database } from "../config/firebase";
 
 // Custom hooks
@@ -405,6 +406,17 @@ export function Modal({
         reason,
         submittedAt: new Date().toISOString(),
         submittedBy: user?.email || user?.uid || "unknown",
+        _snap: {
+          event_name: data.event_name ?? null,
+          schedule: isoToLocal(data.schedule) || null,
+          location: data.location ?? null,
+          genre: data.genre ?? null,
+          time_start: isoToTime(data.time_start) || null,
+          time_entrance: isoToTime(data.time_entrance) || null,
+          time_end: isoToTime(data.time_end) || null,
+          event_url: data.event_url ?? null,
+          etc: data.etc ?? null,
+        },
       });
       const today = new Date().toISOString().slice(0, 10);
       const newCount = editRequestCount + 1;
