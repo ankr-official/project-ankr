@@ -51,7 +51,6 @@ Hosting    GitHub Pages
 - `framer-motion` — 모달·카드 애니메이션
 - `date-fns` — 날짜 포맷 처리
 - `react-toastify` — 알림 토스트
-- `@heroicons/react` — 아이콘
 
 ## 프로젝트 구조
 
