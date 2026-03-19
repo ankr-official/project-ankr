@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { database } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { useRealtimeData } from "../hooks/useRealtimeData";
-import { toArray } from "../utils/eventFormUtils";
+import { toArray, GENRES } from "../utils/eventFormUtils";
 import EventEditModal from "../components/admin/EventEditModal";
 import AdminHeader from "../components/admin/AdminHeader";
 import AdminReportsTab from "../components/admin/AdminReportsTab";
@@ -340,6 +340,9 @@ export default function Admin() {
           eventNameSuggestions={[
             ...new Set(events.map((e) => e.event_name).filter(Boolean)),
           ].sort()}
+          genreSuggestions={[
+            ...new Set(events.flatMap((e) => toArray(e.genre)).filter((g) => g && !GENRES.includes(g))),
+          ]}
         />
       )}
 

@@ -154,7 +154,7 @@ export const Header = ({ onSearchOpen }) => {
                         {isLoggedIn ? (
                             <>
                                 <svg
-                                    className="w-4 h-4 shrink-0"
+                                    className="w-4 h-4 shrink-0 text-red-800 dark:text-red-400"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"

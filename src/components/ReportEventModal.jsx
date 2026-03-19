@@ -17,6 +17,7 @@ export default function ReportEventModal({
   dailyLimit = 10,
   locationSuggestions = [],
   eventNameSuggestions = [],
+  genreSuggestions = [],
 }) {
   const { role } = useAuth();
   const isAdmin = role === "admin";
@@ -131,6 +132,7 @@ export default function ReportEventModal({
             onToggle={toggleGenre}
             onAdd={addCustomGenres}
             onRemove={removeGenre}
+            suggestions={genreSuggestions}
           />
         </div>
 

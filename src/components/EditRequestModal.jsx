@@ -21,6 +21,7 @@ export default function EditRequestModal({
   isSaving,
   locationSuggestions = [],
   eventNameSuggestions = [],
+  genreSuggestions = [],
   isLimitReached = false,
   requestCount = 0,
   dailyLimit = 10,
@@ -194,6 +195,7 @@ export default function EditRequestModal({
               onToggle={toggleGenre}
               onAdd={addCustomGenres}
               onRemove={removeGenre}
+              suggestions={genreSuggestions}
             />
           </div>
 
