@@ -2,9 +2,9 @@
 
 <img src="public/favicon.svg" width="72" alt="ANKR 로고" />
 
-# ANKR.KR
+# [ANKR.KR](https://ankr.kr)
 
-**한국 서브컬처 DJ 이벤트 데이터베이스**
+**한국 서브컬처 DJ 이벤트 캘린더**
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-deployed-brightgreen?logo=github)](https://ankr.kr)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
@@ -12,19 +12,13 @@
 [![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 
-[🌐 서비스 바로가기](https://ankr.kr)
-
 </div>
-
----
 
 ## 제작 취지
 
 서브컬처 기반의 클럽 이벤트·DJ 파티는 코로나 규제 완화 이후 활발히 열리고 있지만, 관련 정보는 SNS에 흩어져 있거나 일부 커뮤니티에서만 공유되는 경우가 많습니다. SNS 알고리즘의 한계로 좋은 이벤트가 제대로 알려지지 못하고, 관심 있는 사람조차 원하는 정보를 제때 찾기 어려운 상황입니다.
 
 **ANKR.KR**은 그런 문제를 해소하고자 시작했습니다. 서브컬처 기반 DJ 이벤트에 특화하여 장르·지역·날짜별로 정보를 한곳에 모으고, 누구나 이벤트를 제보하거나 정보를 보완할 수 있는 열린 플랫폼을 지향합니다.
-
----
 
 ## 주요 기능
 
@@ -39,8 +33,6 @@
 | ✏️ 정보 수정 요청 | 잘못된 정보에 대한 수정·삭제 요청     |
 | 🌙 다크 모드      | 라이트/다크 테마 전환 지원            |
 | 🔐 관리자 패널    | 제보·수정 요청 검토 및 이벤트 관리    |
-
----
 
 ## Tech Stack
 
@@ -59,8 +51,6 @@ Hosting    GitHub Pages
 - `react-toastify` — 알림 토스트
 - `@heroicons/react` — 아이콘
 
----
-
 ## 프로젝트 구조
 
 ```
@@ -77,15 +67,11 @@ src/
 └── constants/          # 장르 색상 등 전역 상수
 ```
 
----
-
 ## 목표
 
 - 서브컬처 기반 DJ 이벤트 정보 접근성 향상
 - 마이너한 로컬 파티 알리기
 - 사용자 중심의 자율적 정보 공유 문화 확산
-
----
 
 ## Contacts
 
