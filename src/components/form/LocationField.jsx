@@ -5,7 +5,7 @@ export function LocationField({ value, onChange, suggestions = [], locationTbd, 
     return (
         <div className="space-y-1.5">
             <label className="block text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
-                장소
+                장소 <span className="text-red-500">*</span>
             </label>
             <AutocompleteInput
                 value={locationTbd ? "장소 미정" : value}

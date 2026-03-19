@@ -38,6 +38,7 @@ export default function EventEditModal({
         isSaving ||
         !form.event_name.trim() ||
         !form.schedule ||
+        !form.location.trim() ||
         (form.genre?.length ?? 0) === 0 ||
         !form.event_url.trim();
 

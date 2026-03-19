@@ -90,6 +90,7 @@ export default function EditRequestModal({
         !reason.trim() && "수정 사유",
         !form.event_name.trim() && "이벤트명",
         !form.schedule && "날짜",
+        !form.location.trim() && "장소",
         form.genre.length === 0 && "장르",
         !hasChanges && "변경점",
       ].filter(Boolean);
@@ -100,7 +101,7 @@ export default function EditRequestModal({
     !reason.trim() ||
     (!deleteRequest && !hasChanges) ||
     (!deleteRequest &&
-      (!form.event_name.trim() || !form.schedule || form.genre.length === 0));
+      (!form.event_name.trim() || !form.schedule || !form.location.trim() || form.genre.length === 0));
 
   return (
     <ModalShell onClose={onClose} zIndex={60}>
