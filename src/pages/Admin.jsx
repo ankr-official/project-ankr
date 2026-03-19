@@ -4,9 +4,7 @@ import { ref, remove, update, set } from "firebase/database";
 import { toast } from "react-toastify";
 import { database } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
-import { useFirebaseData } from "../hooks/useFirebaseData";
-import { useReportsData } from "../hooks/useReportsData";
-import { useEditRequestsData } from "../hooks/useEditRequestsData";
+import { useRealtimeData } from "../hooks/useRealtimeData";
 import { GENRE_COLORS } from "../constants";
 import EventEditModal from "../components/admin/EventEditModal";
 import ThemeToggle from "../components/ui/ThemeToggle";
@@ -140,9 +138,9 @@ const formatScheduleDisplay = (dateStr) => {
 export default function Admin() {
   const navigate = useNavigate();
   const { role, user, signOut, loading: authLoading } = useAuth();
-  const { data: events, loading: dataLoading } = useFirebaseData();
-  const { reports, loading: reportsLoading } = useReportsData();
-  const { editRequests, loading: editRequestsLoading } = useEditRequestsData();
+  const { data: events, loading: dataLoading } = useRealtimeData("data_v2");
+  const { data: reports, loading: reportsLoading } = useRealtimeData("reports");
+  const { data: editRequests, loading: editRequestsLoading } = useRealtimeData("editRequests");
 
   // ── 모든 훅은 조건부 return 전에 선언 ──
   const [search, setSearch] = useState("");

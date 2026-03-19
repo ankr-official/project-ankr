@@ -17,7 +17,7 @@ import { YearEndReceiptBanner } from "../components/YearEndReceiptBanner";
 import ReportEventModal from "../components/ReportEventModal";
 
 // Hooks
-import { useFirebaseData } from "../hooks/useFirebaseData";
+import { useRealtimeData } from "../hooks/useRealtimeData";
 import { useUserSettings } from "../hooks/useUserSettings";
 import { useEventData } from "../hooks/useEventData";
 import { useModalNavigation } from "../hooks/useModalNavigation";
@@ -25,7 +25,7 @@ import { useAuth } from "../contexts/AuthContext";
 
 function Home() {
   // Data and loading state
-  const { data, loading } = useFirebaseData();
+  const { data, loading } = useRealtimeData("data_v2");
 
   // Auth
   const { isLoggedIn, user, role } = useAuth();

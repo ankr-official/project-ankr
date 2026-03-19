@@ -32,12 +32,12 @@ export const Header = ({ onSearchOpen }) => {
     };
 
     return (
-        <div className="flex lg:flex-row flex-col gap-3 lg:gap-4 justify-between items-center lg:px-2 mb-6 transition-colors">
+        <div className="flex flex-col gap-3 justify-between items-center mb-6 transition-colors lg:flex-row lg:gap-4 lg:px-2">
             {/* 타이틀 영역: 모바일/데스크톱 공통 사용, 다크모드 토글은 모바일에서만 표시 */}
-            <div className="flex-1 w-full flex items-center justify-between">
+            <div className="flex flex-1 justify-between items-center w-full">
                 <Link
                     to="/"
-                    className="flex-1 inline-flex items-center gap-2 text-balance text-xl font-bold md:text-3xl text-gray-900 dark:text-white text-left lg:hover:opacity-50 transition-opacity p-2"
+                    className="inline-flex flex-1 gap-2 items-center p-2 text-xl font-bold text-left text-gray-900 transition-opacity text-balance md:text-3xl dark:text-white lg:hover:opacity-50"
                 >
                     <img
                         src="/favicon.svg"
@@ -46,12 +46,12 @@ export const Header = ({ onSearchOpen }) => {
                     />
                     <span>ANKR.KR</span>
                 </Link>
-                <div className="lg:hidden flex items-center gap-2">
+                <div className="flex gap-2 items-center lg:hidden">
                     <ThemeToggle />
                     {isLoggedIn && role === "admin" && (
                         <Link
                             to="/admin"
-                            className="inline-flex items-center rounded-full px-3 py-2 text-sm bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/70 shadow-sm hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors"
+                            className="inline-flex items-center px-3 py-2 text-sm text-indigo-700 bg-indigo-50 rounded-full border shadow-sm transition-colors dark:bg-indigo-950/40 dark:text-indigo-300 border-indigo-200/70 dark:border-indigo-800/70 hover:bg-indigo-100 dark:hover:bg-indigo-900/40"
                         >
                             관리자
                         </Link>
@@ -65,7 +65,7 @@ export const Header = ({ onSearchOpen }) => {
                             {isLoggedIn ? (
                                 <>
                                     <svg
-                                        className="w-4 h-4 shrink-0 text-red-800 dark:text-red-400"
+                                        className="w-4 h-4 text-red-800 shrink-0 dark:text-red-400"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -116,10 +116,10 @@ export const Header = ({ onSearchOpen }) => {
                 id="search-button"
                 title="검색 열기"
             >
-                <span className="truncate text-left">
+                <span className="text-left truncate">
                     이벤트명, 장소, 장르로 검색...
                 </span>
-                <span className="flex items-center justify-center w-8 h-8 rounded-full  text-gray-700 dark:text-gray-200 transition-colors">
+                <span className="flex justify-center items-center w-8 h-8 text-gray-700 rounded-full transition-colors dark:text-gray-200">
                     <svg
                         className="w-6 h-6"
                         fill="none"
@@ -135,12 +135,12 @@ export const Header = ({ onSearchOpen }) => {
                     </svg>
                 </span>
             </button>
-            <div className="flex-1 text-right hidden lg:flex items-center justify-end gap-2">
+            <div className="hidden flex-1 gap-2 justify-end items-center text-right lg:flex">
                 <ThemeToggle />
                 {isLoggedIn && role === "admin" && (
                     <Link
                         to="/admin"
-                        className="inline-flex items-center rounded-full px-3 py-2 text-sm bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/70 shadow-sm hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors"
+                        className="inline-flex items-center px-3 py-2 text-sm text-indigo-700 bg-indigo-50 rounded-full border shadow-sm transition-colors dark:bg-indigo-950/40 dark:text-indigo-300 border-indigo-200/70 dark:border-indigo-800/70 hover:bg-indigo-100 dark:hover:bg-indigo-900/40"
                     >
                         관리자
                     </Link>
