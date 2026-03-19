@@ -35,8 +35,8 @@ export const Header = ({ onSearchOpen }) => {
         <div className="flex flex-col gap-3 justify-between items-center mb-6 transition-colors lg:flex-row lg:gap-4 lg:px-2">
             {/* 타이틀 영역: 모바일/데스크톱 공통 사용, 다크모드 토글은 모바일에서만 표시 */}
             <div className="flex flex-1 justify-between items-center w-full">
-                <Link
-                    to="/"
+                <a
+                    href="/"
                     className="inline-flex flex-1 gap-2 items-center p-2 text-xl font-bold text-left text-gray-900 transition-opacity text-balance md:text-3xl dark:text-white lg:hover:opacity-50"
                 >
                     <img
@@ -45,7 +45,7 @@ export const Header = ({ onSearchOpen }) => {
                         className="w-7 h-7 md:w-8 md:h-8"
                     />
                     <span>ANKR.KR</span>
-                </Link>
+                </a>
                 <div className="flex gap-2 items-center lg:hidden">
                     <ThemeToggle />
                     {isLoggedIn && role === "admin" && (
