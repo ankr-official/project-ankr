@@ -27,6 +27,7 @@ export default function Admin() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [approvingReportId, setApprovingReportId] = useState(null);
 
   const now = new Date();
 
@@ -129,9 +130,15 @@ export default function Admin() {
           return match ? Math.max(max, parseInt(match[1], 10)) : max;
         }, 0);
         await set(ref(database, `data_v2/row${maxRow + 1}`), data);
-        toast.success("이벤트가 추가되었습니다.");
+        if (approvingReportId) {
+          await remove(ref(database, `reports/${approvingReportId}`));
+          toast.success("제보가 승인되어 이벤트로 등록되었습니다.");
+        } else {
+          toast.success("이벤트가 추가되었습니다.");
+        }
       }
       setEditingEvent(null);
+      setApprovingReportId(null);
     } catch {
       toast.error("저장 중 오류가 발생했습니다.");
     } finally {
@@ -139,19 +146,10 @@ export default function Admin() {
     }
   };
 
-  const handleApproveReport = async (report) => {
-    try {
-      const { id, submittedAt, submittedBy, ...data } = report;
-      const maxRow = events.reduce((max, e) => {
-        const match = e.id?.match(/^row(\d+)$/);
-        return match ? Math.max(max, parseInt(match[1], 10)) : max;
-      }, 0);
-      await set(ref(database, `data_v2/row${maxRow + 1}`), { ...data, confirm: false });
-      await remove(ref(database, `reports/${id}`));
-      toast.success("제보가 승인되어 이벤트로 등록되었습니다.");
-    } catch {
-      toast.error("승인 중 오류가 발생했습니다.");
-    }
+  const handleApproveReport = (report) => {
+    const { id, submittedAt, submittedBy, ...data } = report;
+    setApprovingReportId(id);
+    setEditingEvent({ ...data, confirm: false });
   };
 
   const handleRejectReport = async (report) => {
@@ -332,7 +330,7 @@ export default function Admin() {
         <EventEditModal
           event={editingEvent}
           onSave={handleSave}
-          onClose={() => setEditingEvent(null)}
+          onClose={() => { setEditingEvent(null); setApprovingReportId(null); }}
           isSaving={isSaving}
           locationSuggestions={[
             ...new Set(events.map((e) => e.location).filter(Boolean)),

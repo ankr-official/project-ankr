@@ -1,10 +1,16 @@
 import { GENRE_COLORS } from "../../constants";
+import { GENRES } from "../../utils/eventFormUtils";
 
 export const GenreTag = ({ genre }) => {
     const genres = genre.split(",").map(g => g.trim());
-    const definedGenres = genres.filter(g => GENRE_COLORS[g]);
-    const undefinedGenres = genres.filter(g => !GENRE_COLORS[g]);
-    const sortedGenres = [...undefinedGenres, ...definedGenres];
+    const sortedGenres = [...genres].sort((a, b) => {
+        const ia = GENRES.indexOf(a);
+        const ib = GENRES.indexOf(b);
+        if (ia !== -1 && ib !== -1) return ia - ib;
+        if (ia !== -1) return -1;
+        if (ib !== -1) return 1;
+        return 0;
+    });
 
     return (
         <div className="flex flex-wrap justify-start gap-1">
