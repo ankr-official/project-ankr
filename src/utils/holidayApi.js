@@ -95,6 +95,7 @@ export const fetchHolidays = async (year, month = null) => {
         const url = new URL(`${BASE_URL}/getRestDeInfo`);
         url.searchParams.append("serviceKey", API_KEY);
         url.searchParams.append("solYear", year);
+        url.searchParams.append("numOfRows", "100");
         if (month) {
             url.searchParams.append(
                 "solMonth",
@@ -117,55 +118,27 @@ export const fetchHolidays = async (year, month = null) => {
     }
 };
 
-// 캐시된 공휴일 데이터를 저장할 객체
-const holidayCache = {};
-// 로딩 중인 요청을 추적하는 객체
+// 메모리 캐시 (같은 세션 내 중복 요청 방지)
+const memoryCache = {};
 const loadingRequests = {};
 
-// 공휴일 데이터를 가져오는 메인 함수 (캐시 활용)
+// 공휴일 데이터를 가져오는 메인 함수 (세션 내 메모리 캐시)
 export const getHolidaysForYear = async year => {
     const cacheKey = `${year}`;
 
-    // 캐시된 데이터가 있으면 즉시 반환
-    if (holidayCache[cacheKey]) {
-        return holidayCache[cacheKey];
-    }
+    // 1. 메모리 캐시 (같은 세션 내 중복 호출 방지)
+    if (memoryCache[cacheKey]) return memoryCache[cacheKey];
 
-    // 이미 로딩 중인 요청이 있으면 해당 요청의 결과를 기다림
-    if (loadingRequests[cacheKey]) {
-        return loadingRequests[cacheKey];
-    }
+    // 2. 이미 로딩 중이면 같은 요청 재사용
+    if (loadingRequests[cacheKey]) return loadingRequests[cacheKey];
 
-    // 새로운 로딩 요청 생성
+    // 3. API 호출 (연간 전체를 한 번에)
     loadingRequests[cacheKey] = (async () => {
         try {
-            const holidays = {};
-            const monthPromises = [];
-
-            // 12개월 데이터를 병렬로 요청 (한 번에 3개씩만 요청)
-            for (let i = 0; i < 12; i += 3) {
-                const batchPromises = [];
-                for (let j = 0; j < 3 && i + j < 12; j++) {
-                    const month = i + j + 1;
-                    batchPromises.push(
-                        fetchHolidays(year, month)
-                            .then(monthHolidays => {
-                                Object.assign(holidays, monthHolidays);
-                            })
-                            .catch(() => {
-                                // 개별 월 조회 실패는 무시
-                            })
-                    );
-                }
-                // 각 배치의 요청이 완료될 때까지 대기
-                await Promise.all(batchPromises);
-            }
-
-            // 캐시에 저장
-            holidayCache[cacheKey] = holidays;
+            const holidays = await fetchHolidays(year);
+            memoryCache[cacheKey] = holidays;
             return holidays;
         } finally {
-            // 로딩 완료 후 요청 추적 객체에서 제거
             delete loadingRequests[cacheKey];
         }
     })();
@@ -180,8 +153,8 @@ export const getHolidayForDate = async date => {
 
     // 캐시된 데이터가 있으면 즉시 반환
     const cacheKey = `${year}`;
-    if (holidayCache[cacheKey]) {
-        return holidayCache[cacheKey][monthDay] || null;
+    if (memoryCache[cacheKey]) {
+        return memoryCache[cacheKey][monthDay] || null;
     }
 
     // 캐시된 데이터가 없으면 연도 데이터를 가져옴
@@ -191,6 +164,6 @@ export const getHolidayForDate = async date => {
 
 // 캐시 초기화 함수 (필요한 경우에만 사용)
 export const clearHolidayCache = () => {
-    Object.keys(holidayCache).forEach(key => delete holidayCache[key]);
+    Object.keys(memoryCache).forEach(key => delete memoryCache[key]);
     Object.keys(loadingRequests).forEach(key => delete loadingRequests[key]);
 };
