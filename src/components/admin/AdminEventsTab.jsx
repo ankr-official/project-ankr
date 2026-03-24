@@ -1,5 +1,5 @@
 import { GENRE_COLORS } from "../../constants";
-import { toArray } from "../../utils/eventFormUtils";
+import { toArray, sortGenres } from "../../utils/eventFormUtils";
 import { formatScheduleDisplay } from "../../utils/adminUtils";
 
 export default function AdminEventsTab({
@@ -88,7 +88,7 @@ export default function AdminEventsTab({
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1">
-                    {toArray(event.genre)
+                    {sortGenres(toArray(event.genre))
                       .slice(0, 3)
                       .map((g) => (
                         <span
@@ -234,7 +234,7 @@ export default function AdminEventsTab({
 
             {toArray(event.genre).length > 0 && (
               <div className="flex flex-wrap gap-1">
-                {toArray(event.genre).map((g) => (
+                {sortGenres(toArray(event.genre)).map((g) => (
                   <span
                     key={g}
                     className={`inline-block px-2 py-0.5 rounded-md text-xs ${GENRE_COLORS[g] || GENRE_COLORS.default}`}

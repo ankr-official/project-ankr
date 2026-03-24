@@ -1,5 +1,5 @@
 import { GENRE_COLORS } from "../../constants";
-import { toArray, isoToTime } from "../../utils/eventFormUtils";
+import { toArray, isoToTime, sortGenres } from "../../utils/eventFormUtils";
 import { formatScheduleDisplay } from "../../utils/adminUtils";
 
 export default function AdminReportsTab({ reports, reportsLoading, onApprove, onReject }) {
@@ -47,7 +47,7 @@ export default function AdminReportsTab({ reports, reportsLoading, onApprove, on
 
             {toArray(report.genre).length > 0 && (
               <div className="flex flex-wrap gap-1">
-                {toArray(report.genre).map((g) => (
+                {sortGenres(toArray(report.genre)).map((g) => (
                   <span
                     key={g}
                     className={`inline-block px-2 py-0.5 rounded-md text-xs ${GENRE_COLORS[g] || GENRE_COLORS.default}`}

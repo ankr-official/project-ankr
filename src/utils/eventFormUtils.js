@@ -29,6 +29,16 @@ export const isoToLocal = iso => {
     }
 };
 
+export const sortGenres = (genres) =>
+    [...genres].sort((a, b) => {
+        const ia = GENRES.indexOf(a);
+        const ib = GENRES.indexOf(b);
+        if (ia !== -1 && ib !== -1) return ia - ib;
+        if (ia !== -1) return -1;
+        if (ib !== -1) return 1;
+        return 0;
+    });
+
 export const toArray = val => {
     if (!val) return [];
     if (Array.isArray(val)) return val;
