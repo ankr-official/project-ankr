@@ -4,6 +4,7 @@ const nodemailer = require("nodemailer");
 
 const { onRequest } = require("firebase-functions/v2/https");
 const { onValueCreated } = require("firebase-functions/v2/database");
+const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { defineSecret } = require("firebase-functions/params");
 
 // Secret Manager 에 저장된 값들과 매핑되는 Secret 정의
@@ -16,6 +17,7 @@ const serviceAccount = require("./service-account-key.json");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://ankr-db-default-rtdb.asia-southeast1.firebasedatabase.app",
+  storageBucket: "ankr-db.firebasestorage.app",
 });
 
 exports.onReportCreated = onValueCreated(
@@ -290,6 +292,38 @@ exports.syncData = onRequest(
       console.error("❌ Error syncing data:", error);
       res.status(500).send("Internal Server Error");
     }
+  },
+);
+
+exports.weeklyBackup = onSchedule(
+  {
+    schedule: "0 9 * * 1",
+    timeZone: "Asia/Seoul",
+    region: "asia-southeast1",
+  },
+  async () => {
+    const snapshot = await admin.database().ref("data_v2").get();
+    const json = JSON.stringify(snapshot.val(), null, 2);
+
+    // 서울 시간 기준 파일명 생성
+    const now = new Date();
+    const seoul = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    const pad = (n) => String(n).padStart(2, "0");
+    const timestamp = [
+      seoul.getUTCFullYear(),
+      pad(seoul.getUTCMonth() + 1),
+      pad(seoul.getUTCDate()),
+      "-",
+      pad(seoul.getUTCHours()),
+      pad(seoul.getUTCMinutes()),
+    ].join("");
+    const fileName = `backups/data_v2_${timestamp}.json`;
+
+    await admin.storage().bucket().file(fileName).save(json, {
+      contentType: "application/json",
+    });
+
+    console.log(`✅ Backup saved: ${fileName}`);
   },
 );
 
