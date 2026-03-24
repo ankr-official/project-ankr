@@ -7,12 +7,19 @@ import {
   isoToTime,
   isoToLocal,
   toArray,
+  isValidUrl,
+  validateTimeOrder,
 } from "../utils/eventFormUtils";
 import { ModalShell, ModalCloseButton } from "./form/ModalShell";
 import { AutocompleteInput } from "./form/AutocompleteInput";
 import { LocationField } from "./form/LocationField";
 import { TimeFields } from "./form/TimeFields";
 import { GenreSelector } from "./form/GenreSelector";
+
+function FieldError({ message }) {
+  if (!message) return null;
+  return <p className="text-xs text-left text-red-500 dark:text-red-400 pl-2 mt-1">{message}</p>;
+}
 
 export default function EditRequestModal({
   event,
@@ -41,6 +48,8 @@ export default function EditRequestModal({
 
   const [reason, setReason] = useState("");
   const [deleteRequest, setDeleteRequest] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [submitted, setSubmitted] = useState(false);
 
   const initial = useMemo(
     () => ({
@@ -71,38 +80,41 @@ export default function EditRequestModal({
     [form, initial],
   );
 
+  const validate = (f = form, r = reason) => {
+    const errs = {};
+    if (!r.trim()) errs.reason = "수정 사유를 입력해주세요.";
+    if (!deleteRequest) {
+      if (!f.event_name.trim()) errs.event_name = "이벤트명을 입력해주세요.";
+      if (!f.schedule) errs.schedule = "날짜를 선택해주세요.";
+      if (!f.location.trim()) errs.location = "장소를 입력해주세요.";
+      if (f.genre.length === 0) errs.genre = "장르를 하나 이상 선택해주세요.";
+      if (f.event_url && !isValidUrl(f.event_url)) errs.event_url = "올바른 URL 형식이 아닙니다. (https://...)";
+      const timeErr = validateTimeOrder(f);
+      if (timeErr) errs.time = timeErr;
+      if (!hasChanges) errs.changes = "변경된 내용이 없습니다.";
+    }
+    return errs;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    setSubmitted(true);
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
     if (deleteRequest) {
       onSubmit({ deleteRequest: true }, reason.trim());
     } else {
-      const data = buildSubmitData(form);
-      onSubmit(data, reason.trim());
+      onSubmit(buildSubmitData(form), reason.trim());
     }
   };
 
-  const [showHint, setShowHint] = useState(false);
+  const handleSet = (field, val) => {
+    set(field, val);
+    if (submitted) setErrors(validate({ ...form, [field]: val }));
+  };
 
-  const missingFields = deleteRequest
-    ? !reason.trim()
-      ? ["수정 사유"]
-      : []
-    : [
-        !reason.trim() && "수정 사유",
-        !form.event_name.trim() && "이벤트명",
-        !form.schedule && "날짜",
-        !form.location.trim() && "장소",
-        form.genre.length === 0 && "장르",
-        !hasChanges && "변경점",
-      ].filter(Boolean);
-
-  const isDisabled =
-    isSaving ||
-    isLimitReached ||
-    !reason.trim() ||
-    (!deleteRequest && !hasChanges) ||
-    (!deleteRequest &&
-      (!form.event_name.trim() || !form.schedule || !form.location.trim() || form.genre.length === 0));
+  const isDisabled = isSaving || isLimitReached;
 
   return (
     <ModalShell onClose={onClose} zIndex={60}>
@@ -132,11 +144,15 @@ export default function EditRequestModal({
           </label>
           <textarea
             value={reason}
-            onChange={(e) => setReason(e.target.value)}
+            onChange={(e) => {
+              setReason(e.target.value);
+              if (submitted) setErrors(validate(form, e.target.value));
+            }}
             placeholder="수정이 필요한 이유를 간략히 설명해 주세요"
             rows={2}
-            className={`${inputClass} resize-none`}
+            className={`${inputClass} resize-none${errors.reason ? " border-red-400 dark:border-red-500" : ""}`}
           />
+          <FieldError message={errors.reason} />
         </div>
 
         <fieldset
@@ -146,6 +162,9 @@ export default function EditRequestModal({
           <p className="text-xs text-left pl-2 text-gray-400 dark:text-gray-500">
             수정할 항목만 변경해 주세요.
           </p>
+          {errors.changes && !deleteRequest && (
+            <FieldError message={errors.changes} />
+          )}
 
           {/* 이벤트명 */}
           <div className="space-y-1.5">
@@ -154,11 +173,12 @@ export default function EditRequestModal({
             </label>
             <AutocompleteInput
               value={form.event_name}
-              onChange={(v) => set("event_name", v)}
+              onChange={(v) => handleSet("event_name", v)}
               suggestions={eventNameSuggestions}
               placeholder="이벤트 이름을 입력하세요"
-              className={inputClass}
+              className={`${inputClass}${errors.event_name ? " border-red-400 dark:border-red-500" : ""}`}
             />
+            <FieldError message={errors.event_name} />
           </div>
 
           {/* 날짜 + 장소 */}
@@ -170,20 +190,31 @@ export default function EditRequestModal({
               <input
                 type="date"
                 value={form.schedule}
-                onChange={(e) => set("schedule", e.target.value)}
-                className={inputClass}
+                onChange={(e) => handleSet("schedule", e.target.value)}
+                className={`${inputClass}${errors.schedule ? " border-red-400 dark:border-red-500" : ""}`}
               />
+              <FieldError message={errors.schedule} />
             </div>
-            <LocationField
-              value={form.location}
-              onChange={(v) => set("location", v)}
-              suggestions={locationSuggestions}
-              locationTbd={locationTbd}
-              onTbdChange={handleLocationTbdChange}
-            />
+            <div>
+              <LocationField
+                value={form.location}
+                onChange={(v) => handleSet("location", v)}
+                suggestions={locationSuggestions}
+                locationTbd={locationTbd}
+                onTbdChange={handleLocationTbdChange}
+              />
+              <FieldError message={errors.location} />
+            </div>
           </div>
 
-          <TimeFields value={form} onChange={(field, val) => set(field, val)} />
+          {/* 시간 */}
+          <div className="space-y-1">
+            <TimeFields value={form} onChange={(field, val) => {
+              set(field, val);
+              if (submitted) setErrors(validate({ ...form, [field]: val }));
+            }} />
+            <FieldError message={errors.time} />
+          </div>
 
           {/* 장르 */}
           <div className="space-y-1.5">
@@ -192,11 +223,12 @@ export default function EditRequestModal({
             </label>
             <GenreSelector
               genres={form.genre}
-              onToggle={toggleGenre}
-              onAdd={addCustomGenres}
-              onRemove={removeGenre}
+              onToggle={g => { toggleGenre(g); if (submitted) setErrors(validate()); }}
+              onAdd={g => { addCustomGenres(g); if (submitted) setErrors(validate()); }}
+              onRemove={g => { removeGenre(g); if (submitted) setErrors(validate()); }}
               suggestions={genreSuggestions}
             />
+            <FieldError message={errors.genre} />
           </div>
 
           {/* 이벤트 SNS 링크 */}
@@ -207,10 +239,11 @@ export default function EditRequestModal({
             <input
               type="text"
               value={form.event_url}
-              onChange={(e) => set("event_url", e.target.value)}
+              onChange={(e) => handleSet("event_url", e.target.value)}
               placeholder="https://..."
-              className={inputClass}
+              className={`${inputClass}${errors.event_url ? " border-red-400 dark:border-red-500" : ""}`}
             />
+            <FieldError message={errors.event_url} />
           </div>
 
           {/* 기타 정보 */}
@@ -246,6 +279,7 @@ export default function EditRequestModal({
             </p>
           </div>
         </label>
+
       </form>
 
       {/* Footer */}
@@ -254,12 +288,6 @@ export default function EditRequestModal({
           <p className="text-xs text-center text-red-500 dark:text-red-400">
             오늘 수정 요청 가능 횟수({dailyLimit}회)를 초과했습니다. 내일 다시
             시도해 주세요.
-          </p>
-        )}
-        {showHint && missingFields.length > 0 && (
-          <p className="text-xs text-amber-600 dark:text-amber-400 text-center">
-            필수 항목을 채워주세요:{" "}
-            <span className="font-medium">{missingFields.join(", ")}</span>
           </p>
         )}
         <div className="flex gap-2">
@@ -271,24 +299,17 @@ export default function EditRequestModal({
           >
             취소
           </button>
-          <div
-            className="flex-1"
-            onClick={() => {
-              if (isDisabled && !isSaving && !isLimitReached) setShowHint(true);
-            }}
+          <button
+            type="submit"
+            form="edit-request-form"
+            disabled={isDisabled}
+            className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            <button
-              type="submit"
-              form="edit-request-form"
-              disabled={isDisabled}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none flex items-center justify-center gap-2"
-            >
-              {isSaving && (
-                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              )}
-              요청하기{!isAdmin && ` ${requestCount} / ${dailyLimit}`}
-            </button>
-          </div>
+            {isSaving && (
+              <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            )}
+            요청하기{!isAdmin && ` ${requestCount} / ${dailyLimit}`}
+          </button>
         </div>
       </div>
     </ModalShell>

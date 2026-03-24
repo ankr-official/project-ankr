@@ -57,6 +57,26 @@ export const timeToISO = (timeVal, scheduleDateStr) => {
     }
 };
 
+export const isValidUrl = url => {
+    try {
+        const u = new URL(url);
+        return u.protocol === "http:" || u.protocol === "https:";
+    } catch {
+        return false;
+    }
+};
+
+export const validateTimeOrder = ({ time_entrance, time_start, time_end }) => {
+    const toMin = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+    if (time_entrance && time_start && toMin(time_entrance) > toMin(time_start))
+        return "입장 시간이 시작 시간보다 늦습니다.";
+    if (time_start && time_end && toMin(time_start) > toMin(time_end))
+        return "시작 시간이 종료 시간보다 늦습니다.";
+    if (time_entrance && time_end && toMin(time_entrance) > toMin(time_end))
+        return "입장 시간이 종료 시간보다 늦습니다.";
+    return null;
+};
+
 /** Transforms common form fields into Firebase-ready data.
  *  Does NOT handle confirm, img_url, reason — each modal manages those. */
 export const buildSubmitData = form => {
@@ -68,9 +88,9 @@ export const buildSubmitData = form => {
         time_entrance: timeToISO(form.time_entrance, form.schedule),
         time_end: timeToISO(form.time_end, form.schedule),
     };
-    if (!data.time_start) delete data.time_start;
-    if (!data.time_entrance) delete data.time_entrance;
-    if (!data.time_end) delete data.time_end;
-    if (!data.etc) delete data.etc;
+    if (!data.time_start) data.time_start = null;
+    if (!data.time_entrance) data.time_entrance = null;
+    if (!data.time_end) data.time_end = null;
+    if (!data.etc) data.etc = null;
     return data;
 };

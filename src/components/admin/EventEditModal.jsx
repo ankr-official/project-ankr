@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { useEventForm } from "../../hooks/useEventForm";
-import { buildSubmitData, inputClass } from "../../utils/eventFormUtils";
+import { buildSubmitData, inputClass, isValidUrl, validateTimeOrder } from "../../utils/eventFormUtils";
 import { ModalShell, ModalCloseButton } from "../form/ModalShell";
 import { AutocompleteInput } from "../form/AutocompleteInput";
 import { LocationField } from "../form/LocationField";
 import { TimeFields } from "../form/TimeFields";
 import { GenreSelector } from "../form/GenreSelector";
+
+function FieldError({ message }) {
+    if (!message) return null;
+    return <p className="text-xs text-left text-red-500 dark:text-red-400 pl-2 mt-1">{message}</p>;
+}
 
 export default function EventEditModal({
     event,
@@ -21,27 +26,50 @@ export default function EventEditModal({
     const { form, set, toggleGenre, addCustomGenres, removeGenre, locationTbd, handleLocationTbdChange } =
         useEventForm(event, onClose);
 
-    // Admin-only fields not managed by the shared hook
     const [imgUrl, setImgUrl] = useState(event?.img_url ?? "");
     const [confirm, setConfirm] = useState(event?.confirm ?? false);
+    const [errors, setErrors] = useState({});
+    const [submitted, setSubmitted] = useState(false);
+
+    const validate = (f = form, img = imgUrl) => {
+        const errs = {};
+        if (!f.event_name.trim()) errs.event_name = "이벤트명을 입력해주세요.";
+        if (!f.schedule) errs.schedule = "날짜를 선택해주세요.";
+        if (!f.location.trim()) errs.location = "장소를 입력해주세요.";
+        if ((f.genre?.length ?? 0) === 0) errs.genre = "장르를 하나 이상 선택해주세요.";
+        if (!f.event_url.trim()) {
+            errs.event_url = "SNS 링크를 입력해주세요.";
+        } else if (!isValidUrl(f.event_url)) {
+            errs.event_url = "올바른 URL 형식이 아닙니다. (https://...)";
+        }
+        if (img && !isValidUrl(img)) errs.img_url = "올바른 URL 형식이 아닙니다. (https://...)";
+        const timeErr = validateTimeOrder(f);
+        if (timeErr) errs.time = timeErr;
+        return errs;
+    };
 
     const handleSubmit = e => {
         e.preventDefault();
+        setSubmitted(true);
+        const errs = validate();
+        setErrors(errs);
+        if (Object.keys(errs).length > 0) return;
         const data = { ...buildSubmitData(form), confirm, img_url: imgUrl };
-        if (!data.img_url) delete data.img_url;
-        if (!data.event_url) delete data.event_url;
-        // Preserve id for updates
+        if (!data.img_url) data.img_url = null;
         if (event?.id) data.id = event.id;
         onSave(data);
     };
 
-    const isDisabled =
-        isSaving ||
-        !form.event_name.trim() ||
-        !form.schedule ||
-        !form.location.trim() ||
-        (form.genre?.length ?? 0) === 0 ||
-        !form.event_url.trim();
+    const revalidate = (nextForm = form, nextImg = imgUrl) => {
+        if (submitted) setErrors(validate(nextForm, nextImg));
+    };
+
+    const handleSet = (field, val) => {
+        set(field, val);
+        revalidate({ ...form, [field]: val });
+    };
+
+    const isDisabled = isSaving;
 
     return (
         <ModalShell onClose={onClose} maxHeight="calc(100dvh - 5rem)">
@@ -62,12 +90,13 @@ export default function EventEditModal({
                     </label>
                     <AutocompleteInput
                         value={form.event_name}
-                        onChange={v => set("event_name", v)}
+                        onChange={v => handleSet("event_name", v)}
                         suggestions={eventNameSuggestions}
                         placeholder="이벤트 이름을 입력하세요"
-                        className={inputClass}
+                        className={`${inputClass}${errors.event_name ? " border-red-400 dark:border-red-500" : ""}`}
                         required
                     />
+                    <FieldError message={errors.event_name} />
                 </div>
 
                 {/* 날짜 + 장소 */}
@@ -80,20 +109,31 @@ export default function EventEditModal({
                             type="date"
                             required
                             value={form.schedule}
-                            onChange={e => set("schedule", e.target.value)}
-                            className={inputClass}
+                            onChange={e => handleSet("schedule", e.target.value)}
+                            className={`${inputClass}${errors.schedule ? " border-red-400 dark:border-red-500" : ""}`}
                         />
+                        <FieldError message={errors.schedule} />
                     </div>
-                    <LocationField
-                        value={form.location}
-                        onChange={v => set("location", v)}
-                        suggestions={locationSuggestions}
-                        locationTbd={locationTbd}
-                        onTbdChange={handleLocationTbdChange}
-                    />
+                    <div>
+                        <LocationField
+                            value={form.location}
+                            onChange={v => handleSet("location", v)}
+                            suggestions={locationSuggestions}
+                            locationTbd={locationTbd}
+                            onTbdChange={handleLocationTbdChange}
+                        />
+                        <FieldError message={errors.location} />
+                    </div>
                 </div>
 
-                <TimeFields value={form} onChange={(field, val) => set(field, val)} />
+                {/* 시간 */}
+                <div className="space-y-1">
+                    <TimeFields value={form} onChange={(field, val) => {
+                        set(field, val);
+                        revalidate({ ...form, [field]: val });
+                    }} />
+                    <FieldError message={errors.time} />
+                </div>
 
                 {/* 장르 */}
                 <div className="space-y-1.5">
@@ -102,11 +142,12 @@ export default function EventEditModal({
                     </label>
                     <GenreSelector
                         genres={form.genre}
-                        onToggle={toggleGenre}
-                        onAdd={addCustomGenres}
-                        onRemove={removeGenre}
+                        onToggle={g => { toggleGenre(g); if (submitted) setErrors(validate()); }}
+                        onAdd={g => { addCustomGenres(g); if (submitted) setErrors(validate()); }}
+                        onRemove={g => { removeGenre(g); if (submitted) setErrors(validate()); }}
                         suggestions={genreSuggestions}
                     />
+                    <FieldError message={errors.genre} />
                 </div>
 
                 {/* URL 정보 */}
@@ -118,10 +159,11 @@ export default function EventEditModal({
                         <input
                             type="text"
                             value={form.event_url}
-                            onChange={e => set("event_url", e.target.value)}
+                            onChange={e => handleSet("event_url", e.target.value)}
                             placeholder="https://..."
-                            className={inputClass}
+                            className={`${inputClass}${errors.event_url ? " border-red-400 dark:border-red-500" : ""}`}
                         />
+                        <FieldError message={errors.event_url} />
                     </div>
                     <div className="space-y-1.5">
                         <label className="block text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
@@ -130,10 +172,11 @@ export default function EventEditModal({
                         <input
                             type="text"
                             value={imgUrl}
-                            onChange={e => setImgUrl(e.target.value)}
+                            onChange={e => { setImgUrl(e.target.value); revalidate(form, e.target.value); }}
                             placeholder="https://..."
-                            className={inputClass}
+                            className={`${inputClass}${errors.img_url ? " border-red-400 dark:border-red-500" : ""}`}
                         />
+                        <FieldError message={errors.img_url} />
                     </div>
                 </div>
 

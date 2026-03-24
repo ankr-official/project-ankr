@@ -1,8 +1,8 @@
 import { inputClass } from "../../utils/eventFormUtils";
 
 const TIME_FIELDS = [
-    ["time_start", "시작"],
     ["time_entrance", "입장"],
+    ["time_start", "시작"],
     ["time_end", "종료"],
 ];
 
