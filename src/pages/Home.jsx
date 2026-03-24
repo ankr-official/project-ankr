@@ -14,6 +14,7 @@ import { ViewModeToggle } from "../components/ui/ViewModeToggle";
 import { Header } from "../components/ui/Header";
 import { ActionButtons } from "../components/ui/ActionButtons";
 import { YearEndReceiptBanner } from "../components/YearEndReceiptBanner";
+import { AprilFoolsBanner } from "../components/AprilFoolsBanner";
 import ReportEventModal from "../components/ReportEventModal";
 
 // Hooks
@@ -150,6 +151,9 @@ function Home() {
 
         {/* Year-End Receipt Entry Banner (non-sticky, part of normal content) */}
         {/* <YearEndReceiptBanner /> */}
+
+        {/* April Fools Banner */}
+        <AprilFoolsBanner />
 
         {/* This Week's Events Carousel */}
         {thisWeeksEvents.length > 0 && (
