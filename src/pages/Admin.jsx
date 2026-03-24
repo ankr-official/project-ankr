@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ref, remove, update, set } from "firebase/database";
 import { toast } from "react-toastify";
@@ -188,14 +188,20 @@ export default function Admin() {
     }
   };
 
+  useEffect(() => {
+    if (tab === "reports" && reports.length === 0) setTab("upcoming");
+    if (tab === "editRequests" && editRequests.length === 0) setTab("upcoming");
+    if (tab === "unconfirmed" && stats.unconfirmed === 0) setTab("upcoming");
+  }, [reports.length, editRequests.length, stats.unconfirmed]);
+
   const tabs = [
     { key: "all", label: "전체", count: stats.total },
-    { key: "reports", label: "제보", count: reports.length },
-    { key: "editRequests", label: "수정요청", count: editRequests.length },
+    reports.length > 0 && { key: "reports", label: "제보", count: reports.length },
+    editRequests.length > 0 && { key: "editRequests", label: "수정요청", count: editRequests.length },
+    stats.unconfirmed > 0 && { key: "unconfirmed", label: "미표출", count: stats.unconfirmed },
     { key: "upcoming", label: "예정", count: stats.upcoming },
-    { key: "unconfirmed", label: "미표출", count: stats.unconfirmed },
     { key: "past", label: "종료", count: stats.past },
-  ];
+  ].filter(Boolean);
 
   return (
     <div className="min-h-screen bg-indigo-50/50 dark:bg-[#242424] transition-colors">

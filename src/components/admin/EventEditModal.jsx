@@ -156,26 +156,56 @@ export default function EventEditModal({
                         <label className="block text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
                             이벤트 SNS 링크 <span className="text-red-500">*</span>
                         </label>
-                        <input
-                            type="text"
-                            value={form.event_url}
-                            onChange={e => handleSet("event_url", e.target.value)}
-                            placeholder="https://..."
-                            className={`${inputClass}${errors.event_url ? " border-red-400 dark:border-red-500" : ""}`}
-                        />
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={form.event_url}
+                                onChange={e => handleSet("event_url", e.target.value)}
+                                placeholder="https://..."
+                                className={`${inputClass} pr-9${errors.event_url ? " border-red-400 dark:border-red-500" : ""}`}
+                            />
+                            {isValidUrl(form.event_url) && (
+                                <a
+                                    href={form.event_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    tabIndex={-1}
+                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                </a>
+                            )}
+                        </div>
                         <FieldError message={errors.event_url} />
                     </div>
                     <div className="space-y-1.5">
                         <label className="block text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
                             이미지 URL
                         </label>
-                        <input
-                            type="text"
-                            value={imgUrl}
-                            onChange={e => { setImgUrl(e.target.value); revalidate(form, e.target.value); }}
-                            placeholder="https://..."
-                            className={`${inputClass}${errors.img_url ? " border-red-400 dark:border-red-500" : ""}`}
-                        />
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={imgUrl}
+                                onChange={e => { setImgUrl(e.target.value); revalidate(form, e.target.value); }}
+                                placeholder="https://..."
+                                className={`${inputClass} pr-9${errors.img_url ? " border-red-400 dark:border-red-500" : ""}`}
+                            />
+                            {isValidUrl(imgUrl) && (
+                                <a
+                                    href={imgUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    tabIndex={-1}
+                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                </a>
+                            )}
+                        </div>
                         <FieldError message={errors.img_url} />
                     </div>
                 </div>
