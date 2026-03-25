@@ -16,9 +16,7 @@ import {
 import { ko } from "date-fns/locale";
 import { GENRE_COLORS } from "../constants";
 import { getHolidayForDate, getHolidaysForYear } from "../utils/holidayApi";
-import { GenreTag } from "./common/GenreTag";
-import { LocationLink } from "./common/LocationLink";
-import { formatDate } from "../utils/dateUtils";
+import { EventCard } from "./events/EventCard";
 
 const EventCalendar = ({
   events,
@@ -97,7 +95,7 @@ const EventCalendar = ({
   const prevMonth = () => {
     const newDate = new Date(
       currentDate.getFullYear(),
-      currentDate.getMonth() - 1
+      currentDate.getMonth() - 1,
     );
     setCurrentDate(newDate);
   };
@@ -105,7 +103,7 @@ const EventCalendar = ({
   const nextMonth = () => {
     const newDate = new Date(
       currentDate.getFullYear(),
-      currentDate.getMonth() + 1
+      currentDate.getMonth() + 1,
     );
     setCurrentDate(newDate);
   };
@@ -125,21 +123,22 @@ const EventCalendar = ({
 
   const getEventsForDay = (day) => {
     const dayEvents = events.filter((event) =>
-      isSameDay(new Date(event.schedule), day)
+      isSameDay(new Date(event.schedule), day),
     );
     const filteredEvents = getFilteredEvents(dayEvents);
 
     return filteredEvents.sort((a, b) => {
+      const ta = a.time_start ?? "";
+      const tb = b.time_start ?? "";
+      if (ta && tb) return ta < tb ? -1 : ta > tb ? 1 : 0;
+      if (ta) return -1;
+      if (tb) return 1;
+
       const genreA = a.genre?.split(",")[0]?.trim() || "";
       const genreB = b.genre?.split(",")[0]?.trim() || "";
-
       if (genreA === "원곡") return -1;
       if (genreB === "원곡") return 1;
-
-      if (genreA === genreB) {
-        return a.event_name.localeCompare(b.event_name);
-      }
-
+      if (genreA === genreB) return a.event_name.localeCompare(b.event_name);
       return genreA.localeCompare(genreB);
     });
   };
@@ -195,9 +194,9 @@ const EventCalendar = ({
     ...new Set(
       events
         .filter(
-          (event) => new Date(event.schedule).getFullYear() === selectedYear
+          (event) => new Date(event.schedule).getFullYear() === selectedYear,
         )
-        .map((event) => new Date(event.schedule).getMonth())
+        .map((event) => new Date(event.schedule).getMonth()),
     ),
   ].sort((a, b) => b - a);
 
@@ -474,70 +473,38 @@ const EventCalendar = ({
             );
           })}
         </div>
-      {selectedDate && (
-        <div id="event-list" className="px-4 pt-4 pb-8 mt-4">
-          <h3 className="mb-8 text-lg font-semibold text-gray-900 dark:text-white transition-colors">
-            {format(selectedDate, "yyyy년 MM월 dd일", {
-              locale: ko,
-            })}{" "}
-            이벤트
-          </h3>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {getEventsForDay(selectedDate).map((event) => (
-              <div
-                key={event.id}
-                onClick={() => onEventSelect(event)}
-                className="p-4 transition-colors bg-gray-300/50 dark:bg-gray-700 bg-opacity-50 dark:bg-opacity-50 rounded-lg shadow cursor-pointer lg:hover:bg-gray-300 dark:lg:hover:bg-gray-600 active:bg-indigo-200 dark:active:bg-indigo-900"
-              >
-                <div className="flex items-center space-x-4">
-                  {event.img_url ? (
-                    <img
-                      src={event.img_url.replace(/(name=)[^&]*/, "$1small")}
-                      alt={event.event_name}
-                      className="flex-shrink-0 object-cover w-24 h-32 rounded-lg"
-                    />
-                  ) : (
-                    <img
-                      src="./dummy.svg"
-                      alt="Dummy"
-                      className="flex-shrink-0 object-cover w-24 h-32 rounded-lg"
-                    />
-                  )}
-                  <div className="flex-1 min-w-0 text-left">
-                    <p className="mb-2 text-sm text-gray-600 dark:text-gray-300 transition-colors">
-                      {formatDate(event.schedule, event.time_start)}
-                    </p>
-                    <h3 className="mb-2 text-base font-medium text-gray-900 dark:text-white truncate transition-colors">
-                      {event.event_name}
-                    </h3>
-                    <div className="mb-2">
-                      <GenreTag genre={event.genre} />
-                    </div>
-                    <div className="">
-                      <LocationLink
-                        location={event.location}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  </div>
+        {selectedDate && (
+          <div id="event-list" className="px-4 pt-4 pb-8 mt-4">
+            <h3 className="mb-8 text-lg font-semibold text-gray-900 dark:text-white transition-colors">
+              {format(selectedDate, "yyyy년 MM월 dd일", {
+                locale: ko,
+              })}{" "}
+              이벤트
+            </h3>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {getEventsForDay(selectedDate).map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onEventSelect={onEventSelect}
+                  showDate={false}
+                  className="p-4 transition-colors bg-gray-300/50 dark:bg-gray-700 rounded-lg shadow cursor-pointer lg:hover:bg-gray-300 dark:lg:hover:bg-gray-600 active:bg-indigo-200 dark:active:bg-indigo-900"
+                />
+              ))}
+              {getEventsForDay(selectedDate).length === 0 && (
+                <div className="p-8 text-center rounded-lg col-span-full">
+                  <p className="text-lg text-gray-700 dark:text-gray-300 transition-colors">
+                    등록된 이벤트 정보가 없습니다.
+                  </p>
+                  <p className="text-gray-600 dark:text-gray-400 transition-colors">
+                    (이벤트가 있다면 아래의 버튼을 눌러 제보해주세요.)
+                  </p>
                 </div>
-              </div>
-            ))}
-            {getEventsForDay(selectedDate).length === 0 && (
-              <div className="p-8 text-center rounded-lg col-span-full">
-                <p className="text-lg text-gray-700 dark:text-gray-300 transition-colors">
-                  등록된 이벤트 정보가 없습니다.
-                </p>
-                <p className="text-gray-600 dark:text-gray-400 transition-colors">
-                  (이벤트가 있다면 아래의 버튼을 눌러 제보해주세요.)
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
-
     </div>
   );
 };
