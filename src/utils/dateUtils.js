@@ -1,4 +1,4 @@
-export const formatDate = (dateString, timeStart) => {
+export const formatDate = (dateString, timeStart, timeEnd) => {
     if (!dateString) return "";
     try {
         const date = new Date(dateString);
@@ -8,10 +8,16 @@ export const formatDate = (dateString, timeStart) => {
         const localDate = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 
         if (timeStart) {
-            const startTime = new Date(timeStart);
-            const hours = startTime.getHours();
-            const timeType = hours >= 6 && hours < 17 ? "☀️" : "🌙";
-            return `${localDate} (${dayOfWeek}) ${timeType}`;
+            const ds = new Date(timeStart);
+            const hs = ds.getHours();
+            const timeType = hs >= 6 && hs < 17 ? "☀️" : "🌙";
+            const start = `${pad(hs)}:${pad(ds.getMinutes())}`;
+            if (timeEnd) {
+                const de = new Date(timeEnd);
+                const end = `${pad(de.getHours())}:${pad(de.getMinutes())}`;
+                return `${localDate} (${dayOfWeek}) ${timeType} ${start} ~ ${end}`;
+            }
+            return `${localDate} (${dayOfWeek}) ${timeType} ${start}`;
         }
 
         return `${localDate} (${dayOfWeek})`;
