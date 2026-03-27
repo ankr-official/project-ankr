@@ -48,7 +48,7 @@ export const Header = ({ onSearchOpen }) => {
                 </a>
                 <div className="flex gap-2 items-center lg:hidden">
                     <ThemeToggle />
-                    {isLoggedIn && role === "admin" && (
+                    {isLoggedIn && (role === "admin" || role === "owner") && (
                         <Link
                             to="/admin"
                             className="inline-flex items-center px-3 py-2 text-sm text-indigo-700 bg-indigo-50 rounded-full border shadow-sm transition-colors dark:bg-indigo-950/40 dark:text-indigo-300 border-indigo-200/70 dark:border-indigo-800/70 hover:bg-indigo-100 dark:hover:bg-indigo-900/40"
@@ -137,7 +137,7 @@ export const Header = ({ onSearchOpen }) => {
             </button>
             <div className="hidden flex-1 gap-2 justify-end items-center text-right lg:flex">
                 <ThemeToggle />
-                {isLoggedIn && role === "admin" && (
+                {isLoggedIn && (role === "admin" || role === "owner") && (
                     <Link
                         to="/admin"
                         className="inline-flex items-center px-3 py-2 text-sm text-indigo-700 bg-indigo-50 rounded-full border shadow-sm transition-colors dark:bg-indigo-950/40 dark:text-indigo-300 border-indigo-200/70 dark:border-indigo-800/70 hover:bg-indigo-100 dark:hover:bg-indigo-900/40"

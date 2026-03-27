@@ -330,7 +330,7 @@ exports.weeklyBackup = onSchedule(
 const setCors = (res) => {
   res.set("Access-Control-Allow-Origin", "*");
   res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.set("Access-Control-Allow-Headers", "Content-Type, x-secret");
+  res.set("Access-Control-Allow-Headers", "Content-Type, x-secret, Authorization");
 };
 
 const checkSecret = (req, res) => {
@@ -355,10 +355,27 @@ exports.setUserRole = onRequest(
     if (req.method === "OPTIONS") return res.status(204).send("");
     if (!checkSecret(req, res)) return;
 
+    // Caller must be owner
+    const authHeader = req.headers["authorization"] || "";
+    const idToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    if (!idToken) return res.status(403).send("Forbidden: missing token");
+
+    let decoded;
+    try {
+      decoded = await admin.auth().verifyIdToken(idToken);
+    } catch {
+      return res.status(403).send("Forbidden: invalid token");
+    }
+    if (decoded.role !== "owner") return res.status(403).send("Forbidden: owner only");
+
     try {
       const { uid, role } = req.body || {};
       if (!uid || typeof uid !== "string") return res.status(400).send("Invalid uid");
       if (!role || typeof role !== "string") return res.status(400).send("Invalid role");
+      if (role === "owner") return res.status(400).send("Cannot assign owner role");
+
+      const targetUser = await admin.auth().getUser(uid);
+      if (targetUser.customClaims?.role === "owner") return res.status(403).send("Forbidden: cannot change owner's role");
 
       await admin.auth().setCustomUserClaims(uid, { role });
       console.log("✅ Custom claims set:", { uid, role });

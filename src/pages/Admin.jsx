@@ -85,7 +85,7 @@ export default function Admin() {
     );
   }
 
-  if (role !== "admin") {
+  if (role !== "admin" && role !== "owner") {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 bg-indigo-50/50 dark:bg-[#242424]">
         <div className="text-center space-y-4">
@@ -289,7 +289,7 @@ export default function Admin() {
         </div>
 
         {section === "users" ? (
-          <AdminUsersTab currentUid={user?.uid} />
+          <AdminUsersTab currentUid={user?.uid} currentRole={role} />
         ) : (
           <>
             {/* Tabs */}
