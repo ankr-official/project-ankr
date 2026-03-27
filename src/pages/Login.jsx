@@ -1,12 +1,40 @@
+import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { auth } from "../config/firebase";
+import { getSuspensionReason } from "../utils/adminApi";
+import SuspendedModal from "../components/SuspendedModal";
 
 export default function Login() {
   const navigate = useNavigate();
+  const [suspended, setSuspended] = useState(null);
 
   const clientIdPresent = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
+
+  const handleSuccess = async (credentialResponse) => {
+    const idToken = credentialResponse?.credential;
+    if (!idToken) return;
+
+    try {
+      const credential = GoogleAuthProvider.credential(idToken);
+      await signInWithCredential(auth, credential);
+      navigate("/");
+    } catch (err) {
+      if (err.code === "auth/user-disabled") {
+        try {
+          const base64 = idToken.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+          const { email } = JSON.parse(atob(base64));
+          const data = await getSuspensionReason(email);
+          setSuspended({ reason: data.reason || "" });
+        } catch {
+          setSuspended({ reason: "" });
+        }
+      } else {
+        alert("구글 로그인에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
@@ -30,17 +58,8 @@ export default function Login() {
         <div className="flex justify-center">
           <GoogleLogin
             useOneTap
-            onSuccess={(credentialResponse) => {
-              const idToken = credentialResponse?.credential;
-              if (!idToken) return;
-
-              const credential = GoogleAuthProvider.credential(idToken);
-              signInWithCredential(auth, credential).then(() => {
-                navigate("/");
-              });
-            }}
+            onSuccess={handleSuccess}
             onError={() => {
-              // UI 토스트가 있는 경우 연동 가능하지만, 우선 최소 동작만 구현
               alert("구글 로그인에 실패했습니다. 잠시 후 다시 시도해주세요.");
             }}
           />
@@ -54,6 +73,10 @@ export default function Login() {
           홈으로 돌아가기
         </button>
       </div>
+
+      {suspended && (
+        <SuspendedModal reason={suspended.reason} onClose={() => setSuspended(null)} />
+      )}
     </div>
   );
 }

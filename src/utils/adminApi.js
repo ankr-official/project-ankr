@@ -19,5 +19,12 @@ const call = async (name, body = null) => {
 
 export const listUsers = () => call("listUsers");
 export const setUserRole = (uid, role) => call("setUserRole", { uid, role });
-export const setUserDisabled = (uid, disabled) => call("setUserDisabled", { uid, disabled });
+export const setUserDisabled = (uid, disabled, reason = "") => call("setUserDisabled", { uid, disabled, reason });
 export const deleteUser = (uid) => call("deleteUser", { uid });
+
+export const getSuspensionReason = (email) =>
+  fetch(`${BASE_URL}/getSuspensionReason`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  }).then((r) => r.json());
