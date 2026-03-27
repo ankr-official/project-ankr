@@ -13,6 +13,7 @@ import AdminEditRequestsTab from "../components/admin/AdminEditRequestsTab";
 import AdminEventsTab from "../components/admin/AdminEventsTab";
 import DeleteConfirmDialog from "../components/admin/DeleteConfirmDialog";
 import AdminUsersTab from "../components/admin/AdminUsersTab";
+import TabBar from "../components/admin/TabBar";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -34,11 +35,14 @@ export default function Admin() {
 
   const now = new Date();
 
+  const getEventTime = (e) =>
+    e.time_start ? new Date(e.time_start) : new Date(e.schedule);
+
   const stats = useMemo(() => {
     const upcoming = events.filter(
-      (e) => new Date(e.schedule) >= now && e.confirm,
+      (e) => getEventTime(e) >= now && e.confirm,
     ).length;
-    const past = events.filter((e) => new Date(e.schedule) < now).length;
+    const past = events.filter((e) => getEventTime(e) < now).length;
     const unconfirmed = events.filter((e) => !e.confirm).length;
     return { total: events.length, upcoming, past, unconfirmed };
   }, [events]);
@@ -47,9 +51,9 @@ export default function Admin() {
     let filtered = [...events];
 
     if (tab === "upcoming")
-      filtered = filtered.filter((e) => new Date(e.schedule) >= now);
+      filtered = filtered.filter((e) => getEventTime(e) >= now);
     else if (tab === "past")
-      filtered = filtered.filter((e) => new Date(e.schedule) < now);
+      filtered = filtered.filter((e) => getEventTime(e) < now);
     else if (tab === "unconfirmed")
       filtered = filtered.filter((e) => !e.confirm);
 
@@ -65,8 +69,8 @@ export default function Admin() {
 
     return filtered.sort((a, b) =>
       tab === "upcoming"
-        ? new Date(a.schedule) - new Date(b.schedule)
-        : new Date(b.schedule) - new Date(a.schedule),
+        ? getEventTime(a) - getEventTime(b)
+        : getEventTime(b) - getEventTime(a),
     );
   }, [events, tab, search]);
 
@@ -293,30 +297,7 @@ export default function Admin() {
         ) : (
           <>
             {/* Tabs */}
-            <div className="h-10 w-full sm:w-fit flex items-center gap-1 p-1 rounded-xl bg-gray-200/60 dark:bg-gray-800/60 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden">
-              {tabs.map((t) => (
-                <button
-                  key={t.key}
-                  onClick={() => setTab(t.key)}
-                  className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    tab === t.key
-                      ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
-                      : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-                  }`}
-                >
-                  {t.label}
-                  <span
-                    className={`ml-1.5 text-xs ${
-                      tab === t.key
-                        ? "text-indigo-600 dark:text-indigo-400"
-                        : "text-gray-400 dark:text-gray-500"
-                    }`}
-                  >
-                    {t.count}
-                  </span>
-                </button>
-              ))}
-            </div>
+            <TabBar tabs={tabs} active={tab} onChange={setTab} />
 
             {/* Search + Add button */}
             <div className="flex items-center gap-2">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import * as adminApi from "../../utils/adminApi";
+import TabBar from "./TabBar";
 
 function SortHeader({ label, sortKey, sort, onSort }) {
   const active = sort.key === sortKey;
@@ -80,6 +81,10 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
     ).length,
     disabled: users.filter((u) => u.disabled).length,
   };
+
+  useEffect(() => {
+    if (tab !== "all" && counts[tab] === 0) setTab("all");
+  }, [tab, counts.owner, counts.admin, counts.member, counts.disabled]);
 
   const sortedUsers = [...users]
     .filter((u) => {
@@ -235,35 +240,20 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
   }
 
   const userTabs = [
-    { key: "all", label: "전체" },
-    { key: "member", label: "일반 회원" },
-    counts.disabled > 0 && { key: "disabled", label: "차단" },
-    counts.admin > 0 && { key: "admin", label: "관리자" },
+    { key: "all", label: "전체", count: counts.all },
+    counts.admin > 0 && { key: "admin", label: "관리자", count: counts.admin },
+    counts.member > 0 && { key: "member", label: "일반", count: counts.member },
+    counts.disabled > 0 && {
+      key: "disabled",
+      label: "차단",
+      count: counts.disabled,
+    },
   ].filter(Boolean);
 
   return (
     <>
       {/* ── Tabs ── */}
-      <div className="h-10 w-full sm:w-fit flex items-center gap-1 p-1 rounded-xl bg-gray-200/60 dark:bg-gray-800/60 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden">
-        {userTabs.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              tab === t.key
-                ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-            }`}
-          >
-            {t.label}
-            <span
-              className={`ml-1.5 text-xs ${tab === t.key ? "text-indigo-600 dark:text-indigo-400" : "text-gray-400 dark:text-gray-500"}`}
-            >
-              {counts[t.key]}
-            </span>
-          </button>
-        ))}
-      </div>
+      <TabBar tabs={userTabs} active={tab} onChange={setTab} />
 
       {/* ── Desktop Table (lg+) ── */}
       <div className="hidden lg:block rounded-2xl border border-gray-200/70 dark:border-gray-900/50 overflow-hidden bg-white dark:bg-gray-800 shadow-sm">
