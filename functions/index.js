@@ -327,34 +327,123 @@ exports.weeklyBackup = onSchedule(
   },
 );
 
+const setCors = (res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type, x-secret");
+};
+
+const checkSecret = (req, res) => {
+  const secret = req.headers["x-secret"];
+  const expected = process.env.ANKR_FUNCTION_SECRET;
+  if (secret !== expected) {
+    console.warn("⚠️ Unauthorized request with invalid secret");
+    res.status(403).send("Forbidden: Invalid secret");
+    return false;
+  }
+  return true;
+};
+
 exports.setUserRole = onRequest(
   {
     timeoutSeconds: 60,
+    region: "asia-northeast3",
     secrets: [FUNCTION_SECRET],
   },
   async (req, res) => {
-    try {
-      const secret = req.headers["x-secret"];
-      const expectedSecret = process.env.ANKR_FUNCTION_SECRET;
-      if (secret !== expectedSecret) {
-        console.warn("⚠️ Unauthorized request with invalid secret");
-        return res.status(403).send("Forbidden: Invalid secret");
-      }
+    setCors(res);
+    if (req.method === "OPTIONS") return res.status(204).send("");
+    if (!checkSecret(req, res)) return;
 
+    try {
       const { uid, role } = req.body || {};
-      if (!uid || typeof uid !== "string") {
-        return res.status(400).send("Invalid uid");
-      }
-      if (!role || typeof role !== "string") {
-        return res.status(400).send("Invalid role");
-      }
+      if (!uid || typeof uid !== "string") return res.status(400).send("Invalid uid");
+      if (!role || typeof role !== "string") return res.status(400).send("Invalid role");
 
       await admin.auth().setCustomUserClaims(uid, { role });
       console.log("✅ Custom claims set:", { uid, role });
-
       return res.status(200).json({ ok: true, uid, role });
     } catch (error) {
       console.error("❌ Error setting custom claims:", error);
+      return res.status(500).send("Internal Server Error");
+    }
+  },
+);
+
+exports.listUsers = onRequest(
+  {
+    timeoutSeconds: 60,
+    region: "asia-northeast3",
+    secrets: [FUNCTION_SECRET],
+  },
+  async (req, res) => {
+    setCors(res);
+    if (req.method === "OPTIONS") return res.status(204).send("");
+    if (!checkSecret(req, res)) return;
+
+    try {
+      const listResult = await admin.auth().listUsers(1000);
+      const users = listResult.users.map((u) => ({
+        uid: u.uid,
+        email: u.email || "",
+        disabled: u.disabled,
+        role: u.customClaims?.role || null,
+        createdAt: u.metadata.creationTime || null,
+      }));
+      return res.status(200).json({ ok: true, users });
+    } catch (error) {
+      console.error("❌ Error listing users:", error);
+      return res.status(500).send("Internal Server Error");
+    }
+  },
+);
+
+exports.setUserDisabled = onRequest(
+  {
+    timeoutSeconds: 60,
+    region: "asia-northeast3",
+    secrets: [FUNCTION_SECRET],
+  },
+  async (req, res) => {
+    setCors(res);
+    if (req.method === "OPTIONS") return res.status(204).send("");
+    if (!checkSecret(req, res)) return;
+
+    try {
+      const { uid, disabled } = req.body || {};
+      if (!uid || typeof uid !== "string") return res.status(400).send("Invalid uid");
+      if (typeof disabled !== "boolean") return res.status(400).send("Invalid disabled");
+
+      await admin.auth().updateUser(uid, { disabled });
+      console.log("✅ User disabled state updated:", { uid, disabled });
+      return res.status(200).json({ ok: true, uid, disabled });
+    } catch (error) {
+      console.error("❌ Error updating user:", error);
+      return res.status(500).send("Internal Server Error");
+    }
+  },
+);
+
+exports.deleteUser = onRequest(
+  {
+    timeoutSeconds: 60,
+    region: "asia-northeast3",
+    secrets: [FUNCTION_SECRET],
+  },
+  async (req, res) => {
+    setCors(res);
+    if (req.method === "OPTIONS") return res.status(204).send("");
+    if (!checkSecret(req, res)) return;
+
+    try {
+      const { uid } = req.body || {};
+      if (!uid || typeof uid !== "string") return res.status(400).send("Invalid uid");
+
+      await admin.auth().deleteUser(uid);
+      console.log("✅ User deleted:", uid);
+      return res.status(200).json({ ok: true, uid });
+    } catch (error) {
+      console.error("❌ Error deleting user:", error);
       return res.status(500).send("Internal Server Error");
     }
   },
