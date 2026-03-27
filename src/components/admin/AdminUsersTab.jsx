@@ -71,13 +71,15 @@ export default function AdminUsersTab({ currentUid }) {
   const counts = {
     all: users.length,
     admin: users.filter((u) => u.role === "admin").length,
-    member: users.filter((u) => u.role !== "admin").length,
+    member: users.filter((u) => u.role !== "admin" && !u.disabled).length,
+    disabled: users.filter((u) => u.disabled).length,
   };
 
   const sortedUsers = [...users]
     .filter((u) => {
       if (tab === "admin") return u.role === "admin";
-      if (tab === "member") return u.role !== "admin";
+      if (tab === "member") return u.role !== "admin" && !u.disabled;
+      if (tab === "disabled") return u.disabled;
       return true;
     })
     .sort((a, b) => {
@@ -193,7 +195,8 @@ export default function AdminUsersTab({ currentUid }) {
     { key: "all", label: "전체" },
     { key: "admin", label: "관리자" },
     { key: "member", label: "일반 회원" },
-  ];
+    counts.disabled > 0 && { key: "disabled", label: "정지" },
+  ].filter(Boolean);
 
   return (
     <>
@@ -241,9 +244,6 @@ export default function AdminUsersTab({ currentUid }) {
               <th className="text-center px-4 py-3 font-semibold text-gray-600 dark:text-gray-400 w-28">
                 권한
               </th>
-              <th className="text-center px-4 py-3 font-semibold text-gray-600 dark:text-gray-400 w-24">
-                정지
-              </th>
               <th className="text-center px-4 py-3 font-semibold text-gray-600 dark:text-gray-400 w-72">
                 관리
               </th>
@@ -281,13 +281,6 @@ export default function AdminUsersTab({ currentUid }) {
                         일반
                       </span>
                     )}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {user.disabled ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400">
-                        정지
-                      </span>
-                    ) : null}
                   </td>
                   <td className="px-4 py-3">
                     {isSelf ? (
@@ -440,11 +433,6 @@ export default function AdminUsersTab({ currentUid }) {
                         일반
                       </span>
                     )}
-                    {user.disabled ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400">
-                        정지
-                      </span>
-                    ) : null}
                   </div>
                 </div>
               </div>

@@ -66,14 +66,10 @@ export const isValidUrl = url => {
     }
 };
 
-export const validateTimeOrder = ({ time_entrance, time_start, time_end }) => {
+export const validateTimeOrder = ({ time_entrance, time_start }) => {
     const toMin = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
     if (time_entrance && time_start && toMin(time_entrance) > toMin(time_start))
         return "입장 시간이 시작 시간보다 늦습니다.";
-    if (time_start && time_end && toMin(time_start) > toMin(time_end))
-        return "시작 시간이 종료 시간보다 늦습니다.";
-    if (time_entrance && time_end && toMin(time_entrance) > toMin(time_end))
-        return "입장 시간이 종료 시간보다 늦습니다.";
     return null;
 };
 
