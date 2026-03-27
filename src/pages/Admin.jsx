@@ -12,15 +12,18 @@ import AdminReportsTab from "../components/admin/AdminReportsTab";
 import AdminEditRequestsTab from "../components/admin/AdminEditRequestsTab";
 import AdminEventsTab from "../components/admin/AdminEventsTab";
 import DeleteConfirmDialog from "../components/admin/DeleteConfirmDialog";
+import AdminUsersTab from "../components/admin/AdminUsersTab";
 
 export default function Admin() {
   const navigate = useNavigate();
   const { role, user, signOut, loading: authLoading } = useAuth();
   const { data: events, loading: dataLoading } = useRealtimeData("data_v2");
   const { data: reports, loading: reportsLoading } = useRealtimeData("reports");
-  const { data: editRequests, loading: editRequestsLoading } = useRealtimeData("editRequests");
+  const { data: editRequests, loading: editRequestsLoading } =
+    useRealtimeData("editRequests");
 
   // ── 모든 훅은 조건부 return 전에 선언 ──
+  const [section, setSection] = useState("events");
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState("upcoming");
   const [editingEvent, setEditingEvent] = useState(null);
@@ -32,7 +35,9 @@ export default function Admin() {
   const now = new Date();
 
   const stats = useMemo(() => {
-    const upcoming = events.filter((e) => new Date(e.schedule) >= now && e.confirm).length;
+    const upcoming = events.filter(
+      (e) => new Date(e.schedule) >= now && e.confirm,
+    ).length;
     const past = events.filter((e) => new Date(e.schedule) < now).length;
     const unconfirmed = events.filter((e) => !e.confirm).length;
     return { total: events.length, upcoming, past, unconfirmed };
@@ -41,9 +46,12 @@ export default function Admin() {
   const filteredEvents = useMemo(() => {
     let filtered = [...events];
 
-    if (tab === "upcoming") filtered = filtered.filter((e) => new Date(e.schedule) >= now);
-    else if (tab === "past") filtered = filtered.filter((e) => new Date(e.schedule) < now);
-    else if (tab === "unconfirmed") filtered = filtered.filter((e) => !e.confirm);
+    if (tab === "upcoming")
+      filtered = filtered.filter((e) => new Date(e.schedule) >= now);
+    else if (tab === "past")
+      filtered = filtered.filter((e) => new Date(e.schedule) < now);
+    else if (tab === "unconfirmed")
+      filtered = filtered.filter((e) => !e.confirm);
 
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -97,7 +105,9 @@ export default function Admin() {
   const handleToggleConfirm = async (event, e) => {
     e.stopPropagation();
     try {
-      await update(ref(database, `data_v2/${event.id}`), { confirm: !event.confirm });
+      await update(ref(database, `data_v2/${event.id}`), {
+        confirm: !event.confirm,
+      });
     } catch {
       toast.error("변경 중 오류가 발생했습니다.");
     }
@@ -168,8 +178,16 @@ export default function Admin() {
         await remove(ref(database, `editRequests/${request.id}`));
         toast.success("삭제 요청이 승인되어 이벤트가 삭제되었습니다.");
       } else {
-        const { id, eventId, eventName, reason, submittedAt, submittedBy, _snap, ...data } =
-          request;
+        const {
+          id,
+          eventId,
+          eventName,
+          reason,
+          submittedAt,
+          submittedBy,
+          _snap,
+          ...data
+        } = request;
         await update(ref(database, `data_v2/${eventId}`), data);
         await remove(ref(database, `editRequests/${id}`));
         toast.success("요청이 승인되어 이벤트 정보가 업데이트되었습니다.");
@@ -196,9 +214,21 @@ export default function Admin() {
 
   const tabs = [
     { key: "all", label: "전체", count: stats.total },
-    reports.length > 0 && { key: "reports", label: "제보", count: reports.length },
-    editRequests.length > 0 && { key: "editRequests", label: "수정요청", count: editRequests.length },
-    stats.unconfirmed > 0 && { key: "unconfirmed", label: "미표출", count: stats.unconfirmed },
+    reports.length > 0 && {
+      key: "reports",
+      label: "제보",
+      count: reports.length,
+    },
+    editRequests.length > 0 && {
+      key: "editRequests",
+      label: "수정요청",
+      count: editRequests.length,
+    },
+    stats.unconfirmed > 0 && {
+      key: "unconfirmed",
+      label: "미표출",
+      count: stats.unconfirmed,
+    },
     { key: "upcoming", label: "예정", count: stats.upcoming },
     { key: "past", label: "종료", count: stats.past },
   ].filter(Boolean);
@@ -208,65 +238,18 @@ export default function Admin() {
       <AdminHeader user={user} signOut={signOut} navigate={navigate} />
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-5">
-        {/* Page title + Add button */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-              이벤트 관리
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-              총 {stats.total}개의 이벤트
-            </p>
-          </div>
+        {/* Section selector */}
+        <div className="flex gap-1 p-1 rounded-xl w-full sm:w-fit bg-gray-200/60 dark:bg-gray-800/60">
           <button
-            onClick={() => setEditingEvent({})}
-            className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-medium transition-colors shadow-sm"
-          >
-            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            <span className="hidden sm:inline">이벤트 추가</span>
-            <span className="sm:hidden">추가</span>
-          </button>
-        </div>
-
-        {/* Tabs + Search */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="w-full sm:w-fit flex gap-1 p-1 rounded-xl bg-gray-200/60 dark:bg-gray-800/60 shrink-0 self-start overflow-x-auto sm:overflow-x-visible scrollbar-none [&::-webkit-scrollbar]:hidden">
-            {tabs.map((t) => (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  tab === t.key
-                    ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-                }`}
-              >
-                {t.label}
-                <span
-                  className={`ml-1.5 text-xs ${
-                    tab === t.key
-                      ? "text-indigo-600 dark:text-indigo-400"
-                      : "text-gray-400 dark:text-gray-500"
-                  }`}
-                >
-                  {t.count}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          <div
-            className={`relative flex-1 ${tab === "reports" || tab === "editRequests" ? "hidden" : ""}`}
+            onClick={() => setSection("events")}
+            className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              section === "events"
+                ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            }`}
           >
             <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+              className="w-4 h-4 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -275,60 +258,163 @@ export default function Admin() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
               />
             </svg>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="이벤트명, 장소, 장르 검색..."
-              className="w-full pl-9 pr-9 py-2 rounded-xl bg-white dark:bg-gray-800 border border-gray-300/70 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors"
-            />
-            {search && (
-              <button
-                onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            이벤트
+          </button>
+          <button
+            onClick={() => setSection("users")}
+            className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              section === "users"
+                ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            }`}
+          >
+            <svg
+              className="w-4 h-4 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+              />
+            </svg>
+            회원
+          </button>
+        </div>
+
+        {section === "users" ? (
+          <AdminUsersTab currentUid={user?.uid} />
+        ) : (
+          <>
+            {/* Tabs */}
+            <div className="h-10 w-full sm:w-fit flex items-center gap-1 p-1 rounded-xl bg-gray-200/60 dark:bg-gray-800/60 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden">
+              {tabs.map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => setTab(t.key)}
+                  className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    tab === t.key
+                      ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  }`}
+                >
+                  {t.label}
+                  <span
+                    className={`ml-1.5 text-xs ${
+                      tab === t.key
+                        ? "text-indigo-600 dark:text-indigo-400"
+                        : "text-gray-400 dark:text-gray-500"
+                    }`}
+                  >
+                    {t.count}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Search + Add button */}
+            <div className="flex items-center gap-2">
+              <div
+                className={`relative flex-1 h-10 ${tab === "reports" || tab === "editRequests" ? "hidden" : ""}`}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   />
                 </svg>
-              </button>
-            )}
-          </div>
-        </div>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="이벤트명, 장소, 장르 검색..."
+                  className="w-full h-full pl-9 pr-9 rounded-xl bg-white dark:bg-gray-800 border border-gray-300/70 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors"
+                />
+                {search && (
+                  <button
+                    onClick={() => setSearch("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
 
-        {/* Content */}
-        {tab === "reports" ? (
-          <AdminReportsTab
-            reports={reports}
-            reportsLoading={reportsLoading}
-            onApprove={handleApproveReport}
-            onReject={handleRejectReport}
-          />
-        ) : tab === "editRequests" ? (
-          <AdminEditRequestsTab
-            editRequests={editRequests}
-            editRequestsLoading={editRequestsLoading}
-            events={events}
-            onApprove={handleApproveEditRequest}
-            onReject={handleRejectEditRequest}
-          />
-        ) : (
-          <AdminEventsTab
-            filteredEvents={filteredEvents}
-            dataLoading={dataLoading}
-            search={search}
-            onClearSearch={() => setSearch("")}
-            onEdit={setEditingEvent}
-            onDelete={setDeleteTarget}
-            onToggleConfirm={handleToggleConfirm}
-          />
+              <button
+                onClick={() => setEditingEvent({})}
+                className="shrink-0 h-10 inline-flex items-center gap-1.5 px-3 sm:px-4 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-medium transition-colors shadow-sm"
+              >
+                <svg
+                  className="w-4 h-4 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                <span className="hidden sm:inline">이벤트 추가</span>
+                <span className="sm:hidden">추가</span>
+              </button>
+            </div>
+
+            {/* Content */}
+            {tab === "reports" ? (
+              <AdminReportsTab
+                reports={reports}
+                reportsLoading={reportsLoading}
+                onApprove={handleApproveReport}
+                onReject={handleRejectReport}
+              />
+            ) : tab === "editRequests" ? (
+              <AdminEditRequestsTab
+                editRequests={editRequests}
+                editRequestsLoading={editRequestsLoading}
+                events={events}
+                onApprove={handleApproveEditRequest}
+                onReject={handleRejectEditRequest}
+              />
+            ) : (
+              <AdminEventsTab
+                filteredEvents={filteredEvents}
+                dataLoading={dataLoading}
+                search={search}
+                onClearSearch={() => setSearch("")}
+                onEdit={setEditingEvent}
+                onDelete={setDeleteTarget}
+                onToggleConfirm={handleToggleConfirm}
+              />
+            )}
+          </>
         )}
       </main>
 
@@ -336,7 +422,10 @@ export default function Admin() {
         <EventEditModal
           event={editingEvent}
           onSave={handleSave}
-          onClose={() => { setEditingEvent(null); setApprovingReportId(null); }}
+          onClose={() => {
+            setEditingEvent(null);
+            setApprovingReportId(null);
+          }}
           isSaving={isSaving}
           locationSuggestions={[
             ...new Set(events.map((e) => e.location).filter(Boolean)),
@@ -345,7 +434,11 @@ export default function Admin() {
             ...new Set(events.map((e) => e.event_name).filter(Boolean)),
           ].sort()}
           genreSuggestions={[
-            ...new Set(events.flatMap((e) => toArray(e.genre)).filter((g) => g && !GENRES.includes(g))),
+            ...new Set(
+              events
+                .flatMap((e) => toArray(e.genre))
+                .filter((g) => g && !GENRES.includes(g)),
+            ),
           ]}
         />
       )}
