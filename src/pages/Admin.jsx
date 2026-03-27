@@ -210,7 +210,7 @@ export default function Admin() {
     if (tab === "reports" && reports.length === 0) setTab("upcoming");
     if (tab === "editRequests" && editRequests.length === 0) setTab("upcoming");
     if (tab === "unconfirmed" && stats.unconfirmed === 0) setTab("upcoming");
-  }, [reports.length, editRequests.length, stats.unconfirmed]);
+  }, [tab, reports.length, editRequests.length, stats.unconfirmed]);
 
   const tabs = [
     { key: "all", label: "전체", count: stats.total },
