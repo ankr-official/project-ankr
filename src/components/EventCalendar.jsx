@@ -476,7 +476,7 @@ const EventCalendar = ({
         {selectedDate && (
           <div id="event-list" className="px-4 pt-4 pb-8 mt-4">
             <h3 className="mb-8 text-lg font-semibold text-gray-900 dark:text-white transition-colors">
-              {format(selectedDate, "yyyy년 MM월 dd일", {
+              {format(selectedDate, "yyyy년 MM월 dd일 (eee)", {
                 locale: ko,
               })}{" "}
               이벤트
