@@ -57,6 +57,9 @@ export default function AdminUsersTab({ currentUid }) {
   const [actionLoading, setActionLoading] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [suspendTarget, setSuspendTarget] = useState(null);
+  const [suspendReason, setSuspendReason] = useState("");
+  const [reasonModal, setReasonModal] = useState(null); // { email, reason }
   const [sort, setSort] = useState({ key: "createdAt", dir: "desc" });
   const [tab, setTab] = useState("all");
 
@@ -138,19 +141,42 @@ export default function AdminUsersTab({ currentUid }) {
     }
   };
 
-  const handleDisableToggle = async (user) => {
-    const newDisabled = !user.disabled;
+  const handleShowReason = async (user) => {
+    setReasonModal({ email: user.email, reason: null }); // null = 로딩 중
+    try {
+      const data = await adminApi.getSuspensionReason(user.email);
+      setReasonModal({ email: user.email, reason: data.reason || "" });
+    } catch {
+      setReasonModal({ email: user.email, reason: "" });
+    }
+  };
+
+  const handleSuspendConfirm = async () => {
+    if (!suspendTarget) return;
+    setActionLoading(suspendTarget.uid);
+    try {
+      await adminApi.setUserDisabled(suspendTarget.uid, true, suspendReason.trim());
+      setUsers((prev) =>
+        prev.map((u) => (u.uid === suspendTarget.uid ? { ...u, disabled: true } : u)),
+      );
+      toast.success("계정이 차단되었습니다.");
+      setSuspendTarget(null);
+      setSuspendReason("");
+    } catch {
+      toast.error("계정 차단 중 오류가 발생했습니다.");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleUnsuspend = async (user) => {
     setActionLoading(user.uid);
     try {
-      await adminApi.setUserDisabled(user.uid, newDisabled);
+      await adminApi.setUserDisabled(user.uid, false);
       setUsers((prev) =>
-        prev.map((u) =>
-          u.uid === user.uid ? { ...u, disabled: newDisabled } : u,
-        ),
+        prev.map((u) => (u.uid === user.uid ? { ...u, disabled: false } : u)),
       );
-      toast.success(
-        newDisabled ? "계정이 정지되었습니다." : "계정 정지가 해제되었습니다.",
-      );
+      toast.success("계정 차단가 해제되었습니다.");
     } catch {
       toast.error("계정 상태 변경 중 오류가 발생했습니다.");
     } finally {
@@ -195,7 +221,7 @@ export default function AdminUsersTab({ currentUid }) {
     { key: "all", label: "전체" },
     { key: "admin", label: "관리자" },
     { key: "member", label: "일반 회원" },
-    counts.disabled > 0 && { key: "disabled", label: "정지" },
+    counts.disabled > 0 && { key: "disabled", label: "차단" },
   ].filter(Boolean);
 
   return (
@@ -272,7 +298,14 @@ export default function AdminUsersTab({ currentUid }) {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-center">
-                    {user.role === "admin" ? (
+                    {user.disabled ? (
+                      <button
+                        onClick={() => handleShowReason(user)}
+                        className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
+                      >
+                        차단
+                      </button>
+                    ) : user.role === "admin" ? (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">
                         관리자
                       </span>
@@ -324,15 +357,15 @@ export default function AdminUsersTab({ currentUid }) {
                                 ? "권한 해제"
                                 : "관리자 지정"}
                             </button>
-                            {/* 정지 / 해제 */}
+                            {/* 차단 / 해제 */}
                             <button
-                              onClick={() => handleDisableToggle(user)}
+                              onClick={() => user.disabled ? handleUnsuspend(user) : setSuspendTarget(user)}
                               className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs whitespace-nowrap transition-colors ${
                                 user.disabled
                                   ? "text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/30"
                                   : "text-gray-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30"
                               }`}
-                              title={user.disabled ? "정지 해제" : "계정 정지"}
+                              title={user.disabled ? "차단 해제" : "계정 차단"}
                             >
                               {user.disabled ? (
                                 <svg
@@ -363,7 +396,7 @@ export default function AdminUsersTab({ currentUid }) {
                                   />
                                 </svg>
                               )}
-                              {user.disabled ? "정지 해제" : "정지"}
+                              {user.disabled ? "차단 해제" : "차단"}
                             </button>
                             {/* 삭제 */}
                             <button
@@ -424,7 +457,14 @@ export default function AdminUsersTab({ currentUid }) {
                     )}
                   </div>
                   <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                    {user.role === "admin" ? (
+                    {user.disabled ? (
+                      <button
+                        onClick={() => handleShowReason(user)}
+                        className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
+                      >
+                        차단
+                      </button>
+                    ) : user.role === "admin" ? (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">
                         관리자
                       </span>
@@ -460,7 +500,7 @@ export default function AdminUsersTab({ currentUid }) {
                     {user.role === "admin" ? "권한 해제" : "관리자 지정"}
                   </button>
                   <button
-                    onClick={() => handleDisableToggle(user)}
+                    onClick={() => user.disabled ? handleUnsuspend(user) : setSuspendTarget(user)}
                     disabled={isActing}
                     className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-amber-50 dark:hover:bg-amber-950/30 hover:text-amber-600 dark:hover:text-amber-400 transition-colors disabled:opacity-40"
                   >
@@ -477,7 +517,7 @@ export default function AdminUsersTab({ currentUid }) {
                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                       />
                     </svg>
-                    {user.disabled ? "정지 해제" : "계정 정지"}
+                    {user.disabled ? "차단 해제" : "계정 차단"}
                   </button>
                   <button
                     onClick={() => setDeleteTarget(user)}
@@ -505,6 +545,91 @@ export default function AdminUsersTab({ currentUid }) {
           );
         })}
       </div>
+
+      {/* ── 차단 사유 확인 모달 ── */}
+      {reasonModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/70 dark:border-gray-800 shadow-2xl p-6 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center">
+                <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-gray-900 dark:text-white">차단 사유</h3>
+                <p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500 break-all">{reasonModal.email}</p>
+              </div>
+            </div>
+            <div className="rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40 px-4 py-3">
+              {reasonModal.reason === null ? (
+                <div className="flex justify-center py-1">
+                  <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : reasonModal.reason ? (
+                <p className="text-sm text-amber-800 dark:text-amber-200 leading-relaxed">{reasonModal.reason}</p>
+              ) : (
+                <p className="text-sm text-amber-600/60 dark:text-amber-400/50 italic">사유 없음</p>
+              )}
+            </div>
+            <button
+              onClick={() => setReasonModal(null)}
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── 차단 사유 입력 모달 ── */}
+      {suspendTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/70 dark:border-gray-800 shadow-2xl p-6 space-y-5">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center">
+                <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-gray-900 dark:text-white">계정 차단</h3>
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 break-all">
+                  <span className="font-medium text-gray-900 dark:text-white">{suspendTarget.email}</span>
+                </p>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">차단 사유</label>
+              <textarea
+                value={suspendReason}
+                onChange={(e) => setSuspendReason(e.target.value)}
+                placeholder="차단 사유를 입력하세요 (선택)"
+                rows={3}
+                className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setSuspendTarget(null); setSuspendReason(""); }}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleSuspendConfirm}
+                disabled={actionLoading === suspendTarget?.uid}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-amber-500 hover:bg-amber-600 text-white font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {actionLoading === suspendTarget?.uid && (
+                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                )}
+                차단
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── 삭제 확인 모달 ── */}
       {deleteTarget && (

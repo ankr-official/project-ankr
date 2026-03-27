@@ -70,6 +70,12 @@ export default function Admin() {
     );
   }, [events, tab, search]);
 
+  useEffect(() => {
+    if (tab === "reports" && reports.length === 0) setTab("upcoming");
+    if (tab === "editRequests" && editRequests.length === 0) setTab("upcoming");
+    if (tab === "unconfirmed" && stats.unconfirmed === 0) setTab("upcoming");
+  }, [tab, reports.length, editRequests.length, stats.unconfirmed]);
+
   // ── 훅 선언 완료 후 조건부 early return ──
   if (authLoading) {
     return (
@@ -205,12 +211,6 @@ export default function Admin() {
       toast.error("거절 중 오류가 발생했습니다.");
     }
   };
-
-  useEffect(() => {
-    if (tab === "reports" && reports.length === 0) setTab("upcoming");
-    if (tab === "editRequests" && editRequests.length === 0) setTab("upcoming");
-    if (tab === "unconfirmed" && stats.unconfirmed === 0) setTab("upcoming");
-  }, [reports.length, editRequests.length, stats.unconfirmed]);
 
   const tabs = [
     { key: "all", label: "전체", count: stats.total },

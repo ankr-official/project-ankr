@@ -410,15 +410,60 @@ exports.setUserDisabled = onRequest(
     if (!checkSecret(req, res)) return;
 
     try {
-      const { uid, disabled } = req.body || {};
+      const { uid, disabled, reason } = req.body || {};
       if (!uid || typeof uid !== "string") return res.status(400).send("Invalid uid");
       if (typeof disabled !== "boolean") return res.status(400).send("Invalid disabled");
 
       await admin.auth().updateUser(uid, { disabled });
+
+      if (disabled) {
+        await admin.database().ref(`suspensions/${uid}`).set({
+          reason: reason || "",
+          suspendedAt: new Date().toISOString(),
+        });
+      } else {
+        await admin.database().ref(`suspensions/${uid}`).remove();
+      }
+
       console.log("✅ User disabled state updated:", { uid, disabled });
       return res.status(200).json({ ok: true, uid, disabled });
     } catch (error) {
       console.error("❌ Error updating user:", error);
+      return res.status(500).send("Internal Server Error");
+    }
+  },
+);
+
+exports.getSuspensionReason = onRequest(
+  {
+    timeoutSeconds: 30,
+    region: "asia-northeast3",
+  },
+  async (req, res) => {
+    setCors(res);
+    if (req.method === "OPTIONS") return res.status(204).send("");
+
+    try {
+      const { email } = req.body || {};
+      if (!email || typeof email !== "string") return res.status(400).send("Invalid email");
+
+      let userRecord;
+      try {
+        userRecord = await admin.auth().getUserByEmail(email);
+      } catch {
+        return res.status(200).json({ suspended: false });
+      }
+
+      if (!userRecord.disabled) {
+        return res.status(200).json({ suspended: false });
+      }
+
+      const snap = await admin.database().ref(`suspensions/${userRecord.uid}`).once("value");
+      const data = snap.val();
+
+      return res.status(200).json({ suspended: true, reason: data?.reason || "" });
+    } catch (error) {
+      console.error("❌ Error getting suspension reason:", error);
       return res.status(500).send("Internal Server Error");
     }
   },
