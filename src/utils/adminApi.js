@@ -1,3 +1,5 @@
+import { auth } from "../config/firebase";
+
 const BASE_URL = `https://asia-northeast3-${import.meta.env.VITE_FIREBASE_PROJECT_ID}.cloudfunctions.net`;
 const SECRET = import.meta.env.VITE_FUNCTION_SECRET;
 
@@ -18,7 +20,20 @@ const call = async (name, body = null) => {
 };
 
 export const listUsers = () => call("listUsers");
-export const setUserRole = (uid, role) => call("setUserRole", { uid, role });
+export const setUserRole = async (uid, role) => {
+  const idToken = await auth.currentUser.getIdToken();
+  const res = await fetch(`${BASE_URL}/setUserRole`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-secret": SECRET,
+      "Authorization": `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({ uid, role }),
+  });
+  if (!res.ok) { const text = await res.text(); throw new Error(text || `HTTP ${res.status}`); }
+  return res.json();
+};
 export const setUserDisabled = (uid, disabled, reason = "") => call("setUserDisabled", { uid, disabled, reason });
 export const deleteUser = (uid) => call("deleteUser", { uid });
 

@@ -51,7 +51,7 @@ const formatCreatedAt = (iso) => {
   return `${date} ${time}`;
 };
 
-export default function AdminUsersTab({ currentUid }) {
+export default function AdminUsersTab({ currentUid, currentRole }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
@@ -73,28 +73,39 @@ export default function AdminUsersTab({ currentUid }) {
 
   const counts = {
     all: users.length,
+    owner: users.filter((u) => u.role === "owner").length,
     admin: users.filter((u) => u.role === "admin").length,
-    member: users.filter((u) => u.role !== "admin" && !u.disabled).length,
+    member: users.filter(
+      (u) => u.role !== "admin" && u.role !== "owner" && !u.disabled,
+    ).length,
     disabled: users.filter((u) => u.disabled).length,
   };
 
   const sortedUsers = [...users]
     .filter((u) => {
+      if (tab === "owner") return u.role === "owner";
       if (tab === "admin") return u.role === "admin";
-      if (tab === "member") return u.role !== "admin" && !u.disabled;
+      if (tab === "member")
+        return u.role !== "admin" && u.role !== "owner" && !u.disabled;
       if (tab === "disabled") return u.disabled;
       return true;
     })
     .sort((a, b) => {
       if (a.uid === currentUid) return -1;
       if (b.uid === currentUid) return 1;
+      if (a.role === "owner" && b.role !== "owner") return -1;
+      if (b.role === "owner" && a.role !== "owner") return 1;
       const aVal =
         sort.key === "createdAt"
-          ? a.createdAt ? new Date(a.createdAt).getTime() : 0
+          ? a.createdAt
+            ? new Date(a.createdAt).getTime()
+            : 0
           : (a.email || "").toLowerCase();
       const bVal =
         sort.key === "createdAt"
-          ? b.createdAt ? new Date(b.createdAt).getTime() : 0
+          ? b.createdAt
+            ? new Date(b.createdAt).getTime()
+            : 0
           : (b.email || "").toLowerCase();
       if (aVal < bVal) return sort.dir === "asc" ? -1 : 1;
       if (aVal > bVal) return sort.dir === "asc" ? 1 : -1;
@@ -155,9 +166,15 @@ export default function AdminUsersTab({ currentUid }) {
     if (!suspendTarget) return;
     setActionLoading(suspendTarget.uid);
     try {
-      await adminApi.setUserDisabled(suspendTarget.uid, true, suspendReason.trim());
+      await adminApi.setUserDisabled(
+        suspendTarget.uid,
+        true,
+        suspendReason.trim(),
+      );
       setUsers((prev) =>
-        prev.map((u) => (u.uid === suspendTarget.uid ? { ...u, disabled: true } : u)),
+        prev.map((u) =>
+          u.uid === suspendTarget.uid ? { ...u, disabled: true } : u,
+        ),
       );
       toast.success("계정이 차단되었습니다.");
       setSuspendTarget(null);
@@ -219,9 +236,9 @@ export default function AdminUsersTab({ currentUid }) {
 
   const userTabs = [
     { key: "all", label: "전체" },
-    { key: "admin", label: "관리자" },
     { key: "member", label: "일반 회원" },
     counts.disabled > 0 && { key: "disabled", label: "차단" },
+    counts.admin > 0 && { key: "admin", label: "관리자" },
   ].filter(Boolean);
 
   return (
@@ -239,7 +256,9 @@ export default function AdminUsersTab({ currentUid }) {
             }`}
           >
             {t.label}
-            <span className={`ml-1.5 text-xs ${tab === t.key ? "text-indigo-600 dark:text-indigo-400" : "text-gray-400 dark:text-gray-500"}`}>
+            <span
+              className={`ml-1.5 text-xs ${tab === t.key ? "text-indigo-600 dark:text-indigo-400" : "text-gray-400 dark:text-gray-500"}`}
+            >
               {counts[t.key]}
             </span>
           </button>
@@ -305,6 +324,10 @@ export default function AdminUsersTab({ currentUid }) {
                       >
                         차단
                       </button>
+                    ) : user.role === "owner" ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300">
+                        운영자
+                      </span>
                     ) : user.role === "admin" ? (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">
                         관리자
@@ -316,7 +339,7 @@ export default function AdminUsersTab({ currentUid }) {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    {isSelf ? (
+                    {isSelf || user.role === "owner" ? (
                       <span className="block text-center text-xs text-gray-300 dark:text-gray-600">
                         —
                       </span>
@@ -326,40 +349,46 @@ export default function AdminUsersTab({ currentUid }) {
                           <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
                         ) : (
                           <>
-                            {/* 권한 변경 */}
-                            <button
-                              onClick={() => handleRoleChange(user)}
-                              className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs whitespace-nowrap transition-colors ${
-                                user.role === "admin"
-                                  ? "text-gray-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30"
-                                  : "text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30"
-                              }`}
-                              title={
-                                user.role === "admin"
-                                  ? "관리자 권한 해제"
-                                  : "관리자로 지정"
-                              }
-                            >
-                              <svg
-                                className="w-4 h-4 shrink-0"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+                            {/* 권한 변경 — 운영자만 */}
+                            {currentRole === "owner" && (
+                              <button
+                                onClick={() => handleRoleChange(user)}
+                                className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs whitespace-nowrap transition-colors ${
+                                  user.role === "admin"
+                                    ? "text-gray-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                                    : "text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30"
+                                }`}
+                                title={
+                                  user.role === "admin"
+                                    ? "관리자 권한 해제"
+                                    : "관리자로 지정"
+                                }
                               >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                                />
-                              </svg>
-                              {user.role === "admin"
-                                ? "권한 해제"
-                                : "관리자 지정"}
-                            </button>
+                                <svg
+                                  className="w-4 h-4 shrink-0"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                                  />
+                                </svg>
+                                {user.role === "admin"
+                                  ? "권한 해제"
+                                  : "관리자 지정"}
+                              </button>
+                            )}
                             {/* 차단 / 해제 */}
                             <button
-                              onClick={() => user.disabled ? handleUnsuspend(user) : setSuspendTarget(user)}
+                              onClick={() =>
+                                user.disabled
+                                  ? handleUnsuspend(user)
+                                  : setSuspendTarget(user)
+                              }
                               className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs whitespace-nowrap transition-colors ${
                                 user.disabled
                                   ? "text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/30"
@@ -464,6 +493,10 @@ export default function AdminUsersTab({ currentUid }) {
                       >
                         차단
                       </button>
+                    ) : user.role === "owner" ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300">
+                        운영자
+                      </span>
                     ) : user.role === "admin" ? (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">
                         관리자
@@ -477,30 +510,36 @@ export default function AdminUsersTab({ currentUid }) {
                 </div>
               </div>
 
-              {!isSelf && (
+              {!isSelf && user.role !== "owner" && (
                 <div className="flex gap-2 pt-1">
-                  <button
-                    onClick={() => handleRoleChange(user)}
-                    disabled={isActing}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors disabled:opacity-40"
-                  >
-                    <svg
-                      className="w-3.5 h-3.5 shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                  {currentRole === "owner" && (
+                    <button
+                      onClick={() => handleRoleChange(user)}
+                      disabled={isActing}
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors disabled:opacity-40"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                      />
-                    </svg>
-                    {user.role === "admin" ? "권한 해제" : "관리자 지정"}
-                  </button>
+                      <svg
+                        className="w-3.5 h-3.5 shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                        />
+                      </svg>
+                      {user.role === "admin" ? "권한 해제" : "관리자 지정"}
+                    </button>
+                  )}
                   <button
-                    onClick={() => user.disabled ? handleUnsuspend(user) : setSuspendTarget(user)}
+                    onClick={() =>
+                      user.disabled
+                        ? handleUnsuspend(user)
+                        : setSuspendTarget(user)
+                    }
                     disabled={isActing}
                     className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-amber-50 dark:hover:bg-amber-950/30 hover:text-amber-600 dark:hover:text-amber-400 transition-colors disabled:opacity-40"
                   >
@@ -552,13 +591,27 @@ export default function AdminUsersTab({ currentUid }) {
           <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/70 dark:border-gray-800 shadow-2xl p-6 space-y-4">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center">
-                <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                <svg
+                  className="w-5 h-5 text-amber-600 dark:text-amber-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
                 </svg>
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-gray-900 dark:text-white">차단 사유</h3>
-                <p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500 break-all">{reasonModal.email}</p>
+                <h3 className="font-bold text-gray-900 dark:text-white">
+                  차단 사유
+                </h3>
+                <p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500 break-all">
+                  {reasonModal.email}
+                </p>
               </div>
             </div>
             <div className="rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40 px-4 py-3">
@@ -567,9 +620,13 @@ export default function AdminUsersTab({ currentUid }) {
                   <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : reasonModal.reason ? (
-                <p className="text-sm text-amber-800 dark:text-amber-200 leading-relaxed">{reasonModal.reason}</p>
+                <p className="text-sm text-amber-800 dark:text-amber-200 leading-relaxed">
+                  {reasonModal.reason}
+                </p>
               ) : (
-                <p className="text-sm text-amber-600/60 dark:text-amber-400/50 italic">사유 없음</p>
+                <p className="text-sm text-amber-600/60 dark:text-amber-400/50 italic">
+                  사유 없음
+                </p>
               )}
             </div>
             <button
@@ -588,19 +645,35 @@ export default function AdminUsersTab({ currentUid }) {
           <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/70 dark:border-gray-800 shadow-2xl p-6 space-y-5">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center">
-                <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                <svg
+                  className="w-5 h-5 text-amber-600 dark:text-amber-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
                 </svg>
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-gray-900 dark:text-white">계정 차단</h3>
+                <h3 className="font-bold text-gray-900 dark:text-white">
+                  계정 차단
+                </h3>
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 break-all">
-                  <span className="font-medium text-gray-900 dark:text-white">{suspendTarget.email}</span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {suspendTarget.email}
+                  </span>
                 </p>
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">차단 사유</label>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">
+                차단 사유
+              </label>
               <textarea
                 value={suspendReason}
                 onChange={(e) => setSuspendReason(e.target.value)}
@@ -611,7 +684,10 @@ export default function AdminUsersTab({ currentUid }) {
             </div>
             <div className="flex gap-2">
               <button
-                onClick={() => { setSuspendTarget(null); setSuspendReason(""); }}
+                onClick={() => {
+                  setSuspendTarget(null);
+                  setSuspendReason("");
+                }}
                 className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
               >
                 취소
