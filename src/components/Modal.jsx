@@ -16,6 +16,7 @@ import { toast } from "react-toastify";
 import { addToGoogleCalendar } from "../utils/calendarUtils";
 import { useAuth } from "../contexts/AuthContext";
 import EditRequestModal from "./EditRequestModal";
+import LoginDropdown from "./LoginDropdown";
 import { ref, push, get, set, onValue } from "firebase/database";
 import { httpsCallable } from "firebase/functions";
 import { isoToTime, isoToLocal } from "../utils/eventFormUtils";
@@ -258,7 +259,8 @@ const ModalContent = ({
   onClose,
   isMobile,
   onEditRequest,
-  isLoggedIn,
+  showLogin,
+  onCloseLogin,
   viewCount,
 }) => (
   <>
@@ -280,15 +282,20 @@ const ModalContent = ({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {isLoggedIn && !isMobile && (
-            <button
-              onClick={onEditRequest}
-              title="정보 수정 요청"
-              className="p-1 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full lg:hover:text-indigo-600 lg:hover:bg-indigo-100 dark:lg:hover:text-indigo-300 dark:lg:hover:bg-indigo-900/40 transition-colors flex px-2 gap-1"
-            >
-              <PencilSquareIcon className="w-5 h-5" />
-              <span>수정 요청</span>
-            </button>
+          {!isMobile && (
+            <div className="relative">
+              <button
+                onClick={onEditRequest}
+                title="정보 수정 요청"
+                className="p-1 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full lg:hover:text-indigo-600 lg:hover:bg-indigo-100 dark:lg:hover:text-indigo-300 dark:lg:hover:bg-indigo-900/40 transition-colors flex px-2 gap-1"
+              >
+                <PencilSquareIcon className="w-5 h-5" />
+                <span>수정 요청</span>
+              </button>
+              {showLogin && (
+                <LoginDropdown position="bottom" align="right" onClose={onCloseLogin} />
+              )}
+            </div>
           )}
           {!isMobile && (
             <button
@@ -345,13 +352,22 @@ export function Modal({
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [editRequestCount, setEditRequestCount] = useState(0);
   const [viewCount, setViewCount] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
   const isEditLimitReached =
     role !== "admin" && editRequestCount >= EDIT_DAILY_LIMIT;
 
   const recordedRef = useRef(null);
 
+  const handleEditRequest = () => {
+    if (isLoggedIn) setIsEditOpen(true);
+    else setShowLogin(true);
+  };
+
   useEffect(() => {
-    if (!isOpen || !data?.id) return;
+    if (!isOpen || !data?.id) {
+      setShowLogin(false);
+      return;
+    }
     if (recordedRef.current === data.id) return;
     recordedRef.current = data.id;
 
@@ -501,14 +517,17 @@ export function Modal({
                     닫기
                   </button>
                   <div className="w-12 h-1.5 mx-auto bg-gray-400 dark:bg-gray-300 rounded-full" />
-                  {isLoggedIn && (
+                  <div className="absolute top-3 right-6">
                     <button
-                      onClick={() => setIsEditOpen(true)}
-                      className="absolute p-1 text-indigo-600 dark:text-indigo-300 bg-transparent border-0 top-3 right-6 w-fit transition-colors"
+                      onClick={handleEditRequest}
+                      className="p-1 text-indigo-600 dark:text-indigo-300 bg-transparent border-0 w-fit transition-colors"
                     >
                       수정 요청
                     </button>
-                  )}
+                    {showLogin && (
+                      <LoginDropdown position="bottom" align="right" onClose={() => setShowLogin(false)} />
+                    )}
+                  </div>
                 </div>
               )}
               <div
@@ -522,8 +541,9 @@ export function Modal({
                   data={data}
                   onClose={onClose}
                   isMobile={isMobile}
-                  onEditRequest={() => setIsEditOpen(true)}
-                  isLoggedIn={isLoggedIn}
+                  onEditRequest={handleEditRequest}
+                  showLogin={showLogin}
+                  onCloseLogin={() => setShowLogin(false)}
                   viewCount={viewCount}
                 />
               </div>
