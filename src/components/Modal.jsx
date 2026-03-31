@@ -4,6 +4,7 @@ import {
   ShareIcon,
   CalendarIcon,
   PencilSquareIcon,
+  EyeIcon,
 } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate, formatTime } from "../utils/dateUtils";
@@ -15,9 +16,12 @@ import { toast } from "react-toastify";
 import { addToGoogleCalendar } from "../utils/calendarUtils";
 import { useAuth } from "../contexts/AuthContext";
 import EditRequestModal from "./EditRequestModal";
-import { ref, push, get, set } from "firebase/database";
+import { ref, push, get, set, onValue } from "firebase/database";
+import { httpsCallable } from "firebase/functions";
 import { isoToTime, isoToLocal } from "../utils/eventFormUtils";
-import { database } from "../config/firebase";
+import { database, functions } from "../config/firebase";
+
+const recordViewFn = httpsCallable(functions, "recordView");
 
 // Custom hooks
 const useModalScroll = (onClose) => {
@@ -255,6 +259,7 @@ const ModalContent = ({
   isMobile,
   onEditRequest,
   isLoggedIn,
+  viewCount,
 }) => (
   <>
     <motion.div
@@ -262,12 +267,18 @@ const ModalContent = ({
       layoutId={`modal-content-${data.id}`}
     >
       <div className="flex items-center justify-between mb-4 gap-2 min-w-0">
-        <motion.h2
-          className="text-2xl font-bold text-gray-900 dark:text-white transition-colors truncate min-w-0"
-          layoutId={`title-${data.id}`}
-        >
-          {data.event_name}
-        </motion.h2>
+        <div className="min-w-0">
+          <motion.h2
+            className="text-2xl font-bold text-gray-900 dark:text-white transition-colors truncate"
+            layoutId={`title-${data.id}`}
+          >
+            {data.event_name}
+          </motion.h2>
+          <div className="flex items-center gap-1 mt-0.5 ml-0.5 text-xs text-gray-400 dark:text-gray-500">
+            <EyeIcon className="w-3.5 h-3.5" />
+            <span>{viewCount !== null ? `${viewCount.toLocaleString()}회` : "—"}</span>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           {isLoggedIn && !isMobile && (
             <button
@@ -333,8 +344,26 @@ export function Modal({
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [editRequestCount, setEditRequestCount] = useState(0);
+  const [viewCount, setViewCount] = useState(null);
   const isEditLimitReached =
     role !== "admin" && editRequestCount >= EDIT_DAILY_LIMIT;
+
+  const recordedRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen || !data?.id) return;
+    if (recordedRef.current === data.id) return;
+    recordedRef.current = data.id;
+
+    recordViewFn({ eventId: data.id }).catch(() => {});
+
+    const viewsRef = ref(database, `data_v2/${data.id}/views`);
+    const unsubscribe = onValue(viewsRef, (snap) => {
+      setViewCount(snap.val() ?? 0);
+    });
+
+    return () => unsubscribe();
+  }, [isOpen, data?.id]);
 
   useEffect(() => {
     if (!user?.uid || role === "admin") return;
@@ -495,6 +524,7 @@ export function Modal({
                   isMobile={isMobile}
                   onEditRequest={() => setIsEditOpen(true)}
                   isLoggedIn={isLoggedIn}
+                  viewCount={viewCount}
                 />
               </div>
             </motion.div>

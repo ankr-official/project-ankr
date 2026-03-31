@@ -2,10 +2,11 @@ require("dotenv").config();
 const admin = require("firebase-admin");
 const nodemailer = require("nodemailer");
 
-const { onRequest } = require("firebase-functions/v2/https");
+const { onRequest, onCall } = require("firebase-functions/v2/https");
 const { onValueCreated } = require("firebase-functions/v2/database");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { defineSecret } = require("firebase-functions/params");
+const crypto = require("crypto");
 
 // Secret Manager 에 저장된 값들과 매핑되는 Secret 정의
 const FUNCTION_SECRET = defineSecret("ANKR_FUNCTION_SECRET");
@@ -484,6 +485,42 @@ exports.getSuspensionReason = onRequest(
       return res.status(500).send("Internal Server Error");
     }
   },
+);
+
+exports.recordView = onCall(
+  {
+    region: "asia-southeast1",
+    enforceAppCheck: false,
+  },
+  async (request) => {
+    const { eventId } = request.data || {};
+    if (!eventId || typeof eventId !== "string") throw new Error("Invalid eventId");
+
+    const ip =
+      request.rawRequest.headers["x-forwarded-for"]?.split(",")[0].trim() ||
+      request.rawRequest.socket?.remoteAddress ||
+      "unknown";
+
+    const hash = crypto
+      .createHash("sha256")
+      .update(ip + eventId)
+      .digest("hex")
+      .slice(0, 16);
+
+    const ipRef = admin.database().ref(`viewIPs/${eventId}/${hash}`);
+    const snap = await ipRef.once("value");
+
+    const now = Date.now();
+    const TTL_MS = 24 * 60 * 60 * 1000;
+    if (snap.exists() && now - snap.val() < TTL_MS) return { counted: false };
+
+    await admin.database()
+      .ref(`data_v2/${eventId}/views`)
+      .transaction((current) => (current || 0) + 1);
+    await ipRef.set(now);
+
+    return { counted: true };
+  }
 );
 
 exports.deleteUser = onRequest(

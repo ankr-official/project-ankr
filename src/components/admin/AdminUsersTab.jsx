@@ -329,7 +329,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    {isSelf || user.role === "owner" ? (
+                    {isSelf || user.role === "owner" || (currentRole !== "owner" && user.role === "admin") ? (
                       <span className="block text-center text-xs text-gray-300 dark:text-gray-600">
                         —
                       </span>
@@ -500,7 +500,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                 </div>
               </div>
 
-              {!isSelf && user.role !== "owner" && (
+              {!isSelf && user.role !== "owner" && !(currentRole !== "owner" && user.role === "admin") && (
                 <div className="flex gap-2 pt-1">
                   {currentRole === "owner" && (
                     <button
