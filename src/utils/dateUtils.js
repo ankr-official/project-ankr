@@ -43,6 +43,22 @@ export const formatTime = dateString => {
     }
 };
 
+// Primary: schedule date. Secondary: time_start within same date (nulls last).
+// desc=false → ascending (upcoming), desc=true → descending (past/recent).
+export const sortByDateTime = (a, b, desc = false) => {
+    const dateA = new Date(a.schedule);
+    const dateB = new Date(b.schedule);
+    const dateDiff = dateA - dateB;
+    if (dateDiff !== 0) return desc ? -dateDiff : dateDiff;
+    if (a.time_start && b.time_start) {
+        const timeDiff = new Date(a.time_start) - new Date(b.time_start);
+        return desc ? -timeDiff : timeDiff;
+    }
+    if (a.time_start) return -1;
+    if (b.time_start) return 1;
+    return 0;
+};
+
 export const getThisWeeksEvents = (data, showConfirmed = true) => {
     const today = new Date();
     const nextWeek = new Date(today);
@@ -57,5 +73,5 @@ export const getThisWeeksEvents = (data, showConfirmed = true) => {
                 item.confirm === showConfirmed
             );
         })
-        .sort((a, b) => new Date(a.schedule) - new Date(b.schedule));
+        .sort((a, b) => sortByDateTime(a, b));
 };

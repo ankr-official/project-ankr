@@ -1,12 +1,12 @@
 export const TabButton = ({ isActive, onClick, children }) => (
-    <button
-        onClick={onClick}
-        className={`w-full lg:w-fit lg:mb-0 px-4 py-2 text-sm font-medium rounded-t-lg rounded-b-none transition-colors duration-200 ${
-            isActive
-                ? "text-white bg-indigo-600 dark:bg-indigo-600"
-                : "text-gray-800 dark:text-gray-300 bg-indigo-200 dark:bg-indigo-900 lg:hover:text-gray-600 dark:lg:hover:text-gray-300 lg:hover:bg-indigo-300 dark:lg:hover:bg-indigo-700"
-        }`}
-    >
-        {children}
-    </button>
+  <button
+    onClick={onClick}
+    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors duration-200 rounded-none focus:outline-none ${
+      isActive
+        ? "text-indigo-600 dark:text-indigo-400 border-b-indigo-600 dark:border-b-indigo-400"
+        : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300"
+    }`}
+  >
+    {children}
+  </button>
 );

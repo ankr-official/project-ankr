@@ -1,16 +1,22 @@
 import { formatDate } from "../../utils/dateUtils";
 import { GenreTag } from "../common/GenreTag";
 import { LocationLink } from "../common/LocationLink";
+import { HeartButton } from "../common/HeartButton";
 
 export const EventCard = ({
   event,
   onEventSelect,
   showDate = true,
+  showHeart = true,
   className = "p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow cursor-pointer active:bg-indigo-200 dark:active:bg-indigo-900 transition-colors",
 }) => {
   return (
-    <div onClick={() => onEventSelect(event)} className={className}>
-      <div className="flex items-center space-x-4">
+    <div
+      onClick={() => onEventSelect(event)}
+      className={`relative ${className}`}
+    >
+      {showHeart && <HeartButton eventId={event.id} eventDate={event.schedule} className="absolute top-2 right-2 z-10" />}
+      <div className="flex items-center space-x-4 h-full">
         {event.img_url ? (
           <img
             src={event.img_url.replace(/(name=)[^&]*/, "$1small")}
@@ -24,7 +30,7 @@ export const EventCard = ({
             className="object-cover flex-shrink-0 w-24 h-32 rounded-lg"
           />
         )}
-        <div className="flex-1 min-w-0 text-left">
+        <div className="flex-1 min-w-0 text-left pr-8">
           {showDate && (
             <p className="mb-1 text-sm text-gray-600 dark:text-gray-300 transition-colors">
               {formatDate(event.schedule)}

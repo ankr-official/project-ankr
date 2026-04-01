@@ -6,9 +6,9 @@ import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
+import LikedEvents from "./pages/LikedEvents";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
-// import YearEndReceiptPage from "./pages/YearEndReceipt";
 import "./App.css";
 
 function AppContent() {
@@ -33,8 +33,8 @@ function AppContent() {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/event/:id" element={<Home />} />
-            {/* <Route path="/year-end-receipt" element={<YearEndReceiptPage />} /> */}
-            <Route path="*" element={<Home />} />
+            <Route path="/liked" element={<LikedEvents />} />
+<Route path="*" element={<Home />} />
           </Routes>
           <footer className="w-full py-8 mt-8 text-gray-600 dark:text-gray-300 bg-gray-300 dark:bg-gray-900 transition-colors">
             <div className="container px-4 mx-auto">

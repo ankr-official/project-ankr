@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useScrollLock } from "../hooks/useScrollLock";
-import { GenreTag } from "./common/GenreTag";
-import { LocationLink } from "./common/LocationLink";
-import { formatDate } from "../utils/dateUtils";
+import { EventCard } from "./events/EventCard";
 
 export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -185,45 +183,15 @@ export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
           <div className="p-3 space-y-3 sm:p-4 sm:space-y-4">
             {searchResults.length > 0 ? (
               searchResults.map((event) => (
-                <div
+                <EventCard
                   key={event.id}
-                  onClick={() => {
+                  event={event}
+                  onEventSelect={() => {
                     onEventSelect(event);
                     onClose();
                   }}
-                  className="p-3 transition-colors bg-gray-200 dark:bg-gray-700 rounded-lg cursor-pointer search-result-item sm:p-4 active:bg-gray-300 dark:active:bg-gray-600 sm:hover:bg-gray-200 dark:sm:hover:bg-gray-600"
-                >
-                  <div className="flex items-center space-x-3 text-left sm:space-x-4">
-                    {event.img_url ? (
-                      <img
-                        src={event.img_url.replace(/(name=)[^&]*/, "$1small")}
-                        alt={event.event_name}
-                        className="flex-shrink-0 object-cover w-20 rounded-lg h-28 sm:w-24 sm:h-32"
-                      />
-                    ) : (
-                      <img
-                        src="./dummy.svg"
-                        alt="Dummy"
-                        className="flex-shrink-0 object-cover w-20 rounded-lg h-28 sm:w-24 sm:h-32"
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="mb-1.5 sm:mb-2 text-sm text-gray-600 dark:text-gray-300 transition-colors">
-                        {formatDate(event.schedule, event.time_start)}
-                      </p>
-                      <h3 className="mb-1.5 sm:mb-2 text-base sm:text-lg font-medium text-gray-900 dark:text-white line-clamp-2 transition-colors">
-                        {event.event_name}
-                      </h3>
-                      <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
-                        <GenreTag genre={event.genre} />
-                      </div>
-                      <LocationLink
-                        location={event.location}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  </div>
-                </div>
+                  className="p-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow cursor-pointer active:bg-indigo-200 dark:active:bg-indigo-900 transition-colors"
+                />
               ))
             ) : searchQuery ? (
               <div className="p-6 text-center text-gray-600 dark:text-gray-400 sm:p-8 transition-colors">

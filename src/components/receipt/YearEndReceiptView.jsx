@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 
+const QUARTER_LABELS = { Q1: "1분기", Q2: "2분기", Q3: "3분기", Q4: "4분기" };
+
 export function YearEndReceiptView({
   year,
+  quarter = "all",
   events,
-  onEventToggle,
   userName,
   onUserNameChange,
 }) {
@@ -16,7 +18,7 @@ export function YearEndReceiptView({
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
-    })
+    }),
   );
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export function YearEndReceiptView({
           hour: "2-digit",
           minute: "2-digit",
           second: "2-digit",
-        })
+        }),
       );
     }, 1000);
 
@@ -52,13 +54,16 @@ export function YearEndReceiptView({
             PRESENTED BY ANKR
           </div>
           <div className="text-2xl font-bold tracking-[0.25em]">
-            2025 DJ EVENT RECEIPT
+            DJ EVENT RECEIPT
           </div>
         </div>
 
         {/* Meta info */}
         <div className="flex justify-between items-center mb-4 text-xs">
-          <span>YEAR: {year}</span>
+          <span>
+            YEAR: {year}
+            {quarter !== "all" ? ` / ${QUARTER_LABELS[quarter]}` : ""}
+          </span>
           <div className="flex gap-2 items-center">
             <select
               value={role}
@@ -110,26 +115,24 @@ export function YearEndReceiptView({
         <div className="flex justify-between text-[10px] sm:text-xs font-bold mb-2">
           <span className="w-1/5">DATE</span>
           <span className="w-3/5">EVENT</span>
-          <span className="w-1/5 text-right sm:text-left">PLACE</span>
+          <span className="w-1/5">PLACE</span>
         </div>
 
         <div className="mb-3 border-t border-gray-500 border-dashed" />
 
         {/* Events list */}
-        <div className="space-y-1 text-xs min-h-[240px]">
+        <div className="space-y-2 text-xs min-h-[240px]">
           {events.length === 0 ? (
             <div className="py-16 text-center text-gray-500">
               참여한 이벤트를 선택하면 이곳에 영수증이 생성됩니다.
             </div>
           ) : (
             events.map((event) => (
-              <button
+              <div
                 key={event.id}
-                type="button"
-                onClick={() => onEventToggle?.(event.id)}
-                className="flex justify-between items-center w-full text-left bg-transparent cursor-pointer lg:hover:text-red-500 focus:text-red-500"
+                className="flex justify-between items-center w-full text-left"
               >
-                <span className="w-1/5">
+                <span className="w-1/5 text-center">
                   {event.scheduleDate?.toLocaleDateString("ko-KR", {
                     year: "2-digit",
                     month: "2-digit",
@@ -138,7 +141,7 @@ export function YearEndReceiptView({
                 </span>
                 <span className="px-2 w-3/5 truncate">{event.event_name}</span>
                 <span className="px-2 w-1/5 truncate">{event.location}</span>
-              </button>
+              </div>
             ))
           )}
         </div>

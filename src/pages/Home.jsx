@@ -44,7 +44,7 @@ function Home() {
   const { currentEvents, pastEvents, thisWeeksEvents } = useEventData(
     data,
     selectedGenres,
-    true // showConfirmed
+    true, // showConfirmed
   );
 
   // Local state
@@ -61,10 +61,12 @@ function Home() {
   useEffect(() => {
     if (!user?.uid || role === "admin") return;
     const today = new Date().toISOString().slice(0, 10);
-    get(ref(database, `reportLimits/${user.uid}`)).then((snap) => {
-      const data = snap.val();
-      setReportCount(data?.date === today ? (data.count ?? 0) : 0);
-    }).catch(() => setReportCount(0));
+    get(ref(database, `reportLimits/${user.uid}`))
+      .then((snap) => {
+        const data = snap.val();
+        setReportCount(data?.date === today ? (data.count ?? 0) : 0);
+      })
+      .catch(() => setReportCount(0));
   }, [user?.uid, role]);
 
   const handleReportSubmit = async (formData) => {
@@ -78,7 +80,10 @@ function Home() {
       });
       const today = new Date().toISOString().slice(0, 10);
       const newCount = reportCount + 1;
-      await set(ref(database, `reportLimits/${user.uid}`), { date: today, count: newCount });
+      await set(ref(database, `reportLimits/${user.uid}`), {
+        date: today,
+        count: newCount,
+      });
       setReportCount(newCount);
       setIsReportOpen(false);
       toast.success("제보가 완료되었습니다!");
@@ -106,9 +111,19 @@ function Home() {
     );
   }
 
-  const locationSuggestions = [...new Set(data.map((e) => e.location).filter(Boolean))];
-  const eventNameSuggestions = [...new Set(data.map((e) => e.event_name).filter(Boolean))];
-  const genreSuggestions = [...new Set(data.flatMap((e) => toArray(e.genre)).filter((g) => g && !GENRES.includes(g)))];
+  const locationSuggestions = [
+    ...new Set(data.map((e) => e.location).filter(Boolean)),
+  ];
+  const eventNameSuggestions = [
+    ...new Set(data.map((e) => e.event_name).filter(Boolean)),
+  ];
+  const genreSuggestions = [
+    ...new Set(
+      data
+        .flatMap((e) => toArray(e.genre))
+        .filter((g) => g && !GENRES.includes(g)),
+    ),
+  ];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -172,8 +187,8 @@ function Home() {
         <div>
           {/* Controls */}
           <div
-            className={`flex flex-col justify-between lg:mb-0 lg:items-end ${
-              viewMode === "calendar" ? "justify-end" : "lg:flex-row-reverse"
+            className={`flex flex-col justify-between lg:mb-0 lg:items-start ${
+              viewMode === "calendar" ? "justify-end" : "lg:flex-row"
             }`}
           >
             {/* View Mode Toggle */}
@@ -183,25 +198,23 @@ function Home() {
             />
             {/* Tab Buttons (Hidden in calendar mode) */}
             <div
-              className={`flex space-x-2 mb-0 ${
-                viewMode === "calendar" ? "hidden" : ""
-              }`}
+              className={`flex space-x-2 mb-4 lg:mb-0 w-full lg:w-fit ${viewMode === "calendar" ? "hidden" : ""}`}
             >
-              <TabButton
+              <button
+                className={`text-sm py-2  w-full lg:w-fit ${activeTab === "current" ? "bg-indigo-800" : "bg-indigo-900/50"}`}
                 isActive={activeTab === "current"}
                 onClick={() => setActiveTab("current")}
               >
                 예정된 이벤트
-              </TabButton>
-              <TabButton
+              </button>
+              <button
+                className={`text-sm py-2  w-full lg:w-fit ${activeTab === "current" ? "bg-indigo-900/50" : "bg-indigo-800"}`}
                 isActive={activeTab === "past"}
                 onClick={() => setActiveTab("past")}
               >
                 종료된 이벤트
-              </TabButton>
+              </button>
             </div>
-
-
           </div>
 
           {/* Content based on view mode */}

@@ -17,6 +17,7 @@ import { addToGoogleCalendar } from "../utils/calendarUtils";
 import { useAuth } from "../contexts/AuthContext";
 import EditRequestModal from "./EditRequestModal";
 import LoginDropdown from "./LoginDropdown";
+import { HeartButton } from "./common/HeartButton";
 import { ref, push, get, set, onValue } from "firebase/database";
 import { httpsCallable } from "firebase/functions";
 import { isoToTime, isoToLocal } from "../utils/eventFormUtils";
@@ -69,7 +70,6 @@ const useModalScroll = (onClose) => {
     handleTouchEnd,
   };
 };
-
 
 const useMobileDetection = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -278,31 +278,18 @@ const ModalContent = ({
           </motion.h2>
           <div className="flex items-center gap-1 mt-0.5 ml-0.5 text-xs text-gray-400 dark:text-gray-500">
             <EyeIcon className="w-3.5 h-3.5" />
-            <span>{viewCount !== null ? `${viewCount.toLocaleString()}회` : "—"}</span>
+            <span>
+              {viewCount !== null ? `${viewCount.toLocaleString()}회` : "—"}
+            </span>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {!isMobile && (
-            <div className="relative">
-              <button
-                onClick={onEditRequest}
-                title="정보 수정 요청"
-                className="p-1 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full lg:hover:text-indigo-600 lg:hover:bg-indigo-100 dark:lg:hover:text-indigo-300 dark:lg:hover:bg-indigo-900/40 transition-colors flex px-2 gap-1"
-              >
-                <PencilSquareIcon className="w-5 h-5" />
-                <span>수정 요청</span>
-              </button>
-              {showLogin && (
-                <LoginDropdown position="bottom" align="right" onClose={onCloseLogin} />
-              )}
-            </div>
-          )}
-          {!isMobile && (
             <button
               onClick={onClose}
-              className="p-1 text-indigo-800 dark:text-indigo-200 bg-indigo-100 dark:bg-indigo-800 rounded-full lg:hover:text-white lg:hover:bg-indigo-600 dark:lg:hover:text-indigo-900 dark:lg:hover:bg-white transition-colors"
+              className="p-1 w-8 h-8 flex items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full lg:hover:bg-gray-200 dark:lg:hover:bg-gray-700 transition-colors"
             >
-              <XMarkIcon className="w-6 h-6" />
+              <XMarkIcon className="w-5 h-5" />
             </button>
           )}
         </div>
@@ -312,6 +299,33 @@ const ModalContent = ({
         <EventImage imgUrl={data.img_url} eventName={data.event_name} />
       )}
       <EventInfo data={data} isMobile={isMobile} />
+
+      {!isMobile && (
+        <div className="flex items-center justify-center gap-3 mb-6">
+          <HeartButton
+            eventId={data.id}
+            eventDate={data.schedule}
+            label="관심 행사"
+            buttonClassName="p-2 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full lg:hover:bg-gray-200 dark:lg:hover:bg-gray-700 transition-colors flex px-4 gap-1"
+          />
+          <div className="relative">
+            <button
+              onClick={onEditRequest}
+              className="p-2 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full lg:hover:bg-gray-200 dark:lg:hover:bg-gray-700 transition-colors flex px-4 gap-1"
+            >
+              <PencilSquareIcon className="w-5 h-5" />
+              <span>수정 요청</span>
+            </button>
+            {showLogin && (
+              <LoginDropdown
+                position="bottom"
+                align="left"
+                onClose={onCloseLogin}
+              />
+            )}
+          </div>
+        </div>
+      )}
 
       <motion.div
         className="space-y-4"
@@ -517,16 +531,22 @@ export function Modal({
                     닫기
                   </button>
                   <div className="w-12 h-1.5 mx-auto bg-gray-400 dark:bg-gray-300 rounded-full" />
-                  <div className="absolute top-3 right-6">
-                    <button
-                      onClick={handleEditRequest}
-                      className="p-1 text-indigo-600 dark:text-indigo-300 bg-transparent border-0 w-fit transition-colors"
-                    >
-                      수정 요청
-                    </button>
-                    {showLogin && (
-                      <LoginDropdown position="bottom" align="right" onClose={() => setShowLogin(false)} />
-                    )}
+                  <div className="absolute top-3 right-6 flex items-center gap-2">
+                    <div className="relative">
+                      <button
+                        onClick={handleEditRequest}
+                        className="p-1 text-indigo-600 dark:text-indigo-300 bg-transparent border-0 w-fit transition-colors"
+                      >
+                        수정 요청
+                      </button>
+                      {showLogin && (
+                        <LoginDropdown
+                          position="bottom"
+                          align="right"
+                          onClose={() => setShowLogin(false)}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
