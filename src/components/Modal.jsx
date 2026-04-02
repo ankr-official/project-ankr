@@ -15,6 +15,7 @@ import { LocationLink } from "./common/LocationLink";
 import { toast } from "react-toastify";
 import { addToGoogleCalendar } from "../utils/calendarUtils";
 import { useAuth } from "../contexts/AuthContext";
+import { useLoginDropdown } from "../contexts/LoginDropdownContext";
 import EditRequestModal from "./EditRequestModal";
 import LoginDropdown from "./LoginDropdown";
 import { HeartButton } from "./common/HeartButton";
@@ -362,11 +363,12 @@ export function Modal({
 }) {
   const isMobile = useMobileDetection();
   const { isLoggedIn, user, role } = useAuth();
+  const { activeLoginId, openLoginDropdown, closeLoginDropdown } = useLoginDropdown();
+  const showLogin = activeLoginId === "modal-edit";
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [editRequestCount, setEditRequestCount] = useState(0);
   const [viewCount, setViewCount] = useState(null);
-  const [showLogin, setShowLogin] = useState(false);
   const isEditLimitReached =
     role !== "admin" && editRequestCount >= EDIT_DAILY_LIMIT;
 
@@ -374,12 +376,12 @@ export function Modal({
 
   const handleEditRequest = () => {
     if (isLoggedIn) setIsEditOpen(true);
-    else setShowLogin(true);
+    else openLoginDropdown("modal-edit");
   };
 
   useEffect(() => {
     if (!isOpen || !data?.id) {
-      setShowLogin(false);
+      closeLoginDropdown();
       return;
     }
     if (recordedRef.current === data.id) return;
@@ -543,7 +545,7 @@ export function Modal({
                         <LoginDropdown
                           position="bottom"
                           align="right"
-                          onClose={() => setShowLogin(false)}
+                          onClose={closeLoginDropdown}
                         />
                       )}
                     </div>
@@ -563,7 +565,7 @@ export function Modal({
                   isMobile={isMobile}
                   onEditRequest={handleEditRequest}
                   showLogin={showLogin}
-                  onCloseLogin={() => setShowLogin(false)}
+                  onCloseLogin={closeLoginDropdown}
                   viewCount={viewCount}
                 />
               </div>
