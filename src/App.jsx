@@ -1,6 +1,7 @@
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { ThemeProvider, useThemeContext } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { LoginDropdownProvider } from "./contexts/LoginDropdownContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/Home";
@@ -130,7 +131,9 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AppContent />
+        <LoginDropdownProvider>
+          <AppContent />
+        </LoginDropdownProvider>
       </AuthProvider>
     </ThemeProvider>
   );

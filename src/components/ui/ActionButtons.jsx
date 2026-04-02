@@ -1,14 +1,18 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
+import { useLoginDropdown } from "../../contexts/LoginDropdownContext";
 import LoginDropdown from "../LoginDropdown";
 
+const LOGIN_ID = "action-report";
+
 export const ActionButtons = ({ onSearchOpen, isLoggedIn, onReportClick }) => {
-  const [showLogin, setShowLogin] = useState(false);
+  const { activeLoginId, openLoginDropdown, closeLoginDropdown } = useLoginDropdown();
+  const showLogin = activeLoginId === LOGIN_ID;
   const loginRef = useRef(null);
 
   useEffect(() => {
     if (!showLogin) return;
     const handleClick = (e) => {
-      if (loginRef.current && !loginRef.current.contains(e.target)) setShowLogin(false);
+      if (loginRef.current && !loginRef.current.contains(e.target)) closeLoginDropdown();
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -18,7 +22,7 @@ export const ActionButtons = ({ onSearchOpen, isLoggedIn, onReportClick }) => {
     if (isLoggedIn) {
       onReportClick();
     } else {
-      setShowLogin((prev) => !prev);
+      showLogin ? closeLoginDropdown() : openLoginDropdown(LOGIN_ID);
     }
   };
 
@@ -33,7 +37,7 @@ export const ActionButtons = ({ onSearchOpen, isLoggedIn, onReportClick }) => {
             행사 제보하기
           </button>
           {showLogin && (
-            <LoginDropdown position="top" align="center" onClose={() => setShowLogin(false)} />
+            <LoginDropdown position="top" align="center" onClose={closeLoginDropdown} />
           )}
         </div>
       </div>

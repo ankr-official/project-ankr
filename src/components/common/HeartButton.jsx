@@ -3,6 +3,7 @@ import { HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import { useAuth } from "../../contexts/AuthContext";
 import { useLike } from "../../hooks/useLike";
+import { useLoginDropdown } from "../../contexts/LoginDropdownContext";
 import LoginDropdown from "../LoginDropdown";
 import LikeConfirmModal from "../LikeConfirmModal";
 
@@ -15,7 +16,9 @@ export function HeartButton({
 }) {
   const { isLoggedIn } = useAuth();
   const { liked, toggle } = useLike(eventId);
-  const [showLogin, setShowLogin] = useState(false);
+  const { activeLoginId, openLoginDropdown, closeLoginDropdown } = useLoginDropdown();
+  const loginId = `heart-${eventId}`;
+  const showLogin = activeLoginId === loginId;
   const [showConfirm, setShowConfirm] = useState(false);
 
   const isPast = () => {
@@ -28,7 +31,7 @@ export function HeartButton({
   const handleClick = (e) => {
     e.stopPropagation();
     if (!isLoggedIn) {
-      setShowLogin((prev) => !prev);
+      showLogin ? closeLoginDropdown() : openLoginDropdown(loginId);
       return;
     }
     if (liked) {
@@ -61,7 +64,7 @@ export function HeartButton({
           <LoginDropdown
             position="bottom"
             align="right"
-            onClose={() => setShowLogin(false)}
+            onClose={closeLoginDropdown}
           />
         )}
       </div>
