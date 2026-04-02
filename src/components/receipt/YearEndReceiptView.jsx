@@ -42,7 +42,7 @@ export function YearEndReceiptView({
     <div className="flex justify-center">
       <div
         id="year-end-receipt-target"
-        className="w-full min-w-[600px] max-w-[600px] bg-[radial-gradient(circle_at_top,_#f7f4e8_0,_#e5dcc7_50%,_#d2c6aa_100%)] scale-75 -translate-y-24 sm:scale-100 text-black px-4 py-4 sm:px-6 sm:py-6 shadow-2xl border border-gray-400"
+        className="w-full min-w-[600px] max-w-[600px] bg-[radial-gradient(circle_at_top,_#f7f4e8_0,_#e5dcc7_50%,_#d2c6aa_100%)] scale-75 -translate-y-24 sm:-translate-y-0 sm:scale-100 text-black px-4 py-4 sm:px-6 sm:py-6 shadow-2xl border border-gray-400"
         style={{
           fontFamily:
             '"DM Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
