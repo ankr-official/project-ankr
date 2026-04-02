@@ -523,6 +523,68 @@ exports.recordView = onCall(
   }
 );
 
+exports.deleteSelf = onRequest(
+  {
+    timeoutSeconds: 60,
+    region: "asia-northeast3",
+    secrets: [GMAIL_USER, GMAIL_APP_PASSWORD],
+  },
+  async (req, res) => {
+    setCors(res);
+    if (req.method === "OPTIONS") return res.status(204).send("");
+
+    const authHeader = req.headers["authorization"] || "";
+    const idToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+    if (!idToken) return res.status(403).send("Forbidden: missing token");
+
+    let decoded;
+    try {
+      decoded = await admin.auth().verifyIdToken(idToken);
+    } catch {
+      return res.status(403).send("Forbidden: invalid token");
+    }
+
+    const uid = decoded.uid;
+    try {
+      await admin.auth().deleteUser(uid);
+    } catch (error) {
+      console.error("❌ Error deleting auth user in deleteSelf:", error);
+      return res.status(500).send("Internal Server Error");
+    }
+
+    const db = admin.database();
+    try {
+      await Promise.all([
+        db.ref(`reportLimits/${uid}`).remove(),
+        db.ref(`editRequestLimits/${uid}`).remove(),
+        db.ref(`likes/${uid}`).remove(),
+        db.ref(`suspensions/${uid}`).remove(),
+      ]);
+    } catch (error) {
+      console.error("❌ RTDB cleanup failed after self-delete. uid:", uid, error);
+      try {
+        const gmailUser = process.env.ANKR_GMAIL_USER;
+        const gmailPassword = process.env.ANKR_GMAIL_APP_PASSWORD;
+        const transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: { user: gmailUser, pass: gmailPassword },
+        });
+        await transporter.sendMail({
+          from: `"ANKR.KR" <${gmailUser}>`,
+          to: gmailUser,
+          subject: `[ANKR] 회원 탈퇴 후 RTDB 정리 실패`,
+          text: `Auth 삭제는 완료됐으나 RTDB 정리에 실패했습니다.\n\nuid: ${uid}\n\n오류: ${error.message}`,
+        });
+      } catch (mailError) {
+        console.error("❌ Failed to send cleanup failure report:", mailError);
+      }
+    }
+
+    console.log("✅ Self-deleted:", uid);
+    return res.status(200).json({ ok: true });
+  },
+);
+
 exports.deleteUser = onRequest(
   {
     timeoutSeconds: 60,
@@ -539,6 +601,15 @@ exports.deleteUser = onRequest(
       if (!uid || typeof uid !== "string") return res.status(400).send("Invalid uid");
 
       await admin.auth().deleteUser(uid);
+
+      const db = admin.database();
+      await Promise.all([
+        db.ref(`reportLimits/${uid}`).remove(),
+        db.ref(`editRequestLimits/${uid}`).remove(),
+        db.ref(`likes/${uid}`).remove(),
+        db.ref(`suspensions/${uid}`).remove(),
+      ]);
+
       console.log("✅ User deleted:", uid);
       return res.status(200).json({ ok: true, uid });
     } catch (error) {

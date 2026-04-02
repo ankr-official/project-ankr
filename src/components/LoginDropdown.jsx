@@ -65,7 +65,7 @@ export default function LoginDropdown({
           </div>
         )}
 
-        <div className="flex justify-center">
+        <div className="flex justify-center" onClick={onClose}>
           <GoogleLogin
             onSuccess={handleSuccess}
             onError={() => {

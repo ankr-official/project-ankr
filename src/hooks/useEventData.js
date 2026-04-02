@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { getThisWeeksEvents } from "../utils/dateUtils";
+import { getThisWeeksEvents, sortByDateTime } from "../utils/dateUtils";
 
 export const useEventData = (data, selectedGenres, showConfirmed = true) => {
     const processedData = useMemo(() => {
@@ -34,14 +34,14 @@ export const useEventData = (data, selectedGenres, showConfirmed = true) => {
     const currentEvents = useMemo(() => 
         processedData
             .filter(item => !item.isPast)
-            .sort((a, b) => a.scheduleDate - b.scheduleDate),
+            .sort((a, b) => sortByDateTime(a, b)),
         [processedData]
     );
 
     const pastEvents = useMemo(() => 
         processedData
             .filter(item => item.isPast)
-            .sort((a, b) => b.scheduleDate - a.scheduleDate),
+            .sort((a, b) => sortByDateTime(a, b, true)),
         [processedData]
     );
 

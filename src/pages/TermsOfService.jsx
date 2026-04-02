@@ -27,7 +27,7 @@ export default function TermsOfService() {
             이용약관
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            시행일: 2026년 3월 16일 &nbsp;·&nbsp; 최종 수정일: 2026년 3월 16일
+            시행일: 2026년 3월 16일 &nbsp;·&nbsp; 최종 수정일: 2026년 4월 2일
           </p>
           <p className="mt-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
             본 이용약관은 ANKR.KR(이하 "서비스")이 제공하는 모든 서비스의 이용
@@ -54,6 +54,7 @@ export default function TermsOfService() {
             <li>Google 캘린더 일정 추가 및 SNS(X/Twitter) 공유</li>
             <li>로그인 이용자의 행사 정보 제보 기능</li>
             <li>운영자의 제보 내용 검토 후 서비스 반영</li>
+            <li>로그인 이용자의 관심 행사 및 다녀온 행사 등록·관리</li>
           </ul>
           <p className="mt-2">
             서비스는 행사 정보의 정확성을 보장하지 않으며, 이용자는 행사 참여 전
@@ -88,7 +89,17 @@ export default function TermsOfService() {
               없습니다.
             </li>
             <li>
-              계정 삭제 요청은{" "}
+              이용자는 서비스 내 설정에서 관심 행사 및 다녀온 행사 기록을 직접
+              전체 삭제할 수 있습니다.
+            </li>
+            <li>
+              이용자는 서비스 내 설정에서 직접 회원 탈퇴를 신청할 수 있으며,
+              탈퇴 즉시 계정 및 관련 데이터가 영구 삭제됩니다. 탈퇴 후에는
+              동일한 Google 계정으로 재가입할 수 있으나, 삭제된 데이터는 복구되지
+              않습니다.
+            </li>
+            <li>
+              이메일을 통한 계정 삭제 요청은{" "}
               <a
                 href="mailto:ankr.web.official@gmail.com"
                 className="text-indigo-600 dark:text-indigo-400 hover:underline"

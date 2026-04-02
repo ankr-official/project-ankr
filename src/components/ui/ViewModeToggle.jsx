@@ -1,12 +1,12 @@
 export const ViewModeToggle = ({ viewMode, onViewModeChange }) => {
   return (
-    <div className="flex mb-4 space-x-2">
+    <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4">
       <button
         onClick={() => onViewModeChange("calendar")}
-        className={`px-4 py-2 w-full lg:w-fit text-sm font-medium rounded-lg transition-colors inline-flex items-center justify-center gap-2 ${
+        className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors duration-200 inline-flex items-center gap-2 rounded-none focus:outline-none ${
           viewMode === "calendar"
-            ? "bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white"
-            : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 lg:hover:bg-gray-300 dark:lg:hover:bg-gray-700"
+            ? "text-indigo-600 dark:text-indigo-400 border-b-indigo-600 dark:border-b-indigo-400"
+            : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300"
         }`}
       >
         <svg
@@ -35,10 +35,10 @@ export const ViewModeToggle = ({ viewMode, onViewModeChange }) => {
       </button>
       <button
         onClick={() => onViewModeChange("table")}
-        className={`px-4 py-2 text-sm w-full lg:w-fit font-medium rounded-lg transition-colors inline-flex items-center justify-center gap-2 ${
+        className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors duration-200 inline-flex items-center gap-2 rounded-none focus:outline-none ${
           viewMode === "table"
-            ? "bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white"
-            : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 lg:hover:bg-gray-300 dark:lg:hover:bg-gray-700"
+            ? "text-indigo-600 dark:text-indigo-400 border-b-indigo-600 dark:border-b-indigo-400"
+            : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300"
         }`}
       >
         <svg

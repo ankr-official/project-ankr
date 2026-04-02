@@ -10,6 +10,7 @@ export function AuthProvider({ children }) {
   const [claims, setClaims] = useState(null);
   const [loading, setLoading] = useState(true);
   const isInitial = useRef(true);
+  const silentSignOut = useRef(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (nextUser) => {
@@ -17,6 +18,8 @@ export function AuthProvider({ children }) {
         isInitial.current = false;
       } else if (nextUser) {
         toast.success("로그인되었습니다.");
+      } else if (silentSignOut.current) {
+        silentSignOut.current = false;
       } else {
         toast.info("로그아웃되었습니다.");
       }
@@ -42,7 +45,8 @@ export function AuthProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
-  const signOut = async () => {
+  const signOut = async ({ silent = false } = {}) => {
+    if (silent) silentSignOut.current = true;
     await firebaseSignOut(auth);
   };
 
