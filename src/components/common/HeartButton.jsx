@@ -27,9 +27,18 @@ export function HeartButton({
 
   const handleClick = (e) => {
     e.stopPropagation();
-    if (!isLoggedIn) { setShowLogin((prev) => !prev); return; }
-    if (liked) { toggle(); return; }
-    if (isPast()) { setShowConfirm(true); return; }
+    if (!isLoggedIn) {
+      setShowLogin((prev) => !prev);
+      return;
+    }
+    if (liked) {
+      toggle();
+      return;
+    }
+    if (isPast()) {
+      setShowConfirm(true);
+      return;
+    }
     toggle("liked");
   };
 
@@ -58,8 +67,14 @@ export function HeartButton({
       </div>
       {showConfirm && (
         <LikeConfirmModal
-          onAttended={() => { toggle("attended"); setShowConfirm(false); }}
-          onLiked={() => { toggle("liked"); setShowConfirm(false); }}
+          onAttended={() => {
+            toggle("attended");
+            setShowConfirm(false);
+          }}
+          onLiked={() => {
+            toggle("liked");
+            setShowConfirm(false);
+          }}
           onClose={() => setShowConfirm(false)}
         />
       )}
