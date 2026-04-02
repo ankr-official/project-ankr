@@ -37,6 +37,23 @@ export const setUserRole = async (uid, role) => {
 export const setUserDisabled = (uid, disabled, reason = "") => call("setUserDisabled", { uid, disabled, reason });
 export const deleteUser = (uid) => call("deleteUser", { uid });
 
+export const deleteSelf = async () => {
+  const idToken = await auth.currentUser.getIdToken();
+  const res = await fetch(`${BASE_URL}/deleteSelf`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${idToken}`,
+    },
+    body: "{}",
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || `HTTP ${res.status}`);
+  }
+  return res.json();
+};
+
 export const getSuspensionReason = (email) =>
   fetch(`${BASE_URL}/getSuspensionReason`, {
     method: "POST",

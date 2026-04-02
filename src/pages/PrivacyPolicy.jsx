@@ -60,7 +60,7 @@ export default function PrivacyPolicy() {
             개인정보처리방침
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            시행일: 2026년 3월 16일 &nbsp;·&nbsp; 최종 수정일: 2026년 3월 16일
+            시행일: 2026년 3월 16일 &nbsp;·&nbsp; 최종 수정일: 2026년 4월 2일
           </p>
           <p className="mt-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
             ANKR.KR(이하 "서비스")는 이용자의 개인정보를 중요하게 여기며,
@@ -84,6 +84,11 @@ export default function PrivacyPolicy() {
                 "서비스 이용 기록",
                 "행사 제보 내용(행사명, 장소, 일정, 장르, SNS 링크 등), 제보 일시",
                 "필수(제보 기능 이용 시)",
+              ],
+              [
+                "관심 행사 · 다녀온 행사",
+                "등록한 행사 ID, 등록 유형(관심·참석), 등록 일시",
+                "선택(관심/다녀온 행사 기능 이용 시)",
               ],
               [
                 "접속 기록",
@@ -136,6 +141,10 @@ export default function PrivacyPolicy() {
                 "제보 내용, 제보 일시, 이메일/UID",
               ],
               [
+                "관심 행사 · 다녀온 행사 등록·조회·삭제",
+                "Firebase UID, 행사 ID, 등록 유형, 등록 일시",
+              ],
+              [
                 "일일 제보 횟수 제한 적용 (남용 방지)",
                 "Firebase UID, 제보 일시",
               ],
@@ -155,7 +164,7 @@ export default function PrivacyPolicy() {
           <Table
             headers={["항목", "보유 기간", "근거"]}
             rows={[
-              ["Firebase UID, 이메일", "계정 삭제 요청 시까지", "서비스 운영"],
+              ["Firebase UID, 이메일", "회원 탈퇴 또는 계정 삭제 요청 시까지", "서비스 운영"],
               [
                 "행사 제보 내용 (승인 전)",
                 "관리자 승인 또는 거부 처리 시까지",
@@ -164,6 +173,11 @@ export default function PrivacyPolicy() {
               [
                 "행사 제보 내용 (승인 후)",
                 "서비스 운영 기간 동안",
+                "서비스 운영",
+              ],
+              [
+                "관심 행사 · 다녀온 행사 데이터",
+                "이용자 직접 삭제 또는 회원 탈퇴 시까지",
                 "서비스 운영",
               ],
               [

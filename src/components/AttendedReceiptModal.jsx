@@ -61,17 +61,7 @@ export function AttendedReceiptModal({
       <div className="w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center mb-4 gap-3 max-w-[600px] mx-auto w-full">
-          <h2 className="text-white font-semibold text-sm shrink-0">
-            나의 이벤트 영수증
-          </h2>
-          <div className="flex-1 text-center">
-            {processedEvents.length === 0 ? (
-              <span className="text-sm text-red-300">이벤트가 없어요.</span>
-            ) : !userName.trim() ? (
-              <span className="text-sm text-red-300">이름을 입력해주세요.</span>
-            ) : null}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center justify-between w-full shrink-0">
             <button
               onClick={handleDownload}
               disabled={!canDownload}
@@ -80,6 +70,15 @@ export function AttendedReceiptModal({
               <ArrowDownTrayIcon className="w-4 h-4" />
               이미지 저장
             </button>
+            <div className="flex-1 text-right">
+              {processedEvents.length === 0 ? (
+                <span className="text-sm text-red-300">이벤트가 없어요.</span>
+              ) : !userName.trim() ? (
+                <span className="text-sm text-red-300">
+                  이름을 입력해주세요.
+                </span>
+              ) : null}
+            </div>
             <button
               onClick={onClose}
               className="p-1.5 rounded-full text-white hover:bg-white/10 transition-colors"
