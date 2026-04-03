@@ -5,7 +5,6 @@ import { LoginDropdownProvider } from "./contexts/LoginDropdownContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/Home";
-import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import LikedEvents from "./pages/LikedEvents";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -29,7 +28,6 @@ function AppContent() {
         <div className="rounded-lg bg-indigo-50/50 dark:bg-[#242424] min-h-screen transition-colors">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
