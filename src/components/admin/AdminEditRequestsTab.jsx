@@ -1,13 +1,53 @@
+import { useEffect } from "react";
+import { ref, remove, update } from "firebase/database";
+import { toast } from "react-toastify";
+import { database } from "../../config/firebase";
+import { useRealtimeData } from "../../hooks/useRealtimeData";
 import { GENRE_COLORS } from "../../constants";
 import { getChangedFields } from "../../utils/adminUtils";
 
-export default function AdminEditRequestsTab({
-  editRequests,
-  editRequestsLoading,
-  events,
-  onApprove,
-  onReject,
-}) {
+export default function AdminEditRequestsTab({ events, onCountChange }) {
+  const { data: editRequests, loading: editRequestsLoading } = useRealtimeData("editRequests");
+
+  useEffect(() => {
+    onCountChange?.(editRequests.length);
+  }, [editRequests.length]);
+
+  const handleApprove = async (request) => {
+    try {
+      if (request.deleteRequest) {
+        await remove(ref(database, `data_v2/${request.eventId}`));
+        await remove(ref(database, `editRequests/${request.id}`));
+        toast.success("삭제 요청이 승인되어 이벤트가 삭제되었습니다.");
+      } else {
+        const {
+          id,
+          eventId,
+          eventName,
+          reason,
+          submittedAt,
+          submittedBy,
+          _snap,
+          ...data
+        } = request;
+        await update(ref(database, `data_v2/${eventId}`), data);
+        await remove(ref(database, `editRequests/${id}`));
+        toast.success("요청이 승인되어 이벤트 정보가 업데이트되었습니다.");
+      }
+    } catch {
+      toast.error("승인 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleReject = async (request) => {
+    try {
+      await remove(ref(database, `editRequests/${request.id}`));
+      toast.success("요청이 거절되었습니다.");
+    } catch {
+      toast.error("거절 중 오류가 발생했습니다.");
+    }
+  };
+
   if (editRequestsLoading) {
     return (
       <div className="flex justify-center py-16">
@@ -178,7 +218,7 @@ export default function AdminEditRequestsTab({
 
             <div className="flex gap-2 pt-1">
               <button
-                onClick={() => onApprove(request)}
+                onClick={() => handleApprove(request)}
                 className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium text-white transition-colors ${
                   request.deleteRequest
                     ? "bg-red-600 hover:bg-red-700"
@@ -188,7 +228,7 @@ export default function AdminEditRequestsTab({
                 {request.deleteRequest ? "승인 (삭제)" : "승인 (덮어쓰기)"}
               </button>
               <button
-                onClick={() => onReject(request)}
+                onClick={() => handleReject(request)}
                 className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition-colors"
               >
                 거절

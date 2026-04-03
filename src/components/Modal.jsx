@@ -19,7 +19,7 @@ import { useLoginDropdown } from "../contexts/LoginDropdownContext";
 import EditRequestModal from "./EditRequestModal";
 import LoginDropdown from "./LoginDropdown";
 import { HeartButton } from "./common/HeartButton";
-import { ref, push, get, set, onValue } from "firebase/database";
+import { ref, push, get, set } from "firebase/database";
 import { httpsCallable } from "firebase/functions";
 import { isoToTime, isoToLocal } from "../utils/eventFormUtils";
 import { database, functions } from "../config/firebase";
@@ -389,12 +389,9 @@ export function Modal({
 
     recordViewFn({ eventId: data.id }).catch(() => {});
 
-    const viewsRef = ref(database, `data_v2/${data.id}/views`);
-    const unsubscribe = onValue(viewsRef, (snap) => {
-      setViewCount(snap.val() ?? 0);
-    });
-
-    return () => unsubscribe();
+    get(ref(database, `data_v2/${data.id}/views`))
+      .then((snap) => setViewCount(snap.val() ?? 0))
+      .catch(() => {});
   }, [isOpen, data?.id]);
 
   useEffect(() => {

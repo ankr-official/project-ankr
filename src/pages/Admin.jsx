@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ref, remove, update, set } from "firebase/database";
+import { ref, remove, update, set, get } from "firebase/database";
 import { toast } from "react-toastify";
 import { database } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
@@ -19,9 +19,6 @@ export default function Admin() {
   const navigate = useNavigate();
   const { role, user, signOut, loading: authLoading } = useAuth();
   const { data: events, loading: dataLoading } = useRealtimeData("data_v2");
-  const { data: reports, loading: reportsLoading } = useRealtimeData("reports");
-  const { data: editRequests, loading: editRequestsLoading } =
-    useRealtimeData("editRequests");
 
   // ── 모든 훅은 조건부 return 전에 선언 ──
   const [section, setSection] = useState("events");
@@ -32,6 +29,18 @@ export default function Admin() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [approvingReportId, setApprovingReportId] = useState(null);
+  const [reportsCount, setReportsCount] = useState(0);
+  const [editRequestsCount, setEditRequestsCount] = useState(0);
+
+  // 초기 카운트를 get()으로 한 번만 조회 (탭 뱃지 표시용)
+  useEffect(() => {
+    get(ref(database, "reports")).then((snap) => {
+      setReportsCount(snap.exists() ? Object.keys(snap.val()).length : 0);
+    }).catch(() => {});
+    get(ref(database, "editRequests")).then((snap) => {
+      setEditRequestsCount(snap.exists() ? Object.keys(snap.val()).length : 0);
+    }).catch(() => {});
+  }, []);
 
   const now = new Date();
 
@@ -75,10 +84,10 @@ export default function Admin() {
   }, [events, tab, search]);
 
   useEffect(() => {
-    if (tab === "reports" && reports.length === 0) setTab("upcoming");
-    if (tab === "editRequests" && editRequests.length === 0) setTab("upcoming");
+    if (tab === "reports" && reportsCount === 0) setTab("upcoming");
+    if (tab === "editRequests" && editRequestsCount === 0) setTab("upcoming");
     if (tab === "unconfirmed" && stats.unconfirmed === 0) setTab("upcoming");
-  }, [tab, reports.length, editRequests.length, stats.unconfirmed]);
+  }, [tab, reportsCount, editRequestsCount, stats.unconfirmed]);
 
   // ── 훅 선언 완료 후 조건부 early return ──
   if (authLoading) {
@@ -172,61 +181,17 @@ export default function Admin() {
     setEditingEvent({ ...data, confirm: false });
   };
 
-  const handleRejectReport = async (report) => {
-    try {
-      await remove(ref(database, `reports/${report.id}`));
-      toast.success("제보가 거절되었습니다.");
-    } catch {
-      toast.error("거절 중 오류가 발생했습니다.");
-    }
-  };
-
-  const handleApproveEditRequest = async (request) => {
-    try {
-      if (request.deleteRequest) {
-        await remove(ref(database, `data_v2/${request.eventId}`));
-        await remove(ref(database, `editRequests/${request.id}`));
-        toast.success("삭제 요청이 승인되어 이벤트가 삭제되었습니다.");
-      } else {
-        const {
-          id,
-          eventId,
-          eventName,
-          reason,
-          submittedAt,
-          submittedBy,
-          _snap,
-          ...data
-        } = request;
-        await update(ref(database, `data_v2/${eventId}`), data);
-        await remove(ref(database, `editRequests/${id}`));
-        toast.success("요청이 승인되어 이벤트 정보가 업데이트되었습니다.");
-      }
-    } catch {
-      toast.error("승인 중 오류가 발생했습니다.");
-    }
-  };
-
-  const handleRejectEditRequest = async (request) => {
-    try {
-      await remove(ref(database, `editRequests/${request.id}`));
-      toast.success("요청이 거절되었습니다.");
-    } catch {
-      toast.error("거절 중 오류가 발생했습니다.");
-    }
-  };
-
   const tabs = [
     { key: "all", label: "전체", count: stats.total },
-    reports.length > 0 && {
+    reportsCount > 0 && {
       key: "reports",
       label: "제보",
-      count: reports.length,
+      count: reportsCount,
     },
-    editRequests.length > 0 && {
+    editRequestsCount > 0 && {
       key: "editRequests",
       label: "수정요청",
-      count: editRequests.length,
+      count: editRequestsCount,
     },
     stats.unconfirmed > 0 && {
       key: "unconfirmed",
@@ -371,18 +336,13 @@ export default function Admin() {
             {/* Content */}
             {tab === "reports" ? (
               <AdminReportsTab
-                reports={reports}
-                reportsLoading={reportsLoading}
                 onApprove={handleApproveReport}
-                onReject={handleRejectReport}
+                onCountChange={setReportsCount}
               />
             ) : tab === "editRequests" ? (
               <AdminEditRequestsTab
-                editRequests={editRequests}
-                editRequestsLoading={editRequestsLoading}
                 events={events}
-                onApprove={handleApproveEditRequest}
-                onReject={handleRejectEditRequest}
+                onCountChange={setEditRequestsCount}
               />
             ) : (
               <AdminEventsTab
