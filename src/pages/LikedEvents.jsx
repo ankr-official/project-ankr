@@ -7,6 +7,8 @@ import {
   CheckCircleIcon,
   PlusIcon,
   TicketIcon,
+  ChevronRightIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as CheckCircleSolid } from "@heroicons/react/24/solid";
 import { database } from "../config/firebase";
@@ -260,72 +262,208 @@ export default function LikedEvents() {
             <div className="text-center py-16 text-gray-400 dark:text-gray-600 text-sm">
               불러오는 중...
             </div>
-          ) : (activeTab === "attended"
-              ? filteredAttendedEvents
-              : getEventsForTab("liked")
-            ).length === 0 ? (
-            <div className="text-center py-16 text-gray-400 dark:text-gray-600 text-sm">
-              {activeTab === "liked"
-                ? "관심 행사로 등록한 행사가 없습니다."
-                : "다녀온 행사로 등록한 행사가 없습니다."}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {(activeTab === "attended"
-                ? filteredAttendedEvents
-                : getEventsForTab("liked")
-              ).map((event) => (
-                <div key={event.id} className="relative">
-                  <EventCard
-                    event={event}
-                    onEventSelect={(e) => navigate(`/event/${e.id}`)}
-                    showHeart={activeTab !== "attended"}
-                  />
-                  {activeTab === "attended" && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        reclassifyToLiked(event.id);
-                      }}
-                      className="absolute top-2 right-2 z-20 group p-0"
-                      aria-label="관심 행사로 이동"
-                    >
-                      <CheckCircleSolid className="w-6 h-6 text-indigo-500 lg:group-hover:scale-110 transition-transform" />
-                    </button>
-                  )}
-                  {activeTab === "liked" &&
-                    isPast(event.schedule) &&
-                    (dismissed.has(event.id) ? (
+          ) : activeTab === "attended" ? (
+            filteredAttendedEvents.length === 0 ? (
+              <div className="text-center py-16 text-gray-400 dark:text-gray-600 text-sm">
+                다녀온 행사로 등록한 행사가 없습니다.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredAttendedEvents.map((event) => (
+                  <div key={event.id}>
+                    <div className="relative">
+                      <EventCard
+                        event={event}
+                        onEventSelect={() => {}}
+                        showHeart={false}
+                        className="p-4 bg-gray-100 dark:bg-gray-800 rounded-t-lg sm:rounded-lg shadow transition-colors"
+                      />
+                      {/* 자세히 보기 - 데스크탑 absolute */}
                       <button
-                        onClick={() => reclassify(event.id)}
-                        className="absolute bottom-2 right-2 flex items-center gap-1 text-xs text-indigo-500 dark:text-indigo-400 active:text-indigo-700 mouse:hover:text-indigo-700 dark:active:text-indigo-200 dark:mouse:hover:text-indigo-200 transition-colors"
+                        onClick={() => navigate(`/event/${event.id}`)}
+                        className="hidden sm:flex absolute bottom-2 right-2 z-10 items-center gap-0.5 text-xs text-indigo-500 dark:text-indigo-400 active:text-indigo-700 mouse:hover:text-indigo-700 dark:active:text-indigo-200 dark:mouse:hover:text-indigo-200 transition-colors"
                       >
-                        다녀온 행사로 이동
+                        자세히 보기
+                        <ChevronRightIcon className="w-3.5 h-3.5" />
                       </button>
-                    ) : (
-                      <div className="flex items-center justify-between px-4 py-2.5 mt-0.5 rounded-b-lg bg-gray-50 dark:bg-gray-800/60 border border-t-0 border-gray-200 dark:border-gray-700">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          이미 지난 행사예요. 다녀오셨나요?
-                        </span>
-                        <div className="flex items-center gap-3 shrink-0">
+                      <button
+                        onClick={() => reclassifyToLiked(event.id)}
+                        className="absolute top-2 right-2 z-20 group p-0"
+                        aria-label="관심 행사로 이동"
+                      >
+                        <CheckCircleSolid className="w-6 h-6 text-indigo-500 lg:group-hover:scale-110 transition-transform" />
+                      </button>
+                    </div>
+                    {/* 자세히 보기 - 모바일 행 */}
+                    <div className="flex sm:hidden justify-end items-center px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-b-lg">
+                      <button
+                        onClick={() => navigate(`/event/${event.id}`)}
+                        className="flex items-center gap-0.5 text-xs text-indigo-500 dark:text-indigo-400 active:text-indigo-700 mouse:hover:text-indigo-700 dark:active:text-indigo-200 dark:mouse:hover:text-indigo-200 transition-colors"
+                      >
+                        자세히 보기
+                        <ChevronRightIcon className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          ) : (
+            (() => {
+              const likedEvents = getEventsForTab("liked");
+              const upcomingLiked = likedEvents.filter(
+                (e) => !isPast(e.schedule),
+              );
+              const pastLiked = likedEvents.filter((e) => isPast(e.schedule));
+
+              if (likedEvents.length === 0) {
+                return (
+                  <div className="text-center py-16 text-gray-400 dark:text-gray-600 text-sm">
+                    관심 행사로 등록한 행사가 없습니다.
+                  </div>
+                );
+              }
+
+              const renderLikedCard = (event) => {
+                const hasBanner =
+                  isPast(event.schedule) && !dismissed.has(event.id);
+                const hasDismissed =
+                  isPast(event.schedule) && dismissed.has(event.id);
+                return (
+                  <div key={event.id}>
+                    <div className="relative">
+                      <EventCard
+                        event={event}
+                        onEventSelect={() => {}}
+                        showHeart
+                        className={`p-4 bg-gray-100 dark:bg-gray-800 shadow transition-colors ${
+                          hasBanner
+                            ? "rounded-t-lg"
+                            : "rounded-t-lg sm:rounded-lg"
+                        }`}
+                      />
+                      {/* 자세히 보기 - 데스크탑 absolute */}
+                      <button
+                        onClick={() => navigate(`/event/${event.id}`)}
+                        className="hidden sm:flex absolute bottom-2 right-2 z-10 items-center gap-0.5 text-xs text-indigo-500 dark:text-indigo-400 active:text-indigo-700 mouse:hover:text-indigo-700 dark:active:text-indigo-200 dark:mouse:hover:text-indigo-200 transition-colors"
+                      >
+                        자세히 보기
+                        <ChevronRightIcon className="w-3.5 h-3.5" />
+                      </button>
+                      {hasDismissed && (
+                        <button
+                          onClick={() => {
+                            setDismissed((prev) => {
+                              const next = new Set(prev);
+                              next.delete(event.id);
+                              localStorage.setItem(
+                                `dismissedBanners`,
+                                JSON.stringify([...next]),
+                              );
+                              return next;
+                            });
+                          }}
+                          className="absolute -bottom-12 sm:bottom-2 left-1/2 -translate-x-1/2 z-10 text-gray-400 dark:text-gray-600 active:text-gray-600 mouse:hover:text-gray-600 dark:active:text-gray-400 dark:mouse:hover:text-gray-400 transition-colors"
+                          aria-label="알림 다시 보기"
+                        >
+                          <ChevronDownIcon className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                    {/* 자세히 보기 - 모바일 행 (배너 없을 때) */}
+                    {!hasBanner && (
+                      <div className="flex sm:hidden justify-end items-center px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-b-lg">
+                        <button
+                          onClick={() => navigate(`/event/${event.id}`)}
+                          className="flex items-center gap-0.5 text-xs text-indigo-500 dark:text-indigo-400 active:text-indigo-700 mouse:hover:text-indigo-700 dark:active:text-indigo-200 dark:mouse:hover:text-indigo-200 transition-colors"
+                        >
+                          자세히 보기
+                          <ChevronRightIcon className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
+                    {hasBanner && (
+                      <div className="rounded-b-lg bg-gray-50 dark:bg-gray-800/60">
+                        {/* 모바일: 자세히 보기 행 */}
+                        <div className="flex sm:hidden justify-end items-center px-4 pt-2">
                           <button
-                            onClick={() => dismiss(event.id)}
-                            className="text-xs text-gray-400 dark:text-indigo-500 active:text-indigo-800 mouse:hover:text-indigo-800 dark:active:text-gray-400 dark:mouse:hover:text-gray-400 transition-colors"
+                            onClick={() => navigate(`/event/${event.id}`)}
+                            className="flex items-center gap-0.5 text-xs text-indigo-500 dark:text-indigo-400 active:text-indigo-700 mouse:hover:text-indigo-700 dark:active:text-indigo-200 dark:mouse:hover:text-indigo-200 transition-colors"
                           >
-                            알림 숨기기
-                          </button>
-                          <button
-                            onClick={() => reclassify(event.id)}
-                            className="text-xs font-medium text-indigo-600 dark:text-indigo-400 active:text-indigo-800 mouse:hover:text-indigo-800 dark:active:text-indigo-200 dark:mouse:hover:text-indigo-200 underline underline-offset-2 transition-colors"
-                          >
-                            다녀온 행사로 이동
+                            자세히 보기
+                            <ChevronRightIcon className="w-3.5 h-3.5" />
                           </button>
                         </div>
+                        <div className="flex items-center justify-between px-4 py-2.5">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            이미 지난 행사예요. 다녀오셨나요?
+                          </span>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <button
+                              onClick={() => dismiss(event.id)}
+                              className="text-xs text-gray-400 dark:text-indigo-500 active:text-indigo-800 mouse:hover:text-indigo-800 dark:active:text-gray-400 dark:mouse:hover:text-gray-400 transition-colors"
+                            >
+                              알림 숨기기
+                            </button>
+                            <button
+                              onClick={() => reclassify(event.id)}
+                              className="text-xs font-medium text-indigo-600 dark:text-indigo-400 active:text-indigo-800 mouse:hover:text-indigo-800 dark:active:text-indigo-200 dark:mouse:hover:text-indigo-200 underline underline-offset-2 transition-colors"
+                            >
+                              다녀온 행사로 이동
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    ))}
+                    )}
+                  </div>
+                );
+              };
+
+              return (
+                <div className="space-y-6">
+                  {upcomingLiked.length > 0 && (
+                    <div>
+                      <p className="text-left text-xs font-medium text-gray-500 dark:text-gray-400 my-4 mb-2 px-2">
+                        다가오는 행사
+                      </p>
+                      <div className="space-y-3">
+                        {upcomingLiked.map(renderLikedCard)}
+                      </div>
+                    </div>
+                  )}
+                  {pastLiked.length > 0 && (
+                    <div>
+                      <div className="flex items-center justify-between my-4 mb-2 px-2">
+                        <p className="text-left text-xs font-medium text-gray-500 dark:text-gray-400">
+                          지난 행사
+                        </p>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() =>
+                              pastLiked.forEach((e) => dismiss(e.id))
+                            }
+                            className="text-xs text-gray-400 dark:text-gray-500 active:text-gray-600 mouse:hover:text-gray-600 dark:active:text-gray-300 dark:mouse:hover:text-gray-300 transition-colors"
+                          >
+                            모든 알림 숨기기
+                          </button>
+                          {/* <button
+                            onClick={() =>
+                              pastLiked.forEach((e) => reclassify(e.id))
+                            }
+                            className="text-xs text-indigo-500 dark:text-indigo-400 active:text-indigo-700 mouse:hover:text-indigo-700 dark:active:text-indigo-200 dark:mouse:hover:text-indigo-200 transition-colors"
+                          >
+                            모두 다녀온 행사로 이동
+                          </button> */}
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        {pastLiked.map(renderLikedCard)}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              ))}
-            </div>
+              );
+            })()
           )}
         </div>
       </div>
