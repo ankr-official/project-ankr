@@ -5,11 +5,13 @@ import { database } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
 import { deleteSelf } from "../utils/adminApi";
+import { useScrollLock } from "../hooks/useScrollLock";
 
 export default function SettingsModal({ onClose }) {
   const { user, signOut } = useAuth();
   const [confirm, setConfirm] = useState(null); // null | "likes" | "withdraw"
   const [loading, setLoading] = useState(false);
+  useScrollLock(true);
 
   useEffect(() => {
     const handleEsc = (e) => {
@@ -47,7 +49,7 @@ export default function SettingsModal({ onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-500/50 dark:bg-gray-500/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
       onClick={onClose}
     >
       <div

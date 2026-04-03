@@ -494,11 +494,7 @@ export function Modal({
             exit={{ opacity: 0 }}
             className={`fixed inset-0 z-50 flex ${
               isMobile ? "items-end" : "items-center"
-            } justify-center ${
-              isMobile
-                ? "bg-black dark:bg-black bg-opacity-50 dark:bg-opacity-30"
-                : "bg-gray-500 dark:bg-gray-500 bg-opacity-50 dark:bg-opacity-50"
-            }`}
+            } justify-center bg-black/50 backdrop-blur-sm`}
             onClick={onClose}
           >
             <motion.div

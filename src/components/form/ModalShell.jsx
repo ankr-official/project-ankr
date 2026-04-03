@@ -1,9 +1,12 @@
+import { useScrollLock } from "../../hooks/useScrollLock";
+
 export function ModalShell({
     onClose,
     zIndex = 50,
     maxHeight = "calc(100dvh - 8rem)",
     children,
 }) {
+    useScrollLock(true);
     return (
         <div
             style={{ zIndex }}

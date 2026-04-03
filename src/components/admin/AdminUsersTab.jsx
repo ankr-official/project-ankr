@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import * as adminApi from "../../utils/adminApi";
+import { useScrollLock } from "../../hooks/useScrollLock";
 import TabBar from "./TabBar";
 
 function SortHeader({ label, sortKey, sort, onSort }) {
@@ -63,6 +64,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
   const [reasonModal, setReasonModal] = useState(null); // { email, reason }
   const [sort, setSort] = useState({ key: "createdAt", dir: "desc" });
   const [tab, setTab] = useState("all");
+  useScrollLock(!!(reasonModal || suspendTarget || deleteTarget));
 
   const handleSort = (key) => {
     setSort((prev) =>

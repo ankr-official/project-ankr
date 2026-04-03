@@ -9,6 +9,7 @@ import {
 import { database } from "../config/firebase";
 import { formatDate, sortByDateTime } from "../utils/dateUtils";
 import { GenreTag } from "./common/GenreTag";
+import { useScrollLock } from "../hooks/useScrollLock";
 
 const QUARTERS = [
   { key: "all", label: "전체" },
@@ -27,6 +28,7 @@ const getQuarter = (dateStr) => {
 };
 
 export function AttendedPicker({ user, allEvents, likes, onClose }) {
+  useScrollLock(true);
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -100,7 +102,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
       onClick={onClose}
     >
       <div

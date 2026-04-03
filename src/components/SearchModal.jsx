@@ -106,7 +106,7 @@ export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-start overflow-hidden bg-black dark:bg-black bg-opacity-50 dark:bg-opacity-50 sm:justify-center sm:pt-16 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-start justify-start overflow-hidden bg-black/50 backdrop-blur-sm sm:justify-center sm:pt-16">
       <div
         ref={modalRef}
         className="w-full  sm:max-w-3xl h-full sm:h-auto sm:max-h-[85vh] bg-gray-100 dark:bg-gray-800 sm:rounded-lg shadow-xl sm:mx-4 sm:mt-16 flex flex-col transition-colors"

@@ -2,6 +2,7 @@ import { useState } from "react";
 import * as htmlToImage from "html-to-image";
 import { XMarkIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { YearEndReceiptView } from "./receipt/YearEndReceiptView";
+import { useScrollLock } from "../hooks/useScrollLock";
 
 export function AttendedReceiptModal({
   events,
@@ -11,6 +12,7 @@ export function AttendedReceiptModal({
 }) {
   const [userName, setUserName] = useState("");
   const [isExporting, setIsExporting] = useState(false);
+  useScrollLock(true);
 
   const processedEvents = events.map((e) => ({
     ...e,
@@ -87,7 +89,7 @@ export function AttendedReceiptModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 overflow-y-auto py-8 px-4"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm overflow-y-auto py-8 px-4"
       onClick={onClose}
     >
       <div className="w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>

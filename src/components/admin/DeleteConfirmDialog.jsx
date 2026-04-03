@@ -1,4 +1,7 @@
+import { useScrollLock } from "../../hooks/useScrollLock";
+
 export default function DeleteConfirmDialog({ target, isDeleting, onConfirm, onCancel }) {
+  useScrollLock(!!target);
   if (!target) return null;
 
   return (
