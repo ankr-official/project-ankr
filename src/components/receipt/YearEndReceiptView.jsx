@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 
 const QUARTER_LABELS = { Q1: "1분기", Q2: "2분기", Q3: "3분기", Q4: "4분기" };
+
+const RECEIPT_WIDTH = 600;
 
 export function YearEndReceiptView({
   year,
@@ -21,6 +24,34 @@ export function YearEndReceiptView({
     }),
   );
 
+  const containerRef = useRef(null);
+  const receiptRef = useRef(null);
+  const [scale, setScale] = useState(1);
+  const [receiptHeight, setReceiptHeight] = useState(0);
+  const [hiddenIds, setHiddenIds] = useState(new Set());
+
+  const toggleHidden = (id) => {
+    setHiddenIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  useLayoutEffect(() => {
+    const update = () => {
+      if (!containerRef.current || !receiptRef.current) return;
+      const available = containerRef.current.offsetWidth;
+      setScale(Math.min(1, available / RECEIPT_WIDTH));
+      setReceiptHeight(receiptRef.current.offsetHeight);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    if (containerRef.current) ro.observe(containerRef.current);
+    if (receiptRef.current) ro.observe(receiptRef.current);
+    return () => ro.disconnect();
+  }, []);
+
   useEffect(() => {
     const intervalId = setInterval(() => {
       setPrintedDateStr(
@@ -39,13 +70,22 @@ export function YearEndReceiptView({
   }, []);
 
   return (
-    <div className="flex justify-center">
+    <div
+      ref={containerRef}
+      className="w-full max-w-[600px] mx-auto overflow-hidden"
+      style={{
+        height: receiptHeight > 0 ? receiptHeight * scale : undefined,
+      }}
+    >
       <div
+        ref={receiptRef}
         id="year-end-receipt-target"
-        className="w-full min-w-[600px] max-w-[600px] bg-[radial-gradient(circle_at_top,_#f7f4e8_0,_#e5dcc7_50%,_#d2c6aa_100%)] scale-75 -translate-y-24 sm:-translate-y-0 sm:scale-100 text-black px-4 py-4 sm:px-6 sm:py-6 shadow-2xl border border-gray-400"
+        className="min-w-[600px] max-w-[600px] bg-[radial-gradient(circle_at_top,_#f7f4e8_0,_#e5dcc7_50%,_#d2c6aa_100%)] text-black px-4 py-4 sm:px-6 sm:py-6 shadow-2xl border border-gray-400"
         style={{
           fontFamily:
             '"DM Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
         }}
       >
         {/* Title */}
@@ -127,22 +167,40 @@ export function YearEndReceiptView({
               참여한 이벤트를 선택하면 이곳에 영수증이 생성됩니다.
             </div>
           ) : (
-            events.map((event) => (
-              <div
-                key={event.id}
-                className="flex justify-between items-center w-full text-left"
-              >
-                <span className="w-1/5 text-center">
-                  {event.scheduleDate?.toLocaleDateString("ko-KR", {
-                    year: "2-digit",
-                    month: "2-digit",
-                    day: "2-digit",
-                  }) || event.schedule}
-                </span>
-                <span className="px-2 w-3/5 truncate">{event.event_name}</span>
-                <span className="px-2 w-1/5 truncate">{event.location}</span>
-              </div>
-            ))
+            events.map((event) => {
+              const isHidden = hiddenIds.has(event.id);
+              return (
+                <motion.button
+                  key={event.id}
+                  type="button"
+                  title={isHidden ? "클릭하여 다시 표시" : "클릭하여 숨기기"}
+                  onClick={() => toggleHidden(event.id)}
+                  data-receipt-hidden={isHidden ? "true" : undefined}
+                  animate={{ opacity: isHidden ? 0.3 : 1 }}
+                  whileHover={{ opacity: isHidden ? 0.45 : 0.65 }}
+                  transition={{ duration: 0.2 }}
+                  className="relative p-0 w-full flex justify-between items-center text-left cursor-pointer"
+                >
+                  <span className="w-1/5 text-center">
+                    {event.scheduleDate?.toLocaleDateString("ko-KR", {
+                      year: "2-digit",
+                      month: "2-digit",
+                      day: "2-digit",
+                    }) || event.schedule}
+                  </span>
+                  <span className="px-2 w-3/5 truncate">{event.event_name}</span>
+                  <span className="px-2 w-1/5 truncate">{event.location}</span>
+                  <motion.span
+                    aria-hidden
+                    className="absolute top-1/2 left-0 h-px w-full bg-current pointer-events-none"
+                    initial={false}
+                    animate={{ scaleX: isHidden ? 1 : 0 }}
+                    style={{ transformOrigin: "left" }}
+                    transition={{ duration: 0.2 }}
+                  />
+                </motion.button>
+              );
+            })
           )}
         </div>
 
@@ -152,7 +210,12 @@ export function YearEndReceiptView({
         {/* Summary */}
         <div className="flex justify-between mb-2 text-xs">
           <span>TOTAL EVENTS</span>
-          <span>{events.length}</span>
+          <span>
+            {events.length - hiddenIds.size}
+            {hiddenIds.size > 0 && (
+              <span data-receipt-hidden-count> / {events.length}</span>
+            )}
+          </span>
         </div>
 
         <div className="my-4 border-t border-gray-500 border-dashed" />

@@ -200,7 +200,7 @@ export default function LikedEvents() {
                     className="flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors w-full sm:w-fit justify-center"
                   >
                     <TicketIcon className="w-4 h-4" />
-                    영수증 발급 (Beta)
+                    영수증 발급
                   </button>
                 )}
                 <button

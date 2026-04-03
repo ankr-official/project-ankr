@@ -10,6 +10,7 @@ export function AttendedReceiptModal({
   onClose,
 }) {
   const [userName, setUserName] = useState("");
+  const [isExporting, setIsExporting] = useState(false);
 
   const processedEvents = events.map((e) => ({
     ...e,
@@ -27,9 +28,33 @@ export function AttendedReceiptModal({
     if (!node) return;
     const originalTransform = node.style.transform;
     const originalTransformOrigin = node.style.transformOrigin;
+    const hiddenRows = node.querySelectorAll('[data-receipt-hidden="true"]');
+    const hiddenCount = node.querySelector("[data-receipt-hidden-count]");
+    const select = node.querySelector("select");
+    const input = node.querySelector("input[name='receipt-user-name']");
+    let selectPlaceholder = null;
+    let inputPlaceholder = null;
+    setIsExporting(true);
+    await new Promise((r) => setTimeout(r, 600));
     try {
       node.style.transform = "scale(1)";
       node.style.transformOrigin = "top left";
+      hiddenRows.forEach((el) => (el.style.display = "none"));
+      if (hiddenCount) hiddenCount.style.display = "none";
+      if (select) {
+        selectPlaceholder = document.createElement("span");
+        selectPlaceholder.textContent = select.value;
+        selectPlaceholder.style.cssText = `font-size:11px; padding-right:16px;`;
+        select.parentNode.insertBefore(selectPlaceholder, select);
+        select.style.display = "none";
+      }
+      if (input) {
+        inputPlaceholder = document.createElement("span");
+        inputPlaceholder.textContent = input.value;
+        inputPlaceholder.style.cssText = `display:inline-block; width:${input.offsetWidth}px; font-size:11px; border-bottom:1px solid #6b7280; padding:0 2px 1px; text-align:left;`;
+        input.parentNode.insertBefore(inputPlaceholder, input);
+        input.style.display = "none";
+      }
       const dataUrl = await htmlToImage.toPng(node, {
         cacheBust: true,
         quality: 1,
@@ -48,6 +73,13 @@ export function AttendedReceiptModal({
     } finally {
       node.style.transform = originalTransform;
       node.style.transformOrigin = originalTransformOrigin;
+      hiddenRows.forEach((el) => (el.style.display = ""));
+      if (hiddenCount) hiddenCount.style.display = "";
+      if (select) select.style.display = "";
+      selectPlaceholder?.remove();
+      if (input) input.style.display = "";
+      inputPlaceholder?.remove();
+      setIsExporting(false);
     }
   };
 
@@ -64,11 +96,11 @@ export function AttendedReceiptModal({
           <div className="flex items-center justify-between w-full shrink-0">
             <button
               onClick={handleDownload}
-              disabled={!canDownload}
+              disabled={!canDownload || isExporting}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <ArrowDownTrayIcon className="w-4 h-4" />
-              이미지 저장
+              {isExporting ? "저장 중..." : "이미지 저장"}
             </button>
             <div className="flex-1 text-right">
               {processedEvents.length === 0 ? (
@@ -88,13 +120,21 @@ export function AttendedReceiptModal({
           </div>
         </div>
 
-        <YearEndReceiptView
-          year={resolvedYear}
-          quarter={quarter}
-          events={processedEvents}
-          userName={userName}
-          onUserNameChange={setUserName}
-        />
+        <div className="relative">
+          {isExporting && (
+            <div className="absolute inset-0 z-10 rounded bg-black/80 flex flex-col items-center justify-center gap-3">
+              <div className="w-12 h-12 rounded-full border-b-2 border-indigo-700 animate-spin" />
+              <span className="text-white text-sm">저장 중...</span>
+            </div>
+          )}
+          <YearEndReceiptView
+            year={resolvedYear}
+            quarter={quarter}
+            events={processedEvents}
+            userName={userName}
+            onUserNameChange={setUserName}
+          />
+        </div>
       </div>
     </div>
   );
