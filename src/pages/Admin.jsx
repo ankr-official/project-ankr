@@ -111,7 +111,7 @@ export default function Admin() {
           </p>
           <Link
             to="/"
-            className="inline-block px-5 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors"
+            className="inline-block px-5 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium active:bg-indigo-700 mouse:hover:bg-indigo-700 transition-colors"
           >
             홈으로 돌아가기
           </Link>
@@ -214,7 +214,7 @@ export default function Admin() {
             className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               section === "events"
                 ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                : "text-gray-600 dark:text-gray-400 active:text-gray-800 mouse:hover:text-gray-800 dark:active:text-gray-200 dark:mouse:hover:text-gray-200"
             }`}
           >
             <svg
@@ -237,7 +237,7 @@ export default function Admin() {
             className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               section === "users"
                 ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                : "text-gray-600 dark:text-gray-400 active:text-gray-800 mouse:hover:text-gray-800 dark:active:text-gray-200 dark:mouse:hover:text-gray-200"
             }`}
           >
             <svg
@@ -292,7 +292,7 @@ export default function Admin() {
                 {search && (
                   <button
                     onClick={() => setSearch("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 active:text-gray-600 mouse:hover:text-gray-600 dark:active:text-gray-200 dark:mouse:hover:text-gray-200"
                   >
                     <svg
                       className="w-4 h-4"

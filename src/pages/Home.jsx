@@ -239,7 +239,7 @@ function Home() {
                   {visiblePastEvents < pastEvents.length && (
                     <button
                       onClick={loadMorePastEvents}
-                      className="px-4 py-2 mt-4 w-full text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-900 rounded border border-gray-300 dark:border-gray-700 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
+                      className="px-4 py-2 mt-4 w-full text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-900 rounded border border-gray-300 dark:border-gray-700 active:bg-gray-300 mouse:hover:bg-gray-300 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors"
                     >
                       더보기
                     </button>

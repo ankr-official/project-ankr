@@ -9,7 +9,7 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="inline-flex items-center gap-2 rounded-full px-3 py-2 bg-transparent lg:hover:bg-black/5 lg:dark:hover:bg-white/5 transition-colors focus:outline-none"
+      className="inline-flex items-center gap-2 rounded-full px-3 py-2 bg-transparent active:bg-black/5 mouse:hover:bg-black/5 dark:active:bg-white/5 dark:mouse:hover:bg-white/5 transition-colors focus:outline-none"
       aria-label="Toggle theme"
       title={isDark ? "라이트 모드로 전환" : "다크 모드로 전환"}
       type="button"

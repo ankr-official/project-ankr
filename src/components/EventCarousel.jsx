@@ -111,7 +111,7 @@ export function EventCarousel({ events, onEventClick }) {
           e.stopPropagation();
           prevSlide();
         }}
-        className="absolute left-4 top-1/2 z-20 p-2 text-gray-900 dark:text-white bg-transparent rounded-full transform -translate-y-1/2 focus:outline-none active:bg-gray-300 dark:active:bg-gray-700 lg:hover:bg-gray-300 dark:lg:hover:bg-gray-700 transition-colors"
+        className="absolute left-4 top-1/2 z-20 p-2 text-gray-900 dark:text-white bg-transparent rounded-full transform -translate-y-1/2 focus:outline-none active:bg-gray-300 dark:active:bg-gray-700 mouse:hover:bg-gray-300 dark:mouse:hover:bg-gray-700 transition-colors"
       >
         <ChevronLeftIcon className="w-6 h-6" />
       </button>
@@ -120,7 +120,7 @@ export function EventCarousel({ events, onEventClick }) {
           e.stopPropagation();
           nextSlide();
         }}
-        className="absolute right-4 top-1/2 z-20 p-2 text-gray-900 dark:text-white bg-transparent rounded-full transform -translate-y-1/2 focus:outline-none active:bg-gray-300 dark:active:bg-gray-700 lg:hover:bg-gray-300 dark:lg:hover:bg-gray-700 transition-colors"
+        className="absolute right-4 top-1/2 z-20 p-2 text-gray-900 dark:text-white bg-transparent rounded-full transform -translate-y-1/2 focus:outline-none active:bg-gray-300 dark:active:bg-gray-700 mouse:hover:bg-gray-300 dark:mouse:hover:bg-gray-700 transition-colors"
       >
         <ChevronRightIcon className="w-6 h-6" />
       </button>

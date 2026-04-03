@@ -52,7 +52,7 @@ export default function PrivacyPolicy() {
         <div className="mb-10">
           <Link
             to="/"
-            className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline mb-6 inline-block"
+            className="text-sm text-indigo-600 dark:text-indigo-400 active:underline mouse:hover:underline mb-6 inline-block"
           >
             ← 홈으로
           </Link>
@@ -271,7 +271,7 @@ export default function PrivacyPolicy() {
               href="https://policies.google.com/privacy"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-indigo-600 dark:text-indigo-400 hover:underline"
+              className="text-indigo-600 dark:text-indigo-400 active:underline mouse:hover:underline"
             >
               Google 개인정보처리방침
             </a>
@@ -300,7 +300,7 @@ export default function PrivacyPolicy() {
             </span>
             <a
               href="mailto:ankr.web.official@gmail.com"
-              className="text-indigo-600 dark:text-indigo-400 hover:underline"
+              className="text-indigo-600 dark:text-indigo-400 active:underline mouse:hover:underline"
             >
               ankr.web.official@gmail.com
             </a>

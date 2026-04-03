@@ -37,7 +37,7 @@ export default function UserMenuDropdown({ onClose, onSettings }) {
       {(role === "admin" || role === "owner") && (
         <button
           onClick={handleAdmin}
-          className="flex items-center gap-2 w-full px-4 py-3 text-sm rounded-none text-indigo-600 dark:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          className="flex items-center gap-2 w-full px-4 py-3 text-sm rounded-none text-indigo-600 dark:text-indigo-400 active:bg-gray-50 mouse:hover:bg-gray-50 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800 transition-colors"
         >
           <ShieldCheckIcon className="w-4 h-4" />
           관리자
@@ -45,14 +45,14 @@ export default function UserMenuDropdown({ onClose, onSettings }) {
       )}
       <button
         onClick={handleLiked}
-        className="flex items-center gap-2 w-full px-4 py-3 text-sm rounded-none text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        className="flex items-center gap-2 w-full px-4 py-3 text-sm rounded-none text-gray-700 dark:text-gray-300 active:bg-gray-50 mouse:hover:bg-gray-50 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800 transition-colors"
       >
         <HeartIcon className="w-4 h-4" />
         관심 행사
       </button>
       <button
         onClick={handleSettings}
-        className="flex items-center gap-2 w-full px-4 py-3 text-sm rounded-none text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        className="flex items-center gap-2 w-full px-4 py-3 text-sm rounded-none text-gray-700 dark:text-gray-300 active:bg-gray-50 mouse:hover:bg-gray-50 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800 transition-colors"
       >
         <Cog6ToothIcon className="w-4 h-4" />
         설정
@@ -60,7 +60,7 @@ export default function UserMenuDropdown({ onClose, onSettings }) {
       <div className="border-t border-gray-200/70 dark:border-gray-800" />
       <button
         onClick={handleSignOut}
-        className="flex items-center gap-2 w-full px-4 py-3 text-sm rounded-none text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+        className="flex items-center gap-2 w-full px-4 py-3 text-sm rounded-none text-red-600 dark:text-red-400 active:bg-red-50 mouse:hover:bg-red-50 dark:active:bg-red-950/30 dark:mouse:hover:bg-red-950/30 transition-colors"
       >
         <ArrowRightOnRectangleIcon className="w-4 h-4" />
         로그아웃

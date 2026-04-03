@@ -95,7 +95,7 @@ export default function AdminReportsTab({ onApprove, onCountChange }) {
                 href={report.event_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-indigo-500 dark:text-indigo-400 hover:underline truncate block text-left"
+                className="text-xs text-indigo-500 dark:text-indigo-400 active:underline mouse:hover:underline truncate block text-left"
               >
                 {report.event_url}
               </a>
@@ -114,13 +114,13 @@ export default function AdminReportsTab({ onApprove, onCountChange }) {
             <div className="flex gap-2 pt-1">
               <button
                 onClick={() => onApprove(report)}
-                className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
+                className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-indigo-600 active:bg-indigo-700 mouse:hover:bg-indigo-700 text-white transition-colors"
               >
                 승인
               </button>
               <button
                 onClick={() => handleReject(report)}
-                className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 active:bg-red-50 mouse:hover:bg-red-50 dark:active:bg-red-950/30 dark:mouse:hover:bg-red-950/30 active:text-red-600 mouse:hover:text-red-600 dark:active:text-red-400 dark:mouse:hover:text-red-400 transition-colors"
               >
                 거절
               </button>

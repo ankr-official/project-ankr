@@ -41,7 +41,7 @@ export const Header = ({ onSearchOpen }) => {
     <button
       type="button"
       onClick={handleAuthClick}
-      className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm bg-white/70 dark:bg-white/10 text-gray-900 dark:text-gray-100 border border-gray-300/70 dark:border-gray-700/70 shadow-sm hover:bg-white dark:hover:bg-white/15 transition-colors"
+      className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm bg-white/70 dark:bg-white/10 text-gray-900 dark:text-gray-100 border border-gray-300/70 dark:border-gray-700/70 shadow-sm active:bg-white mouse:hover:bg-white dark:active:bg-white/15 dark:mouse:hover:bg-white/15 transition-colors"
     >
       {isLoggedIn ? (
         <>
@@ -75,7 +75,7 @@ export const Header = ({ onSearchOpen }) => {
         <div className="flex flex-1 justify-between items-center w-full">
           <a
             href="/"
-            className="inline-flex flex-1 gap-2 items-center p-2 text-xl font-bold text-left text-gray-900 transition-opacity text-balance md:text-3xl dark:text-white lg:hover:opacity-50"
+            className="inline-flex flex-1 gap-2 items-center p-2 text-xl font-bold text-left text-gray-900 transition-opacity text-balance md:text-3xl dark:text-white active:opacity-50 mouse:hover:opacity-50"
           >
             <img
               src="/favicon.svg"
@@ -103,7 +103,7 @@ export const Header = ({ onSearchOpen }) => {
 
         <button
           onClick={onSearchOpen}
-          className="group flex flex-1 items-center justify-between w-full lg:w-80 px-4 py-2.5 rounded-lg bg-gray-200/80 dark:bg-gray-800/80 text-sm text-gray-500 dark:text-gray-400 border border-gray-300/70 dark:border-gray-700/70 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700/80 hover:border-indigo-500/70 transition-colors"
+          className="group flex flex-1 items-center justify-between w-full lg:w-80 px-4 py-2.5 rounded-lg bg-gray-200/80 dark:bg-gray-800/80 text-sm text-gray-500 dark:text-gray-400 border border-gray-300/70 dark:border-gray-700/70 shadow-sm active:bg-gray-100 mouse:hover:bg-gray-100 dark:active:bg-gray-700/80 dark:mouse:hover:bg-gray-700/80 active:border-indigo-500/70 mouse:hover:border-indigo-500/70 transition-colors"
           id="search-button"
           title="검색 열기"
         >

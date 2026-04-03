@@ -20,7 +20,7 @@ export const LocationLink = ({ location, onClick }) => {
             href={getNaverMapUrl(location)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block max-w-full px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-300 dark:bg-gray-600 rounded-full truncate lg:hover:text-indigo-600 dark:lg:hover:text-indigo-300 lg:hover:underline transition-colors"
+            className="inline-block max-w-full px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-300 dark:bg-gray-600 rounded-full truncate active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-300 dark:mouse:hover:text-indigo-300 active:underline mouse:hover:underline transition-colors"
             onClick={onClick}
         >
             {location}

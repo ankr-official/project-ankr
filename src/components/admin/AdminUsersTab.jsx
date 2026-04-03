@@ -9,7 +9,7 @@ function SortHeader({ label, sortKey, sort, onSort }) {
   return (
     <button
       onClick={() => onSort(sortKey)}
-      className="flex w-full justify-center items-center gap-1 font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+      className="flex w-full justify-center items-center gap-1 font-semibold text-gray-600 dark:text-gray-400 active:text-gray-900 mouse:hover:text-gray-900 dark:active:text-white dark:mouse:hover:text-white transition-colors"
     >
       {label}
       {active ? (
@@ -293,7 +293,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
               return (
                 <tr
                   key={user.uid}
-                  className="group hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors"
+                  className="group active:bg-gray-50 mouse:hover:bg-gray-50 dark:active:bg-gray-700/40 dark:mouse:hover:bg-gray-700/40 transition-colors"
                 >
                   <td className="px-4 py-3 text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">
                     {formatCreatedAt(user.createdAt)}
@@ -312,7 +312,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                     {user.disabled ? (
                       <button
                         onClick={() => handleShowReason(user)}
-                        className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
+                        className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 active:bg-amber-200 mouse:hover:bg-amber-200 dark:active:bg-amber-900/50 dark:mouse:hover:bg-amber-900/50 transition-colors"
                       >
                         차단
                       </button>
@@ -347,8 +347,8 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                                 onClick={() => handleRoleChange(user)}
                                 className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs whitespace-nowrap transition-colors ${
                                   user.role === "admin"
-                                    ? "text-gray-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30"
-                                    : "text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30"
+                                    ? "text-gray-500 active:text-amber-600 mouse:hover:text-amber-600 dark:active:text-amber-400 dark:mouse:hover:text-amber-400 active:bg-amber-50 mouse:hover:bg-amber-50 dark:active:bg-amber-950/30 dark:mouse:hover:bg-amber-950/30"
+                                    : "text-gray-500 active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 active:bg-indigo-50 mouse:hover:bg-indigo-50 dark:active:bg-indigo-950/30 dark:mouse:hover:bg-indigo-950/30"
                                 }`}
                                 title={
                                   user.role === "admin"
@@ -383,8 +383,8 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                               }
                               className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs whitespace-nowrap transition-colors ${
                                 user.disabled
-                                  ? "text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/30"
-                                  : "text-gray-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                                  ? "text-gray-500 active:text-green-600 mouse:hover:text-green-600 dark:active:text-green-400 dark:mouse:hover:text-green-400 active:bg-green-50 mouse:hover:bg-green-50 dark:active:bg-green-950/30 dark:mouse:hover:bg-green-950/30"
+                                  : "text-gray-500 active:text-amber-600 mouse:hover:text-amber-600 dark:active:text-amber-400 dark:mouse:hover:text-amber-400 active:bg-amber-50 mouse:hover:bg-amber-50 dark:active:bg-amber-950/30 dark:mouse:hover:bg-amber-950/30"
                               }`}
                               title={user.disabled ? "차단 해제" : "계정 차단"}
                             >
@@ -422,7 +422,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                             {/* 삭제 */}
                             <button
                               onClick={() => setDeleteTarget(user)}
-                              className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs whitespace-nowrap text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                              className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs whitespace-nowrap text-gray-500 active:text-red-600 mouse:hover:text-red-600 dark:active:text-red-400 dark:mouse:hover:text-red-400 active:bg-red-50 mouse:hover:bg-red-50 dark:active:bg-red-950/30 dark:mouse:hover:bg-red-950/30 transition-colors"
                               title="계정 삭제"
                             >
                               <svg
@@ -481,7 +481,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                     {user.disabled ? (
                       <button
                         onClick={() => handleShowReason(user)}
-                        className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
+                        className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 active:bg-amber-200 mouse:hover:bg-amber-200 dark:active:bg-amber-900/50 dark:mouse:hover:bg-amber-900/50 transition-colors"
                       >
                         차단
                       </button>
@@ -508,7 +508,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                     <button
                       onClick={() => handleRoleChange(user)}
                       disabled={isActing}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors disabled:opacity-40"
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 active:bg-indigo-50 mouse:hover:bg-indigo-50 dark:active:bg-indigo-950/30 dark:mouse:hover:bg-indigo-950/30 active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors disabled:opacity-40"
                     >
                       <svg
                         className="w-3.5 h-3.5 shrink-0"
@@ -533,7 +533,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                         : setSuspendTarget(user)
                     }
                     disabled={isActing}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-amber-50 dark:hover:bg-amber-950/30 hover:text-amber-600 dark:hover:text-amber-400 transition-colors disabled:opacity-40"
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 active:bg-amber-50 mouse:hover:bg-amber-50 dark:active:bg-amber-950/30 dark:mouse:hover:bg-amber-950/30 active:text-amber-600 mouse:hover:text-amber-600 dark:active:text-amber-400 dark:mouse:hover:text-amber-400 transition-colors disabled:opacity-40"
                   >
                     <svg
                       className="w-3.5 h-3.5 shrink-0"
@@ -553,7 +553,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                   <button
                     onClick={() => setDeleteTarget(user)}
                     disabled={isActing}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-40"
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 active:bg-red-50 mouse:hover:bg-red-50 dark:active:bg-red-950/30 dark:mouse:hover:bg-red-950/30 active:text-red-600 mouse:hover:text-red-600 dark:active:text-red-400 dark:mouse:hover:text-red-400 transition-colors disabled:opacity-40"
                   >
                     <svg
                       className="w-3.5 h-3.5 shrink-0"
@@ -623,7 +623,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
             </div>
             <button
               onClick={() => setReasonModal(null)}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors"
             >
               닫기
             </button>
@@ -680,14 +680,14 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                   setSuspendTarget(null);
                   setSuspendReason("");
                 }}
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors"
               >
                 취소
               </button>
               <button
                 onClick={handleSuspendConfirm}
                 disabled={actionLoading === suspendTarget?.uid}
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-amber-500 hover:bg-amber-600 text-white font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-amber-500 active:bg-amber-600 mouse:hover:bg-amber-600 text-white font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {actionLoading === suspendTarget?.uid && (
                   <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -739,14 +739,14 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
               <button
                 onClick={() => setDeleteTarget(null)}
                 disabled={isDeleting}
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors disabled:opacity-50"
               >
                 취소
               </button>
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-red-600 hover:bg-red-700 text-white font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-red-600 active:bg-red-700 mouse:hover:bg-red-700 text-white font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isDeleting && (
                   <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

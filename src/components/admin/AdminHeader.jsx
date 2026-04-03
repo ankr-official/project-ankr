@@ -8,7 +8,7 @@ export default function AdminHeader({ user, signOut, navigate }) {
         <div className="flex items-center gap-2 min-w-0">
           <Link
             to="/"
-            className="flex items-center gap-2 text-gray-900 dark:text-white font-bold hover:opacity-70 transition-opacity shrink-0"
+            className="flex items-center gap-2 text-gray-900 dark:text-white font-bold active:opacity-70 mouse:hover:opacity-70 transition-opacity shrink-0"
           >
             <svg
               className="w-5 h-5 sm:hidden"
@@ -55,7 +55,7 @@ export default function AdminHeader({ user, signOut, navigate }) {
               await signOut();
               navigate("/");
             }}
-            className="inline-flex items-center rounded-full px-3 py-1.5 text-xs sm:text-sm bg-white/70 dark:bg-white/10 text-gray-900 dark:text-gray-100 border border-gray-300/70 dark:border-gray-700/70 shadow-sm hover:bg-white dark:hover:bg-white/15 transition-colors"
+            className="inline-flex items-center rounded-full px-3 py-1.5 text-xs sm:text-sm bg-white/70 dark:bg-white/10 text-gray-900 dark:text-gray-100 border border-gray-300/70 dark:border-gray-700/70 shadow-sm active:bg-white mouse:hover:bg-white dark:active:bg-white/15 dark:mouse:hover:bg-white/15 transition-colors"
           >
             로그아웃
           </button>

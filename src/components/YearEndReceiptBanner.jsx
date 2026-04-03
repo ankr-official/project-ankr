@@ -4,7 +4,7 @@ export function YearEndReceiptBanner() {
     return (
         <Link
             to="/year-end-receipt"
-            className="block mb-8 w-full overflow-hidden rounded-lg border border-amber-400/70 bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950 shadow-[0_0_40px_rgba(248,250,252,0.08)] ring-1 ring-amber-500/20 transition-all hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-[0_0_55px_rgba(250,250,250,0.18)]"
+            className="block mb-8 w-full overflow-hidden rounded-lg border border-amber-400/70 bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950 shadow-[0_0_40px_rgba(248,250,252,0.08)] ring-1 ring-amber-500/20 transition-all active:-translate-y-0.5 mouse:hover:-translate-y-0.5 active:border-amber-300 mouse:hover:border-amber-300 active:shadow-[0_0_55px_rgba(250,250,250,0.18)] mouse:hover:shadow-[0_0_55px_rgba(250,250,250,0.18)]"
         >
             <div className="flex relative flex-col gap-3 px-4 py-3 md:px-6 md:py-4 md:flex-row md:items-center md:justify-between">
                 {/* subtle sparkling overlay */}

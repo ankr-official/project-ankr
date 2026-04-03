@@ -38,7 +38,7 @@ export const EventTable = ({
                 <tr
                   key={item.id}
                   onClick={() => onEventSelect(item)}
-                  className="[&>td]:align-middle cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-700 dark:[&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:py-4 [&>td]:px-6 transition-colors"
+                  className="[&>td]:align-middle cursor-pointer active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 [&>td]:text-sm [&>td]:font-medium [&>td]:text-gray-700 dark:[&>td]:text-gray-300 [&>td]:whitespace-nowrap [&>td]:py-4 [&>td]:px-6 transition-colors"
                 >
                   <td>{formatDate(item.schedule, item.time_start)}</td>
                   <td className="w-[35%]">

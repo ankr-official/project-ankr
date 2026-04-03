@@ -165,7 +165,7 @@ export default function LikedEvents() {
           <div className="flex items-center gap-3 mb-6">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="p-2 rounded-full text-gray-500 dark:text-gray-400 active:bg-gray-100 mouse:hover:bg-gray-100 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800 transition-colors"
             >
               <ArrowLeftIcon className="w-5 h-5" />
             </button>
@@ -184,7 +184,7 @@ export default function LikedEvents() {
                   className={`flex items-center gap-1.5 px-4 py-2 text-sm rounded-none font-medium border-b-2 -mb-px transition-colors duration-200 active:outline-none ${
                     activeTab === key
                       ? "text-indigo-600 dark:text-indigo-400 border-b-indigo-600 dark:border-b-indigo-400 focus:outline-none"
-                      : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300"
+                      : "text-gray-500 dark:text-gray-400 border-transparent active:text-gray-700 mouse:hover:text-gray-700 dark:active:text-gray-300 dark:mouse:hover:text-gray-300"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -197,7 +197,7 @@ export default function LikedEvents() {
                 {attendedEvents.length > 0 && (
                   <button
                     onClick={() => setShowReceipt(true)}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors w-full sm:w-fit justify-center"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 active:bg-indigo-100 mouse:hover:bg-indigo-100 dark:active:bg-indigo-900/40 dark:mouse:hover:bg-indigo-900/40 transition-colors w-full sm:w-fit justify-center"
                   >
                     <TicketIcon className="w-4 h-4" />
                     영수증 발급
@@ -205,7 +205,7 @@ export default function LikedEvents() {
                 )}
                 <button
                   onClick={() => setShowPicker(true)}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors w-full sm:w-fit justify-center"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 active:bg-indigo-100 mouse:hover:bg-indigo-100 dark:active:bg-indigo-900/40 dark:mouse:hover:bg-indigo-900/40 transition-colors w-full sm:w-fit justify-center"
                 >
                   <PlusIcon className="w-4 h-4" />
                   행사 추가
@@ -225,7 +225,7 @@ export default function LikedEvents() {
                     className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                       effectiveYear === year
                         ? "bg-indigo-600 text-white"
-                        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700"
                     }`}
                   >
                     {year}년
@@ -245,7 +245,7 @@ export default function LikedEvents() {
                           ? "bg-gray-100 dark:bg-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed"
                           : selectedQuarter === key
                             ? "bg-gray-700 dark:bg-gray-200 text-white dark:text-gray-900"
-                            : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                            : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700"
                       }`}
                     >
                       {label}
@@ -298,7 +298,7 @@ export default function LikedEvents() {
                     (dismissed.has(event.id) ? (
                       <button
                         onClick={() => reclassify(event.id)}
-                        className="absolute bottom-2 right-2 flex items-center gap-1 text-xs text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-200 transition-colors"
+                        className="absolute bottom-2 right-2 flex items-center gap-1 text-xs text-indigo-500 dark:text-indigo-400 active:text-indigo-700 mouse:hover:text-indigo-700 dark:active:text-indigo-200 dark:mouse:hover:text-indigo-200 transition-colors"
                       >
                         다녀온 행사로 이동
                       </button>
@@ -310,13 +310,13 @@ export default function LikedEvents() {
                         <div className="flex items-center gap-3 shrink-0">
                           <button
                             onClick={() => dismiss(event.id)}
-                            className="text-xs text-gray-400 dark:text-indigo-500 hover:text-indigo-800 dark:hover:text-gray-400 transition-colors"
+                            className="text-xs text-gray-400 dark:text-indigo-500 active:text-indigo-800 mouse:hover:text-indigo-800 dark:active:text-gray-400 dark:mouse:hover:text-gray-400 transition-colors"
                           >
                             알림 숨기기
                           </button>
                           <button
                             onClick={() => reclassify(event.id)}
-                            className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 underline underline-offset-2 transition-colors"
+                            className="text-xs font-medium text-indigo-600 dark:text-indigo-400 active:text-indigo-800 mouse:hover:text-indigo-800 dark:active:text-indigo-200 dark:mouse:hover:text-indigo-200 underline underline-offset-2 transition-colors"
                           >
                             다녀온 행사로 이동
                           </button>

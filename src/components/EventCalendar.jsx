@@ -215,7 +215,7 @@ const EventCalendar = ({
               className={`px-2.5 py-1.5 lg:px-3 lg:py-1 text-sm font-medium rounded-full transition-colors ${
                 selectedGenres.includes(genre)
                   ? "bg-indigo-600 dark:bg-indigo-600 text-white"
-                  : "bg-gray-300 dark:bg-gray-800 text-gray-800 dark:text-gray-300 hover:bg-gray-400 dark:hover:bg-gray-700"
+                  : "bg-gray-300 dark:bg-gray-800 text-gray-800 dark:text-gray-300 active:bg-gray-400 mouse:hover:bg-gray-400 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700"
               }`}
             >
               {genre === "all" ? "전체" : genre}
@@ -228,14 +228,14 @@ const EventCalendar = ({
         <div className="relative flex items-center justify-center gap-8 mb-4">
           <button
             onClick={prevMonth}
-            className="p-3 text-lg text-gray-700 dark:text-gray-400 bg-indigo-100 dark:bg-indigo-900 lg:pl-6 lg:pr-6 lg:p-2 lg:hover:bg-indigo-200 dark:lg:hover:bg-indigo-800 hover:text-gray-900 dark:hover:text-white lg:text-base transition-colors"
+            className="p-3 text-lg text-gray-700 dark:text-gray-400 bg-indigo-100 dark:bg-indigo-900 lg:pl-6 lg:pr-6 lg:p-2 active:bg-indigo-200 mouse:hover:bg-indigo-200 dark:active:bg-indigo-800 dark:mouse:hover:bg-indigo-800 active:text-gray-900 mouse:hover:text-gray-900 dark:active:text-white dark:mouse:hover:text-white lg:text-base transition-colors"
           >
             ←
           </button>
           <div className="flex items-center">
             <button
               onClick={handleDatePickerToggle}
-              className="flex items-center gap-2 px-3 py-1.5 text-lg font-semibold text-gray-900 dark:text-white transition-colors bg-gray-200/50 dark:bg-gray-800 rounded-lg lg:text-xl lg:hover:bg-gray-200 dark:lg:hover:bg-gray-700 lg:hover:text-indigo-600 dark:lg:hover:text-indigo-300"
+              className="flex items-center gap-2 px-3 py-1.5 text-lg font-semibold text-gray-900 dark:text-white transition-colors bg-gray-200/50 dark:bg-gray-800 rounded-lg lg:text-xl active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-300 dark:mouse:hover:text-indigo-300"
             >
               {format(currentDate, "yyyy년 MM월", { locale: ko })}
               <svg
@@ -258,7 +258,7 @@ const EventCalendar = ({
           </div>
           <button
             onClick={nextMonth}
-            className="p-3 text-lg text-gray-700 dark:text-gray-400 bg-indigo-100 dark:bg-indigo-900 lg:p-2 lg:pl-6 lg:pr-6 lg:hover:bg-indigo-200 dark:lg:hover:bg-indigo-800 hover:text-gray-900 dark:hover:text-white lg:text-base transition-colors"
+            className="p-3 text-lg text-gray-700 dark:text-gray-400 bg-indigo-100 dark:bg-indigo-900 lg:p-2 lg:pl-6 lg:pr-6 active:bg-indigo-200 mouse:hover:bg-indigo-200 dark:active:bg-indigo-800 dark:mouse:hover:bg-indigo-800 active:text-gray-900 mouse:hover:text-gray-900 dark:active:text-white dark:mouse:hover:text-white lg:text-base transition-colors"
           >
             →
           </button>
@@ -275,7 +275,7 @@ const EventCalendar = ({
                 </h3>
                 <button
                   onClick={() => setShowDatePicker(false)}
-                  className="p-1 text-gray-600 dark:text-gray-400 transition-colors rounded hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-800"
+                  className="p-1 text-gray-600 dark:text-gray-400 transition-colors rounded active:text-gray-900 mouse:hover:text-gray-900 dark:active:text-white dark:mouse:hover:text-white active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800"
                 >
                   <svg
                     className="w-5 h-5"
@@ -302,7 +302,7 @@ const EventCalendar = ({
                       className={`px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
                         year === selectedYear
                           ? "bg-indigo-600 dark:bg-indigo-600 text-white shadow-lg scale-105"
-                          : "bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 lg:hover:text-gray-900 dark:lg:hover:text-white focus:text-gray-900 dark:focus:text-white"
+                          : "bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-300 active:bg-gray-300 mouse:hover:bg-gray-300 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 active:text-gray-900 mouse:hover:text-gray-900 dark:active:text-white dark:mouse:hover:text-white focus:text-gray-900 dark:focus:text-white"
                       }`}
                     >
                       {year}
@@ -312,7 +312,7 @@ const EventCalendar = ({
                 {olderYears.length > 0 && (
                   <button
                     onClick={() => setShowAllYears(!showAllYears)}
-                    className="flex items-center justify-center w-full gap-2 px-3 py-2 mt-3 text-sm font-medium text-indigo-600 dark:text-indigo-300 transition-colors rounded-lg bg-gray-200 dark:bg-gray-900 lg:hover:bg-gray-300 dark:lg:hover:bg-gray-800 focus:bg-gray-300 dark:focus:bg-gray-800"
+                    className="flex items-center justify-center w-full gap-2 px-3 py-2 mt-3 text-sm font-medium text-indigo-600 dark:text-indigo-300 transition-colors rounded-lg bg-gray-200 dark:bg-gray-900 active:bg-gray-300 mouse:hover:bg-gray-300 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800 focus:bg-gray-300 dark:focus:bg-gray-800"
                   >
                     {showAllYears ? (
                       <>
@@ -373,7 +373,7 @@ const EventCalendar = ({
                             ? "bg-gray-300 dark:bg-gray-900 text-gray-500 dark:text-gray-600 cursor-not-allowed opacity-50"
                             : isCurrentMonth
                               ? "bg-indigo-600 dark:bg-indigo-600 text-white shadow-lg scale-105"
-                              : "bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
+                              : "bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-300 active:bg-gray-300 mouse:hover:bg-gray-300 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 active:text-gray-900 mouse:hover:text-gray-900 dark:active:text-white dark:mouse:hover:text-white"
                         }`}
                       >
                         {month + 1}월
@@ -488,7 +488,7 @@ const EventCalendar = ({
                   event={event}
                   onEventSelect={onEventSelect}
                   showDate={false}
-                  className="p-4 transition-colors bg-gray-300/50 dark:bg-gray-700 rounded-lg shadow cursor-pointer lg:hover:bg-gray-300 dark:lg:hover:bg-gray-600 active:bg-indigo-200 dark:active:bg-indigo-900"
+                  className="p-4 transition-colors bg-gray-300/50 dark:bg-gray-700 rounded-lg shadow cursor-pointer mouse:hover:bg-gray-300 dark:mouse:hover:bg-gray-600 active:bg-indigo-200 dark:active:bg-indigo-900"
                 />
               ))}
               {getEventsForDay(selectedDate).length === 0 && (

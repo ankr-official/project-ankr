@@ -28,7 +28,7 @@ export default function AdminEventsTab({
         {search && (
           <button
             onClick={onClearSearch}
-            className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+            className="text-sm text-indigo-600 dark:text-indigo-400 active:underline mouse:hover:underline"
           >
             검색 초기화
           </button>
@@ -72,7 +72,7 @@ export default function AdminEventsTab({
               <tr
                 key={event.id}
                 onClick={() => onEdit(event)}
-                className="group hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors cursor-pointer"
+                className="group active:bg-gray-50 mouse:hover:bg-gray-50 dark:active:bg-gray-700/40 dark:mouse:hover:bg-gray-700/40 transition-colors cursor-pointer"
               >
                 <td className="px-4 py-3 text-gray-400 dark:text-gray-500 whitespace-nowrap text-xs font-mono">
                   {event.id}
@@ -129,7 +129,7 @@ export default function AdminEventsTab({
                         e.stopPropagation();
                         onEdit(event);
                       }}
-                      className="p-1.5 rounded-lg text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors"
+                      className="p-1.5 rounded-lg text-gray-500 active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 active:bg-indigo-50 mouse:hover:bg-indigo-50 dark:active:bg-indigo-950/30 dark:mouse:hover:bg-indigo-950/30 transition-colors"
                       title="수정"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,7 +146,7 @@ export default function AdminEventsTab({
                         e.stopPropagation();
                         onDelete(event);
                       }}
-                      className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                      className="p-1.5 rounded-lg text-gray-500 active:text-red-600 mouse:hover:text-red-600 dark:active:text-red-400 dark:mouse:hover:text-red-400 active:bg-red-50 mouse:hover:bg-red-50 dark:active:bg-red-950/30 dark:mouse:hover:bg-red-950/30 transition-colors"
                       title="삭제"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -251,7 +251,7 @@ export default function AdminEventsTab({
                   e.stopPropagation();
                   onEdit(event);
                 }}
-                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 active:bg-indigo-50 mouse:hover:bg-indigo-50 dark:active:bg-indigo-950/30 dark:mouse:hover:bg-indigo-950/30 active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -268,7 +268,7 @@ export default function AdminEventsTab({
                   e.stopPropagation();
                   onDelete(event);
                 }}
-                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 active:bg-red-50 mouse:hover:bg-red-50 dark:active:bg-red-950/30 dark:mouse:hover:bg-red-950/30 active:text-red-600 mouse:hover:text-red-600 dark:active:text-red-400 dark:mouse:hover:text-red-400 transition-colors"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path

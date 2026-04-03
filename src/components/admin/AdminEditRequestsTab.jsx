@@ -193,7 +193,7 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
                                   href={to}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-indigo-500 dark:text-indigo-400 hover:underline truncate"
+                                  className="text-indigo-500 dark:text-indigo-400 active:underline mouse:hover:underline truncate"
                                 >
                                   {to}
                                 </a>
@@ -221,15 +221,15 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
                 onClick={() => handleApprove(request)}
                 className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium text-white transition-colors ${
                   request.deleteRequest
-                    ? "bg-red-600 hover:bg-red-700"
-                    : "bg-indigo-600 hover:bg-indigo-700"
+                    ? "bg-red-600 active:bg-red-700 mouse:hover:bg-red-700"
+                    : "bg-indigo-600 active:bg-indigo-700 mouse:hover:bg-indigo-700"
                 }`}
               >
                 {request.deleteRequest ? "승인 (삭제)" : "승인 (덮어쓰기)"}
               </button>
               <button
                 onClick={() => handleReject(request)}
-                className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 active:bg-red-50 mouse:hover:bg-red-50 dark:active:bg-red-950/30 dark:mouse:hover:bg-red-950/30 active:text-red-600 mouse:hover:text-red-600 dark:active:text-red-400 dark:mouse:hover:text-red-400 transition-colors"
               >
                 거절
               </button>

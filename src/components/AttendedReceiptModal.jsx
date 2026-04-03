@@ -99,7 +99,7 @@ export function AttendedReceiptModal({
             <button
               onClick={handleDownload}
               disabled={!canDownload || isExporting}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium active:bg-indigo-700 mouse:hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <ArrowDownTrayIcon className="w-4 h-4" />
               {isExporting ? "저장 중..." : "이미지 저장"}
@@ -115,7 +115,7 @@ export function AttendedReceiptModal({
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-full text-white hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-full text-white active:bg-white/10 mouse:hover:bg-white/10 transition-colors"
             >
               <XMarkIcon className="w-5 h-5" />
             </button>
