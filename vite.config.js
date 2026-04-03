@@ -6,6 +6,10 @@ import tailwindcss from "tailwindcss";
 export default defineConfig({
     base: "/",
     plugins: [react()],
+    server: {
+        host: true,
+        allowedHosts: true,
+    },
     css: {
         postcss: {
             plugins: [tailwindcss()],
