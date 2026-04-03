@@ -73,7 +73,7 @@ export function GenreSelector({
                             <span
                                 key={g}
                                 onClick={() => onRemove(g)}
-                                className="group inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs bg-gray-200 dark:bg-black text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
+                                className="group inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs bg-gray-200 dark:bg-black text-gray-700 dark:text-gray-300 cursor-pointer active:bg-gray-300 mouse:hover:bg-gray-300 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors"
                             >
                                 {g}
                                 <button
@@ -131,7 +131,7 @@ export function GenreSelector({
                 <button
                     type="button"
                     onClick={handleAdd}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shrink-0"
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 active:bg-indigo-700 mouse:hover:bg-indigo-700 text-white transition-colors shrink-0"
                 >
                     추가
                 </button>

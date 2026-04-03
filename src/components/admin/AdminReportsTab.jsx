@@ -1,8 +1,28 @@
+import { useEffect } from "react";
+import { ref, remove } from "firebase/database";
+import { toast } from "react-toastify";
+import { database } from "../../config/firebase";
+import { useRealtimeData } from "../../hooks/useRealtimeData";
 import { GENRE_COLORS } from "../../constants";
 import { toArray, isoToTime, sortGenres } from "../../utils/eventFormUtils";
 import { formatScheduleDisplay } from "../../utils/adminUtils";
 
-export default function AdminReportsTab({ reports, reportsLoading, onApprove, onReject }) {
+export default function AdminReportsTab({ onApprove, onCountChange }) {
+  const { data: reports, loading: reportsLoading } = useRealtimeData("reports");
+
+  useEffect(() => {
+    onCountChange?.(reports.length);
+  }, [reports.length]);
+
+  const handleReject = async (report) => {
+    try {
+      await remove(ref(database, `reports/${report.id}`));
+      toast.success("제보가 거절되었습니다.");
+    } catch {
+      toast.error("거절 중 오류가 발생했습니다.");
+    }
+  };
+
   if (reportsLoading) {
     return (
       <div className="flex justify-center py-16">
@@ -75,7 +95,7 @@ export default function AdminReportsTab({ reports, reportsLoading, onApprove, on
                 href={report.event_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-indigo-500 dark:text-indigo-400 hover:underline truncate block text-left"
+                className="text-xs text-indigo-500 dark:text-indigo-400 active:underline mouse:hover:underline truncate block text-left"
               >
                 {report.event_url}
               </a>
@@ -94,13 +114,13 @@ export default function AdminReportsTab({ reports, reportsLoading, onApprove, on
             <div className="flex gap-2 pt-1">
               <button
                 onClick={() => onApprove(report)}
-                className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
+                className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-indigo-600 active:bg-indigo-700 mouse:hover:bg-indigo-700 text-white transition-colors"
               >
                 승인
               </button>
               <button
-                onClick={() => onReject(report)}
-                className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                onClick={() => handleReject(report)}
+                className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 active:bg-red-50 mouse:hover:bg-red-50 dark:active:bg-red-950/30 dark:mouse:hover:bg-red-950/30 active:text-red-600 mouse:hover:text-red-600 dark:active:text-red-400 dark:mouse:hover:text-red-400 transition-colors"
               >
                 거절
               </button>

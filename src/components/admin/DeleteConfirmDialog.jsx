@@ -1,4 +1,7 @@
+import { useScrollLock } from "../../hooks/useScrollLock";
+
 export default function DeleteConfirmDialog({ target, isDeleting, onConfirm, onCancel }) {
+  useScrollLock(!!target);
   if (!target) return null;
 
   return (
@@ -36,14 +39,14 @@ export default function DeleteConfirmDialog({ target, isDeleting, onConfirm, onC
           <button
             onClick={onCancel}
             disabled={isDeleting}
-            className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+            className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors disabled:opacity-50"
           >
             취소
           </button>
           <button
             onClick={onConfirm}
             disabled={isDeleting}
-            className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-red-600 hover:bg-red-700 text-white font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-red-600 active:bg-red-700 mouse:hover:bg-red-700 text-white font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {isDeleting && (
               <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

@@ -5,7 +5,6 @@ import { LoginDropdownProvider } from "./contexts/LoginDropdownContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/Home";
-import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import LikedEvents from "./pages/LikedEvents";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -29,7 +28,6 @@ function AppContent() {
         <div className="rounded-lg bg-indigo-50/50 dark:bg-[#242424] min-h-screen transition-colors">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
@@ -48,7 +46,7 @@ function AppContent() {
                     <Link
                       to="/terms"
                       onClick={() => window.scrollTo(0, 0)}
-                      className="text-xs text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                      className="text-xs text-gray-500 dark:text-gray-400 active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors"
                     >
                       이용약관
                     </Link>
@@ -58,7 +56,7 @@ function AppContent() {
                     <Link
                       to="/privacy"
                       onClick={() => window.scrollTo(0, 0)}
-                      className="text-xs text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                      className="text-xs text-gray-500 dark:text-gray-400 active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors"
                     >
                       개인정보처리방침
                     </Link>
@@ -67,7 +65,7 @@ function AppContent() {
                 <div className="text-sm flex items-center gap-4">
                   <a
                     href="mailto:ankr.web.official@gmail.com"
-                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
+                    className="text-indigo-600 dark:text-indigo-400 active:text-indigo-500 mouse:hover:text-indigo-500 dark:active:text-indigo-300 dark:mouse:hover:text-indigo-300 transition-colors"
                     aria-label="Email"
                   >
                     <svg
@@ -87,7 +85,7 @@ function AppContent() {
                   </a>
                   <a
                     href="https://x.com/ankr_db"
-                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
+                    className="text-indigo-600 dark:text-indigo-400 active:text-indigo-500 mouse:hover:text-indigo-500 dark:active:text-indigo-300 dark:mouse:hover:text-indigo-300 transition-colors"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="X (Twitter)"
@@ -103,7 +101,7 @@ function AppContent() {
                   </a>
                   <a
                     href="https://www.instagram.com/ankr.db.official"
-                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
+                    className="text-indigo-600 dark:text-indigo-400 active:text-indigo-500 mouse:hover:text-indigo-500 dark:active:text-indigo-300 dark:mouse:hover:text-indigo-300 transition-colors"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Instagram"

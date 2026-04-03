@@ -104,7 +104,7 @@ export function AutocompleteInput({
                             className={`px-3 py-2 cursor-pointer transition-colors text-gray-900 dark:text-white ${
                                 i === activeIndex
                                     ? "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300"
-                                    : "hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-700 dark:hover:text-indigo-300"
+                                    : "active:bg-indigo-50 mouse:hover:bg-indigo-50 dark:active:bg-indigo-950/30 dark:mouse:hover:bg-indigo-950/30 active:text-indigo-700 mouse:hover:text-indigo-700 dark:active:text-indigo-300 dark:mouse:hover:text-indigo-300"
                             }`}
                         >
                             {s}

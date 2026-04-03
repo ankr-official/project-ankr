@@ -19,7 +19,7 @@ export default function TermsOfService() {
         <div className="mb-10">
           <Link
             to="/"
-            className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline mb-6 inline-block"
+            className="text-sm text-indigo-600 dark:text-indigo-400 active:underline mouse:hover:underline mb-6 inline-block"
           >
             ← 홈으로
           </Link>
@@ -78,7 +78,7 @@ export default function TermsOfService() {
               주소가 수집됩니다. (상세 내용은{" "}
               <Link
                 to="/privacy"
-                className="text-indigo-600 dark:text-indigo-400 hover:underline"
+                className="text-indigo-600 dark:text-indigo-400 active:underline mouse:hover:underline"
               >
                 개인정보처리방침
               </Link>
@@ -102,7 +102,7 @@ export default function TermsOfService() {
               이메일을 통한 계정 삭제 요청은{" "}
               <a
                 href="mailto:ankr.web.official@gmail.com"
-                className="text-indigo-600 dark:text-indigo-400 hover:underline"
+                className="text-indigo-600 dark:text-indigo-400 active:underline mouse:hover:underline"
               >
                 ankr.web.official@gmail.com
               </a>
@@ -154,7 +154,7 @@ export default function TermsOfService() {
               이용자는 자신이 제보한 콘텐츠의 삭제 또는 수정을{" "}
               <a
                 href="mailto:ankr.web.official@gmail.com"
-                className="text-indigo-600 dark:text-indigo-400 hover:underline"
+                className="text-indigo-600 dark:text-indigo-400 active:underline mouse:hover:underline"
               >
                 ankr.web.official@gmail.com
               </a>
@@ -235,7 +235,7 @@ export default function TermsOfService() {
             </span>
             <a
               href="mailto:ankr.web.official@gmail.com"
-              className="text-indigo-600 dark:text-indigo-400 hover:underline"
+              className="text-indigo-600 dark:text-indigo-400 active:underline mouse:hover:underline"
             >
               ankr.web.official@gmail.com
             </a>

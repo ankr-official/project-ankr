@@ -9,6 +9,7 @@ import {
 import { database } from "../config/firebase";
 import { formatDate, sortByDateTime } from "../utils/dateUtils";
 import { GenreTag } from "./common/GenreTag";
+import { useScrollLock } from "../hooks/useScrollLock";
 
 const QUARTERS = [
   { key: "all", label: "전체" },
@@ -27,6 +28,7 @@ const getQuarter = (dateStr) => {
 };
 
 export function AttendedPicker({ user, allEvents, likes, onClose }) {
+  useScrollLock(true);
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -100,7 +102,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
@@ -114,7 +116,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose }) {
           </h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-1 rounded-full text-gray-500 active:bg-gray-100 mouse:hover:bg-gray-100 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800 transition-colors"
           >
             <XMarkIcon className="w-5 h-5" />
           </button>
@@ -150,7 +152,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose }) {
                   className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     selectedYear === year
                       ? "bg-indigo-600 text-white"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700"
                   }`}
                 >
                   {year}년
@@ -171,7 +173,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose }) {
                         ? "bg-gray-100 dark:bg-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed"
                         : selectedQuarter === key
                           ? "bg-gray-700 dark:bg-gray-200 text-white dark:text-gray-900"
-                          : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                          : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700"
                     }`}
                   >
                     {label}
@@ -193,7 +195,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose }) {
                 className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-colors ${
                   isAttended
                     ? "bg-indigo-50 dark:bg-indigo-950/40"
-                    : "bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    : "bg-gray-50 dark:bg-gray-800 active:bg-gray-100 mouse:hover:bg-gray-100 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700"
                 }`}
               >
                 <img

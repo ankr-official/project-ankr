@@ -170,7 +170,7 @@ export default function EventEditModal({
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     tabIndex={-1}
-                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 active:text-indigo-500 mouse:hover:text-indigo-500 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -198,7 +198,7 @@ export default function EventEditModal({
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     tabIndex={-1}
-                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 active:text-indigo-500 mouse:hover:text-indigo-500 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -252,7 +252,7 @@ export default function EventEditModal({
                     type="button"
                     onClick={onClose}
                     disabled={isSaving}
-                    className="flex-1 px-4 py-2.5 rounded-lg text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                    className="flex-1 px-4 py-2.5 rounded-lg text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors disabled:opacity-50"
                 >
                     취소
                 </button>
@@ -260,7 +260,7 @@ export default function EventEditModal({
                     type="submit"
                     form="event-edit-form"
                     disabled={isDisabled}
-                    className="flex-1 px-4 py-2.5 rounded-lg text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 px-4 py-2.5 rounded-lg text-sm bg-indigo-600 active:bg-indigo-700 mouse:hover:bg-indigo-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                     {isSaving && (
                         <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

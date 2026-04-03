@@ -19,7 +19,7 @@ import { useLoginDropdown } from "../contexts/LoginDropdownContext";
 import EditRequestModal from "./EditRequestModal";
 import LoginDropdown from "./LoginDropdown";
 import { HeartButton } from "./common/HeartButton";
-import { ref, push, get, set, onValue } from "firebase/database";
+import { ref, push, get, set } from "firebase/database";
 import { httpsCallable } from "firebase/functions";
 import { isoToTime, isoToLocal } from "../utils/eventFormUtils";
 import { database, functions } from "../config/firebase";
@@ -181,7 +181,7 @@ const EventUrl = ({ eventUrl }) => (
         href={eventUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-blue-600 dark:text-blue-300 break-all lg:hover:text-blue-500 dark:lg:hover:text-blue-100 lg:hover:underline transition-colors"
+        className="text-blue-600 dark:text-blue-300 break-all active:text-blue-500 mouse:hover:text-blue-500 dark:active:text-blue-100 dark:mouse:hover:text-blue-100 active:underline mouse:hover:underline transition-colors"
       >
         {eventUrl}
       </a>
@@ -190,7 +190,7 @@ const EventUrl = ({ eventUrl }) => (
           navigator.clipboard.writeText(eventUrl);
           toast.info("URL이 복사되었습니다!");
         }}
-        className="hidden w-5 h-5 p-0 ml-2 text-indigo-600 dark:text-indigo-200 lg:hover:text-indigo-800 dark:lg:hover:text-gray-100 hover:cursor-pointer lg:block transition-colors"
+        className="hidden w-5 h-5 p-0 ml-2 text-indigo-600 dark:text-indigo-200 active:text-indigo-800 mouse:hover:text-indigo-800 dark:active:text-gray-100 dark:mouse:hover:text-gray-100 hover:cursor-pointer lg:block transition-colors"
         aria-label="Copy URL"
       />
     </div>
@@ -239,14 +239,14 @@ const ActionButtons = ({ data }) => {
     <div className="flex flex-col items-center gap-3 pt-4 lg:flex-row lg:justify-center">
       <button
         onClick={() => addToGoogleCalendar(data)}
-        className="flex items-center justify-center w-full px-4 py-2 text-white bg-indigo-600 rounded lg:w-fit lg:hover:bg-indigo-700"
+        className="flex items-center justify-center w-full px-4 py-2 text-white bg-indigo-600 rounded lg:w-fit active:bg-indigo-700 mouse:hover:bg-indigo-700"
       >
         <CalendarIcon className="w-5 h-5 mr-2" />
         Google Calendar에 추가
       </button>
       <button
         onClick={handleTwitterShare}
-        className="flex items-center justify-center w-full px-4 py-2 text-white bg-blue-500 rounded lg:w-fit lg:hover:bg-blue-600"
+        className="flex items-center justify-center w-full px-4 py-2 text-white bg-blue-500 rounded lg:w-fit active:bg-blue-600 mouse:hover:bg-blue-600"
       >
         <ShareIcon className="w-5 h-5 mr-2" />
         X(Twitter)에 공유하기
@@ -288,7 +288,7 @@ const ModalContent = ({
           {!isMobile && (
             <button
               onClick={onClose}
-              className="p-1 w-8 h-8 flex items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full lg:hover:bg-gray-200 dark:lg:hover:bg-gray-700 transition-colors"
+              className="p-1 w-8 h-8 flex items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors"
             >
               <XMarkIcon className="w-5 h-5" />
             </button>
@@ -307,12 +307,12 @@ const ModalContent = ({
             eventId={data.id}
             eventDate={data.schedule}
             label="관심 행사"
-            buttonClassName="p-2 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full lg:hover:bg-gray-200 dark:lg:hover:bg-gray-700 transition-colors flex px-4 gap-1"
+            buttonClassName="p-2 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors flex px-4 gap-1"
           />
           <div className="relative">
             <button
               onClick={onEditRequest}
-              className="p-2 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full lg:hover:bg-gray-200 dark:lg:hover:bg-gray-700 transition-colors flex px-4 gap-1"
+              className="p-2 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors flex px-4 gap-1"
             >
               <PencilSquareIcon className="w-5 h-5" />
               <span>수정 요청</span>
@@ -389,12 +389,9 @@ export function Modal({
 
     recordViewFn({ eventId: data.id }).catch(() => {});
 
-    const viewsRef = ref(database, `data_v2/${data.id}/views`);
-    const unsubscribe = onValue(viewsRef, (snap) => {
-      setViewCount(snap.val() ?? 0);
-    });
-
-    return () => unsubscribe();
+    get(ref(database, `data_v2/${data.id}/views`))
+      .then((snap) => setViewCount(snap.val() ?? 0))
+      .catch(() => {});
   }, [isOpen, data?.id]);
 
   useEffect(() => {
@@ -497,11 +494,7 @@ export function Modal({
             exit={{ opacity: 0 }}
             className={`fixed inset-0 z-50 flex ${
               isMobile ? "items-end" : "items-center"
-            } justify-center ${
-              isMobile
-                ? "bg-black dark:bg-black bg-opacity-50 dark:bg-opacity-30"
-                : "bg-gray-500 dark:bg-gray-500 bg-opacity-50 dark:bg-opacity-50"
-            }`}
+            } justify-center bg-black/50 backdrop-blur-sm`}
             onClick={onClose}
           >
             <motion.div

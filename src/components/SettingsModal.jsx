@@ -5,11 +5,13 @@ import { database } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
 import { deleteSelf } from "../utils/adminApi";
+import { useScrollLock } from "../hooks/useScrollLock";
 
 export default function SettingsModal({ onClose }) {
   const { user, signOut } = useAuth();
   const [confirm, setConfirm] = useState(null); // null | "likes" | "withdraw"
   const [loading, setLoading] = useState(false);
+  useScrollLock(true);
 
   useEffect(() => {
     const handleEsc = (e) => {
@@ -47,7 +49,7 @@ export default function SettingsModal({ onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-500/50 dark:bg-gray-500/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
@@ -61,7 +63,7 @@ export default function SettingsModal({ onClose }) {
           </h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-1 rounded-full text-gray-500 dark:text-gray-400 active:bg-gray-100 mouse:hover:bg-gray-100 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800 transition-colors"
           >
             <XMarkIcon className="w-5 h-5" />
           </button>
@@ -84,7 +86,7 @@ export default function SettingsModal({ onClose }) {
               </div>
               <button
                 onClick={() => setConfirm(confirm === "likes" ? null : "likes")}
-                className="flex-shrink-0 ml-4 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 border border-red-300 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                className="flex-shrink-0 ml-4 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 border border-red-300 dark:border-red-700 rounded-lg active:bg-red-50 mouse:hover:bg-red-50 dark:active:bg-red-900/20 dark:mouse:hover:bg-red-900/20 transition-colors"
               >
                 삭제
               </button>
@@ -99,13 +101,13 @@ export default function SettingsModal({ onClose }) {
                   <button
                     onClick={handleClearLikes}
                     disabled={loading}
-                    className="px-3 py-1.5 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                    className="px-3 py-1.5 text-sm text-white bg-red-600 rounded-lg active:bg-red-700 mouse:hover:bg-red-700 disabled:opacity-50 transition-colors"
                   >
                     {loading ? "삭제 중..." : "확인"}
                   </button>
                   <button
                     onClick={() => setConfirm(null)}
-                    className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors"
                   >
                     취소
                   </button>
@@ -135,7 +137,7 @@ export default function SettingsModal({ onClose }) {
                 onClick={() =>
                   setConfirm(confirm === "withdraw" ? null : "withdraw")
                 }
-                className="flex-shrink-0 ml-4 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 border border-red-300 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                className="flex-shrink-0 ml-4 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 border border-red-300 dark:border-red-700 rounded-lg active:bg-red-50 mouse:hover:bg-red-50 dark:active:bg-red-900/20 dark:mouse:hover:bg-red-900/20 transition-colors"
               >
                 탈퇴
               </button>
@@ -150,13 +152,13 @@ export default function SettingsModal({ onClose }) {
                   <button
                     onClick={handleWithdraw}
                     disabled={loading}
-                    className="px-3 py-1.5 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                    className="px-3 py-1.5 text-sm text-white bg-red-600 rounded-lg active:bg-red-700 mouse:hover:bg-red-700 disabled:opacity-50 transition-colors"
                   >
                     {loading ? "처리 중..." : "탈퇴 확인"}
                   </button>
                   <button
                     onClick={() => setConfirm(null)}
-                    className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors"
                   >
                     취소
                   </button>

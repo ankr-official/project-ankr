@@ -32,7 +32,7 @@ export const ActionButtons = ({ onSearchOpen, isLoggedIn, onReportClick }) => {
         <div className="relative w-full md:w-fit" ref={loginRef}>
           <button
             onClick={handleReportClick}
-            className="px-4 py-2 w-full text-white bg-indigo-600 rounded md:w-fit lg:hover:text-indigo-900 active:bg-white active:text-indigo-900 lg:hover:bg-white"
+            className="px-4 py-2 w-full text-white bg-indigo-600 rounded md:w-fit mouse:hover:text-indigo-900 active:bg-white active:text-indigo-900 mouse:hover:bg-white"
           >
             행사 제보하기
           </button>
@@ -42,7 +42,7 @@ export const ActionButtons = ({ onSearchOpen, isLoggedIn, onReportClick }) => {
         </div>
       </div>
       <a onClick={onSearchOpen}>
-        <p className="p-2 m-auto mt-6 text-center text-indigo-400 underline cursor-pointer w-fit active:text-indigo-600 lg:hover:text-indigo-600">
+        <p className="p-2 m-auto mt-6 text-center text-indigo-400 underline cursor-pointer w-fit active:text-indigo-600 mouse:hover:text-indigo-600">
           *혹시 이미 등록된 행사일까요?
         </p>
       </a>

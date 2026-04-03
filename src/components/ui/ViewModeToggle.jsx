@@ -6,7 +6,7 @@ export const ViewModeToggle = ({ viewMode, onViewModeChange }) => {
         className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors duration-200 inline-flex items-center gap-2 rounded-none focus:outline-none ${
           viewMode === "calendar"
             ? "text-indigo-600 dark:text-indigo-400 border-b-indigo-600 dark:border-b-indigo-400"
-            : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300"
+            : "text-gray-500 dark:text-gray-400 border-transparent active:text-gray-700 mouse:hover:text-gray-700 dark:active:text-gray-300 dark:mouse:hover:text-gray-300"
         }`}
       >
         <svg
@@ -38,7 +38,7 @@ export const ViewModeToggle = ({ viewMode, onViewModeChange }) => {
         className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors duration-200 inline-flex items-center gap-2 rounded-none focus:outline-none ${
           viewMode === "table"
             ? "text-indigo-600 dark:text-indigo-400 border-b-indigo-600 dark:border-b-indigo-400"
-            : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300"
+            : "text-gray-500 dark:text-gray-400 border-transparent active:text-gray-700 mouse:hover:text-gray-700 dark:active:text-gray-300 dark:mouse:hover:text-gray-300"
         }`}
       >
         <svg

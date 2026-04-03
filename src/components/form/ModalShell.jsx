@@ -1,9 +1,12 @@
+import { useScrollLock } from "../../hooks/useScrollLock";
+
 export function ModalShell({
     onClose,
     zIndex = 50,
     maxHeight = "calc(100dvh - 8rem)",
     children,
 }) {
+    useScrollLock(true);
     return (
         <div
             style={{ zIndex }}
@@ -26,7 +29,7 @@ export function ModalCloseButton({ onClick }) {
         <button
             type="button"
             onClick={onClick}
-            className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-1.5 rounded-full text-gray-400 active:text-gray-600 mouse:hover:text-gray-600 dark:active:text-gray-200 dark:mouse:hover:text-gray-200 active:bg-gray-100 mouse:hover:bg-gray-100 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800 transition-colors"
         >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
