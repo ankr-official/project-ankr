@@ -11,8 +11,8 @@ export default function AdminReportsTab({ onApprove, onCountChange }) {
   const { data: reports, loading: reportsLoading } = useRealtimeData("reports");
 
   useEffect(() => {
-    onCountChange?.(reports.length);
-  }, [reports.length]);
+    if (!reportsLoading) onCountChange?.(reports.length);
+  }, [reports.length, reportsLoading]);
 
   const handleReject = async (report) => {
     try {

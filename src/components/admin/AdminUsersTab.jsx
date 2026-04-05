@@ -85,8 +85,8 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
   };
 
   useEffect(() => {
-    if (tab !== "all" && counts[tab] === 0) setTab("all");
-  }, [tab, counts.owner, counts.admin, counts.member, counts.disabled]);
+    if (!loading && tab !== "all" && counts[tab] === 0) setTab("all");
+  }, [tab, loading, counts.owner, counts.admin, counts.member, counts.disabled]);
 
   const sortedUsers = [...users]
     .filter((u) => {

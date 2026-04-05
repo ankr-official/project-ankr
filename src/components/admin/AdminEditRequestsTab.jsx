@@ -10,8 +10,8 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
   const { data: editRequests, loading: editRequestsLoading } = useRealtimeData("editRequests");
 
   useEffect(() => {
-    onCountChange?.(editRequests.length);
-  }, [editRequests.length]);
+    if (!editRequestsLoading) onCountChange?.(editRequests.length);
+  }, [editRequests.length, editRequestsLoading]);
 
   const handleApprove = async (request) => {
     try {
