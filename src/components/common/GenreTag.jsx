@@ -1,7 +1,7 @@
 import { GENRE_COLORS } from "../../constants";
 import { GENRES } from "../../utils/eventFormUtils";
 
-export const GenreTag = ({ genre }) => {
+export const GenreTag = ({ genre, className = "justify-start" }) => {
     const genres = genre.split(",").map(g => g.trim());
     const sortedGenres = [...genres].sort((a, b) => {
         const ia = GENRES.indexOf(a);
@@ -13,7 +13,7 @@ export const GenreTag = ({ genre }) => {
     });
 
     return (
-        <div className="flex flex-wrap justify-start gap-1">
+        <div className={`flex flex-wrap gap-1 ${className}`}>
             {sortedGenres.map((g, index) => (
                 <span
                     key={index}

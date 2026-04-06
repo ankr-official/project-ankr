@@ -26,7 +26,6 @@ import { database, functions } from "../config/firebase";
 
 const recordViewFn = httpsCallable(functions, "recordView");
 
-// Custom hooks
 const useModalScroll = (onClose) => {
   const contentRef = useRef(null);
   const [dragY, setDragY] = useState(0);
@@ -72,20 +71,16 @@ const useModalScroll = (onClose) => {
   };
 };
 
-const useMobileDetection = () => {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  return isMobile;
-};
-
 // Sub-components
+const FieldRow = ({ label, children }) => (
+  <div className="flex flex-col items-center lg:flex-row">
+    <span className="p-2 font-medium text-gray-500 dark:text-gray-400 lg:w-20 lg:shrink-0">
+      {label}
+    </span>
+    <div className="p-2 w-full text-center">{children}</div>
+  </div>
+);
+
 const EventImage = ({ imgUrl, eventName }) => (
   <motion.div
     className="mb-6"
@@ -101,71 +96,31 @@ const EventImage = ({ imgUrl, eventName }) => (
   </motion.div>
 );
 
-const EventInfo = ({ data, isMobile }) => (
+const EventInfo = ({ data }) => (
   <motion.div
-    className={`grid ${data.time_start ? "grid-cols-2" : ""} gap-6 mb-6 ${
-      isMobile
-        ? "bg-gray-100 dark:bg-gray-800 p-4 rounded-xl"
-        : "bg-gray-100 dark:bg-gray-800 rounded-lg"
-    } transition-colors`}
+    className={`grid ${data.time_start ? "grid-cols-2" : ""} gap-6 mb-6 bg-gray-100 dark:bg-gray-800 p-4 rounded-xl lg:rounded-lg lg:p-0 transition-colors`}
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay: 0.3 }}
   >
-    <div>
-      <div className="py-2 space-y-2 text-gray-700 dark:text-gray-300 transition-colors">
-        <div className="flex flex-col md:flex-row">
-          <div
-            className={`p-2 font-medium ${data.time_start ? "w-full" : "md:w-48"}`}
-          >
-            일정
-          </div>
-          <div className="w-full p-2 text-center md:text-left">
-            {formatDate(data.schedule)}
-          </div>
-        </div>
-        <div className="flex flex-col md:flex-row">
-          <div
-            className={`p-2 font-medium ${data.time_start ? "w-full" : "md:w-48"}`}
-          >
-            장르
-          </div>
-          <div className="p-2 m-auto w-fit md:w-full">
-            <GenreTag genre={data.genre} />
-          </div>
-        </div>
-        <div className="flex flex-col md:flex-row">
-          <div
-            className={`p-2 font-medium ${data.time_start ? "w-full" : "md:w-48"}`}
-          >
-            장소
-          </div>
-          <div className="min-w-0 overflow-hidden w-full p-2 text-center lg:text-left">
-            <LocationLink location={data.location} />
-          </div>
-        </div>
-      </div>
+    <div className="py-2 space-y-2 text-gray-700 dark:text-gray-300 transition-colors">
+      <FieldRow label="일정">{formatDate(data.schedule)}</FieldRow>
+      <FieldRow label="장르">
+        <GenreTag genre={data.genre} className="justify-center" />
+      </FieldRow>
+      <FieldRow label="장소">
+        <LocationLink location={data.location} />
+      </FieldRow>
     </div>
     {data.time_start && (
-      <div>
-        <div className="py-2 space-y-2 text-gray-700 dark:text-gray-300 transition-colors">
-          {data.time_entrance && (
-            <div className="flex flex-col md:flex-row">
-              <div className="w-full p-2 font-medium">입장</div>
-              <div className="w-full p-2">{formatTime(data.time_entrance)}</div>
-            </div>
-          )}
-          <div className="flex flex-col md:flex-row">
-            <div className="w-full p-2 font-medium">시작</div>
-            <div className="w-full p-2">{formatTime(data.time_start)}</div>
-          </div>
-          {data.time_end && (
-            <div className="flex flex-col md:flex-row">
-              <div className="w-full p-2 font-medium">종료</div>
-              <div className="w-full p-2">{formatTime(data.time_end)}</div>
-            </div>
-          )}
-        </div>
+      <div className="py-2 space-y-2 text-gray-700 dark:text-gray-300 transition-colors">
+        {data.time_entrance && (
+          <FieldRow label="입장">{formatTime(data.time_entrance)}</FieldRow>
+        )}
+        <FieldRow label="시작">{formatTime(data.time_start)}</FieldRow>
+        {data.time_end && (
+          <FieldRow label="종료">{formatTime(data.time_end)}</FieldRow>
+        )}
       </div>
     )}
   </motion.div>
@@ -197,7 +152,7 @@ const EventUrl = ({ eventUrl }) => (
   </div>
 );
 
-const ActionButtons = ({ data }) => {
+const ShareButtons = ({ data }) => {
   const handleTwitterShare = () => {
     const today = new Date();
     const eventDate = new Date(data.schedule);
@@ -258,97 +213,88 @@ const ActionButtons = ({ data }) => {
 const ModalContent = ({
   data,
   onClose,
-  isMobile,
   onEditRequest,
   showLogin,
   onCloseLogin,
   viewCount,
 }) => (
-  <>
-    <motion.div
-      className={`${isMobile ? "px-4 py-4" : "px-8 py-8 bg-gray-200 dark:bg-gray-900 md:p-12 transition-colors"}`}
-      layoutId={`modal-content-${data.id}`}
-    >
-      <div className="flex items-center justify-between mb-4 gap-2 min-w-0">
-        <div className="min-w-0">
-          <motion.h2
-            className="text-2xl font-bold text-gray-900 dark:text-white transition-colors truncate"
-            layoutId={`title-${data.id}`}
-          >
-            {data.event_name}
-          </motion.h2>
-          <div className="flex items-center gap-1 mt-0.5 ml-0.5 text-xs text-gray-400 dark:text-gray-500">
-            <EyeIcon className="w-3.5 h-3.5" />
-            <span>
-              {viewCount !== null ? `${viewCount.toLocaleString()}회` : "—"}
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {!isMobile && (
-            <button
-              onClick={onClose}
-              className="p-1 w-8 h-8 flex items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors"
-            >
-              <XMarkIcon className="w-5 h-5" />
-            </button>
-          )}
+  <motion.div
+    className="px-4 py-4 lg:px-8 lg:py-8 transition-colors"
+    layoutId={`modal-content-${data.id}`}
+  >
+    <div className="flex items-center justify-between mb-4 gap-2 min-w-0">
+      <div className="min-w-0">
+        <motion.h2
+          className="text-2xl font-bold text-gray-900 dark:text-white transition-colors truncate"
+          layoutId={`title-${data.id}`}
+        >
+          {data.event_name}
+        </motion.h2>
+        <div className="flex items-center gap-1 mt-0.5 ml-0.5 text-xs text-gray-400 dark:text-gray-500">
+          <EyeIcon className="w-3.5 h-3.5" />
+          <span>
+            {viewCount !== null ? `${viewCount.toLocaleString()}회` : "—"}
+          </span>
         </div>
       </div>
+      <button
+        onClick={onClose}
+        className="hidden lg:flex p-1 w-8 h-8 items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors"
+      >
+        <XMarkIcon className="w-5 h-5" />
+      </button>
+    </div>
 
-      {data.img_url && (
-        <EventImage imgUrl={data.img_url} eventName={data.event_name} />
-      )}
-      <EventInfo data={data} isMobile={isMobile} />
+    {data.img_url && (
+      <EventImage imgUrl={data.img_url} eventName={data.event_name} />
+    )}
+    <EventInfo data={data} />
 
-      {!isMobile && (
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <HeartButton
-            eventId={data.id}
-            eventDate={data.schedule}
-            label="관심 행사"
-            buttonClassName="p-2 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors flex px-4 gap-1"
+    <div className="hidden lg:flex items-center justify-center gap-3 mb-6">
+      <HeartButton
+        eventId={data.id}
+        eventDate={data.schedule}
+        label="관심 행사"
+        buttonClassName="p-2 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors flex px-4 gap-1"
+      />
+      <div className="relative">
+        <button
+          onClick={onEditRequest}
+          className="p-2 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors flex px-4 gap-1"
+        >
+          <PencilSquareIcon className="w-5 h-5" />
+          <span>수정 요청</span>
+        </button>
+        {showLogin && (
+          <LoginDropdown
+            position="bottom"
+            align="left"
+            onClose={onCloseLogin}
           />
-          <div className="relative">
-            <button
-              onClick={onEditRequest}
-              className="p-2 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors flex px-4 gap-1"
-            >
-              <PencilSquareIcon className="w-5 h-5" />
-              <span>수정 요청</span>
-            </button>
-            {showLogin && (
-              <LoginDropdown
-                position="bottom"
-                align="left"
-                onClose={onCloseLogin}
-              />
-            )}
-          </div>
+        )}
+      </div>
+    </div>
+
+    <motion.div
+      className="space-y-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4 }}
+    >
+      {data.event_url && <EventUrl eventUrl={data.event_url} />}
+      {data.etc && (
+        <div>
+          <h3 className="mb-2 text-lg font-semibold text-gray-800 dark:text-gray-200 transition-colors">
+            기타 정보
+          </h3>
+          <p className="text-gray-700 dark:text-gray-300 transition-colors">
+            {data.etc}
+          </p>
         </div>
       )}
-
-      <motion.div
-        className="space-y-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        {data.event_url && <EventUrl eventUrl={data.event_url} />}
-        {data.etc && (
-          <div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-800 dark:text-gray-200 transition-colors">
-              기타 정보
-            </h3>
-            <p className="text-gray-700 dark:text-gray-300 transition-colors">
-              {data.etc}
-            </p>
-          </div>
-        )}
-        <ActionButtons data={data} />
-      </motion.div>
+      <ShareButtons data={data} />
     </motion.div>
-  </>
+  </motion.div>
 );
 
 const EDIT_DAILY_LIMIT = 10;
@@ -361,9 +307,9 @@ export function Modal({
   eventNameSuggestions = [],
   genreSuggestions = [],
 }) {
-  const isMobile = useMobileDetection();
   const { isLoggedIn, user, role } = useAuth();
-  const { activeLoginId, openLoginDropdown, closeLoginDropdown } = useLoginDropdown();
+  const { activeLoginId, openLoginDropdown, closeLoginDropdown } =
+    useLoginDropdown();
   const showLogin = activeLoginId === "modal-edit";
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
@@ -404,6 +350,7 @@ export function Modal({
       })
       .catch(() => setEditRequestCount(0));
   }, [user?.uid, role]);
+
   const {
     contentRef,
     dragY,
@@ -414,21 +361,14 @@ export function Modal({
   } = useModalScroll(onClose);
   useScrollLock(isOpen);
 
-  // ESC key handler for PC browsers
   useEffect(() => {
     const handleEscKey = (event) => {
       if (event.key === "Escape" && isOpen && !isEditOpen) {
         onClose();
       }
     };
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscKey);
-    }
-
-    return () => {
-      document.removeEventListener("keydown", handleEscKey);
-    };
+    if (isOpen) document.addEventListener("keydown", handleEscKey);
+    return () => document.removeEventListener("keydown", handleEscKey);
   }, [isOpen, isEditOpen, onClose]);
 
   const handleEditSubmit = async (formData, reason) => {
@@ -492,70 +432,58 @@ export function Modal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className={`fixed inset-0 z-50 flex ${
-              isMobile ? "items-end" : "items-center"
-            } justify-center bg-black/50 backdrop-blur-sm`}
+            className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-black/50 backdrop-blur-sm"
             onClick={onClose}
           >
             <motion.div
-              animate={isMobile ? { y: 0 } : { scale: 1, opacity: 1 }}
-              transition={
-                isMobile
-                  ? { type: "spring", damping: 20 }
-                  : { type: "spring", duration: 0.5 }
-              }
-              className={`${
-                isMobile
-                  ? "w-full h-[80vh] rounded-t-3xl bg-gray-200 dark:bg-gray-900"
-                  : "rounded-lg md:max-w-3xl w-full max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900"
-              } transition-colors`}
+              animate={{ y: 0 }}
+              transition={{ type: "spring", damping: 20 }}
+              style={{ y: dragY }}
+              className="w-full h-[80vh] rounded-t-3xl lg:rounded-lg lg:max-w-3xl lg:h-auto lg:max-h-[90vh] lg:overflow-y-auto bg-gray-200 dark:bg-gray-900 transition-colors"
               onClick={(e) => e.stopPropagation()}
-              style={{ y: isMobile ? dragY : 0 }}
             >
-              {isMobile && (
-                <div
-                  className="relative w-full py-6"
-                  onTouchStart={handleTouchStart}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
+              {/* 모바일 드래그 핸들 */}
+              <div
+                className="lg:hidden relative w-full py-6"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                <button
+                  onClick={onClose}
+                  className="absolute p-1 text-indigo-600 dark:text-indigo-300 bg-transparent border-0 top-3 left-6 w-fit transition-colors"
                 >
-                  <button
-                    onClick={onClose}
-                    className="absolute p-1 text-indigo-600 dark:text-indigo-300 bg-transparent border-0 top-3 left-6 w-fit transition-colors"
-                  >
-                    닫기
-                  </button>
-                  <div className="w-12 h-1.5 mx-auto bg-gray-400 dark:bg-gray-300 rounded-full" />
-                  <div className="absolute top-3 right-6 flex items-center gap-2">
-                    <div className="relative">
-                      <button
-                        onClick={handleEditRequest}
-                        className="p-1 text-indigo-600 dark:text-indigo-300 bg-transparent border-0 w-fit transition-colors"
-                      >
-                        수정 요청
-                      </button>
-                      {showLogin && (
-                        <LoginDropdown
-                          position="bottom"
-                          align="right"
-                          onClose={closeLoginDropdown}
-                        />
-                      )}
-                    </div>
+                  닫기
+                </button>
+                <div className="w-12 h-1.5 mx-auto bg-gray-400 dark:bg-gray-300 rounded-full" />
+                <div className="absolute top-3 right-6 flex items-center gap-2">
+                  <div className="relative">
+                    <button
+                      onClick={handleEditRequest}
+                      className="p-1 text-indigo-600 dark:text-indigo-300 bg-transparent border-0 w-fit transition-colors"
+                    >
+                      수정 요청
+                    </button>
+                    {showLogin && (
+                      <LoginDropdown
+                        position="bottom"
+                        align="right"
+                        onClose={closeLoginDropdown}
+                      />
+                    )}
                   </div>
                 </div>
-              )}
+              </div>
+
+              {/* 스크롤 영역 */}
               <div
                 ref={contentRef}
-                className={`${
-                  isMobile ? "h-[calc(80vh-4rem)] overflow-y-auto" : "h-full"
-                }`}
+                className="h-[calc(80vh-4rem)] overflow-y-auto lg:h-auto lg:overflow-visible"
                 onScroll={handleScroll}
               >
                 <ModalContent
                   data={data}
                   onClose={onClose}
-                  isMobile={isMobile}
                   onEditRequest={handleEditRequest}
                   showLogin={showLogin}
                   onCloseLogin={closeLoginDropdown}
