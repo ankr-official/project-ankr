@@ -55,7 +55,7 @@ export function EventCarousel({ events, onEventClick }) {
       className="relative m-auto mb-8 w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-900 dark:to-black border dark:border-gray-900 cursor-pointer transition-colors"
       onClick={() => onEventClick(currentEvent)}
     >
-      <div className="relative h-32 md:h-60">
+      <div className="relative h-32 lg:h-60">
         {/* 배경 이미지 - 부드러운 페이드 전환 */}
         <AnimatePresence mode="wait">
           {currentEvent.img_url && (
@@ -83,21 +83,21 @@ export function EventCarousel({ events, onEventClick }) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -80 }}
             transition={{ duration: 0.35 }}
-            className="relative z-10 flex h-full items-center px-6 md:px-16"
+            className="relative z-10 flex h-full items-center px-6 lg:px-16"
           >
-            <div className="w-full text-center md:text-left flex flex-col items-center md:items-start gap-2 md:gap-3">
+            <div className="w-full text-center lg:text-left flex flex-col items-center lg:items-start gap-2 lg:gap-3">
               {/* 상단 날짜/시간 */}
-              <p className="text-xs md:text-sm font-medium dark:text-gray-200/90 tracking-wide">
+              <p className="text-xs lg:text-sm font-medium dark:text-gray-200/90 tracking-wide">
                 {formatDate(currentEvent.schedule, currentEvent.time_start)}
               </p>
 
               {/* 이벤트 이름 */}
-              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight  dark:text-white">
+              <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight  dark:text-white">
                 {currentEvent.event_name}
               </h2>
 
               {/* 장소 정보 */}
-              <p className="text-sm md:text-base dark:text-gray-200/80">
+              <p className="text-sm lg:text-base dark:text-gray-200/80">
                 {currentEvent.location}
               </p>
             </div>
