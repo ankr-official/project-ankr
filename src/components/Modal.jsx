@@ -6,7 +6,7 @@ import {
   PencilSquareIcon,
   EyeIcon,
 } from "@heroicons/react/24/outline";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue } from "framer-motion";
 import { formatDate, formatTime } from "../utils/dateUtils";
 import { useEffect, useRef, useState } from "react";
 import { useScrollLock } from "../hooks/useScrollLock";
@@ -28,7 +28,7 @@ const recordViewFn = httpsCallable(functions, "recordView");
 
 const useModalScroll = (onClose) => {
   const contentRef = useRef(null);
-  const [dragY, setDragY] = useState(0);
+  const dragY = useMotionValue(0);
   const dragStartY = useRef(0);
 
   const handleScroll = (e) => {
@@ -48,16 +48,16 @@ const useModalScroll = (onClose) => {
     if (contentRef.current?.scrollTop === 0) {
       const deltaY = e.touches[0].clientY - dragStartY.current;
       if (deltaY > 0) {
-        setDragY(deltaY);
+        dragY.set(deltaY);
       }
     }
   };
 
   const handleTouchEnd = () => {
-    if (dragY > 100) {
+    if (dragY.get() > 100) {
       onClose();
     } else {
-      setDragY(0);
+      dragY.set(0);
     }
   };
 
@@ -82,26 +82,18 @@ const FieldRow = ({ label, children }) => (
 );
 
 const EventImage = ({ imgUrl, eventName }) => (
-  <motion.div
-    className="mb-6"
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.2 }}
-  >
+  <div className="mb-6">
     <img
       src={imgUrl.replace(/(name=)[^&]*/, "$1large")}
       alt={eventName}
       className="object-cover w-full h-auto rounded-lg"
     />
-  </motion.div>
+  </div>
 );
 
 const EventInfo = ({ data }) => (
-  <motion.div
+  <div
     className={`grid ${data.time_start ? "grid-cols-2" : ""} gap-6 mb-6 bg-gray-100 dark:bg-gray-800 p-4 rounded-xl lg:rounded-lg lg:p-0 transition-colors`}
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.3 }}
   >
     <div className="py-2 space-y-2 text-gray-700 dark:text-gray-300 transition-colors">
       <FieldRow label="일정">{formatDate(data.schedule)}</FieldRow>
@@ -123,7 +115,7 @@ const EventInfo = ({ data }) => (
         )}
       </div>
     )}
-  </motion.div>
+  </div>
 );
 
 const EventUrl = ({ eventUrl }) => (
@@ -194,14 +186,14 @@ const ShareButtons = ({ data }) => {
     <div className="flex flex-col items-center gap-3 pt-4 lg:flex-row lg:justify-center">
       <button
         onClick={() => addToGoogleCalendar(data)}
-        className="flex items-center justify-center w-full px-4 py-2 text-white bg-indigo-600 rounded lg:w-fit active:bg-indigo-700 mouse:hover:bg-indigo-700"
+        className="flex items-center justify-center w-full px-4 py-2 text-white bg-indigo-600 rounded-lg lg:w-fit active:bg-indigo-700 mouse:hover:bg-indigo-700"
       >
         <CalendarIcon className="w-5 h-5 mr-2" />
         Google Calendar에 추가
       </button>
       <button
         onClick={handleTwitterShare}
-        className="flex items-center justify-center w-full px-4 py-2 text-white bg-blue-500 rounded lg:w-fit active:bg-blue-600 mouse:hover:bg-blue-600"
+        className="flex items-center justify-center w-full px-4 py-2 text-white bg-blue-500 rounded-lg lg:w-fit active:bg-blue-600 mouse:hover:bg-blue-600"
       >
         <ShareIcon className="w-5 h-5 mr-2" />
         X(Twitter)에 공유하기
@@ -275,12 +267,7 @@ const ModalContent = ({
       </div>
     </div>
 
-    <motion.div
-      className="space-y-4"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.4 }}
-    >
+    <div className="space-y-4">
       {data.event_url && <EventUrl eventUrl={data.event_url} />}
       {data.etc && (
         <div>
@@ -293,7 +280,7 @@ const ModalContent = ({
         </div>
       )}
       <ShareButtons data={data} />
-    </motion.div>
+    </div>
   </motion.div>
 );
 
@@ -436,10 +423,12 @@ export function Modal({
             onClick={onClose}
           >
             <motion.div
+              initial={{ y: "100%" }}
               animate={{ y: 0 }}
-              transition={{ type: "spring", damping: 20 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 300 }}
               style={{ y: dragY }}
-              className="w-full h-[80vh] rounded-t-3xl lg:rounded-lg lg:max-w-3xl lg:h-auto lg:max-h-[90vh] lg:overflow-y-auto bg-gray-200 dark:bg-gray-900 transition-colors"
+              className="w-full h-[80vh] rounded-t-3xl lg:rounded-xl lg:max-w-3xl lg:h-auto lg:max-h-[90vh] lg:overflow-y-auto bg-gray-200 dark:bg-gray-900 transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
               {/* 모바일 드래그 핸들 */}

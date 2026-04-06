@@ -52,7 +52,7 @@ export function EventCarousel({ events, onEventClick }) {
 
   return (
     <div
-      className="relative m-auto mb-8 w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-900 dark:to-black border dark:border-gray-900 cursor-pointer transition-colors"
+      className="relative m-auto mb-8 w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-900 border dark:border-gray-900 cursor-pointer transition-colors"
       onClick={() => onEventClick(currentEvent)}
     >
       <div className="relative h-32 lg:h-60">
@@ -73,7 +73,7 @@ export function EventCarousel({ events, onEventClick }) {
         </AnimatePresence>
 
         {/* 어두운 오버레이 (라이트/다크 모드 각각 튜닝) */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-white/70 via-white/80 to-white/40 dark:from-black/85 dark:via-black/60 dark:to-black/40" />
+        <div className="absolute inset-0 bg-white/65 dark:bg-black/65" />
 
         {/* 내용 */}
         <AnimatePresence mode="wait">
