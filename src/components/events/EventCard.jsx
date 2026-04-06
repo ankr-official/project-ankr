@@ -3,6 +3,18 @@ import { GenreTag } from "../common/GenreTag";
 import { LocationLink } from "../common/LocationLink";
 import { HeartButton } from "../common/HeartButton";
 
+const pad = (n) => String(n).padStart(2, "0");
+
+const formatTimeRange = (time_start, time_end) => {
+  const ds = new Date(time_start);
+  const hs = ds.getHours();
+  const icon = hs >= 6 && hs < 17 ? "☀️" : "🌙";
+  const start = `${pad(hs)}:${pad(ds.getMinutes())}`;
+  if (!time_end) return `${icon} ${start} ~ 정보 없음`;
+  const de = new Date(time_end);
+  return `${icon} ${start} ~ ${pad(de.getHours())}:${pad(de.getMinutes())}`;
+};
+
 export const EventCard = ({
   event,
   onEventSelect,
@@ -41,17 +53,7 @@ export const EventCard = ({
           </h3>
           {event.time_start && (
             <p className="mb-2 text-sm text-gray-600 dark:text-gray-300 transition-colors">
-              {(() => {
-                const pad = (n) => String(n).padStart(2, "0");
-                const ds = new Date(event.time_start);
-                const hs = ds.getHours();
-                const icon = hs >= 6 && hs < 17 ? "☀️" : "🌙";
-                const start = `${pad(hs)}:${pad(ds.getMinutes())}`;
-                if (!event.time_end) return `${icon} ${start} ~ 정보 없음`;
-                const de = new Date(event.time_end);
-                const end = `${pad(de.getHours())}:${pad(de.getMinutes())}`;
-                return `${icon} ${start} ~ ${end}`;
-              })()}
+              {formatTimeRange(event.time_start, event.time_end)}
             </p>
           )}
           {!event.time_start && showDate && <div className="mb-2" />}

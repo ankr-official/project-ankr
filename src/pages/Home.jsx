@@ -202,14 +202,12 @@ function Home() {
             >
               <button
                 className={`text-sm py-2  w-full lg:w-fit ${activeTab === "current" ? "bg-indigo-800" : "bg-indigo-900/50"}`}
-                isActive={activeTab === "current"}
                 onClick={() => setActiveTab("current")}
               >
                 예정된 이벤트
               </button>
               <button
-                className={`text-sm py-2  w-full lg:w-fit ${activeTab === "current" ? "bg-indigo-900/50" : "bg-indigo-800"}`}
-                isActive={activeTab === "past"}
+                className={`text-sm py-2  w-full lg:w-fit ${activeTab === "past" ? "bg-indigo-800" : "bg-indigo-900/50"}`}
                 onClick={() => setActiveTab("past")}
               >
                 종료된 이벤트
