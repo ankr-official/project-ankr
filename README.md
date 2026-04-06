@@ -10,7 +10,7 @@
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Realtime%20DB-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com)
 [![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
-[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 
 </div>
 
@@ -24,17 +24,20 @@
 
 ## 주요 기능
 
-| 기능              | 설명                                  |
-| ----------------- | ------------------------------------- |
-| 📅 이벤트 목록    | 예정 / 지난 이벤트를 제공             |
-| 🎵 장르 필터      | 원곡·리믹스 등 장르별 필터링          |
-| 🔍 통합 검색      | 이벤트명·장소·장르 키워드 검색        |
-| 🗓️ 캘린더 뷰      | 월별 달력으로 이벤트 일정 확인        |
-| 📋 테이블 뷰      | 목록형 테이블로 이벤트 상세 정보 확인 |
-| 📣 이벤트 제보    | 신규 이벤트 제보 가능                 |
-| ✏️ 정보 수정 요청 | 잘못된 정보에 대한 수정·삭제 요청     |
-| 🌙 다크 모드      | 라이트/다크 테마 전환 지원            |
-| 🔐 관리자 패널    | 제보·수정 요청 검토 및 이벤트 관리    |
+| 기능              | 설명                                                                      |
+| ----------------- | ------------------------------------------------------------------------- |
+| 📅 이벤트 목록    | 예정 / 지난 이벤트를 제공                                                 |
+| 🎵 장르 필터      | 원곡·리믹스 등 장르별 필터링                                              |
+| 🔍 통합 검색      | 이벤트명·장소·장르 키워드 검색                                            |
+| 🗓️ 캘린더 뷰      | 월별 달력으로 이벤트 일정 확인                                            |
+| 📋 테이블 뷰      | 목록형 테이블로 이벤트 상세 정보 확인                                     |
+| 📣 이벤트 제보    | 신규 이벤트 제보 가능                                                     |
+| ✏️ 정보 수정 요청 | 잘못된 정보에 대한 수정·삭제 요청                                         |
+| 🔑 Google 로그인  | Google 계정으로 간편 로그인                                               |
+| 🤍 관심 행사      | 하트 버튼으로 관심 행사 북마크, 다가오는 행사와 지난 행사로 분기하여 기록 |
+| ✅ 다녀온 행사    | 지난 행사를 '다녀온 행사'로 기록, 년도/분기별 영수증 발급                 |
+| 🌙 다크 모드      | 라이트/다크 테마 전환 지원                                                |
+| 🔐 관리자 패널    | 제보·수정 요청 검토 및 이벤트 관리                                        |
 
 ## Tech Stack
 
@@ -51,6 +54,7 @@ Hosting    GitHub Pages
 - `framer-motion` — 모달·카드 애니메이션
 - `date-fns` — 날짜 포맷 처리
 - `react-toastify` — 알림 토스트
+- `html-to-image` — 영수증 이미지 생성·다운로드
 
 ## 프로젝트 구조
 
