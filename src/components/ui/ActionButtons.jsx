@@ -41,11 +41,12 @@ export const ActionButtons = ({ onSearchOpen, isLoggedIn, onReportClick }) => {
           )}
         </div>
       </div>
-      <a onClick={onSearchOpen}>
-        <p className="p-2 m-auto mt-6 text-center text-indigo-400 underline cursor-pointer w-fit active:text-indigo-600 mouse:hover:text-indigo-600">
-          *혹시 이미 등록된 행사일까요?
-        </p>
-      </a>
+      <button
+        onClick={onSearchOpen}
+        className="p-2 m-auto mt-6 text-center text-indigo-400 underline cursor-pointer w-fit active:text-indigo-600 mouse:hover:text-indigo-600"
+      >
+        *혹시 이미 등록된 행사일까요?
+      </button>
     </>
   );
 };
