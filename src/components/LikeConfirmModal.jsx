@@ -9,7 +9,7 @@ export default function LikeConfirmModal({ onAttended, onLiked, onClose }) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden"
+        className="w-full max-w-sm bg-white dark:bg-gray-900 rounded-xl shadow-xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-6 pt-6 pb-4">
