@@ -50,7 +50,7 @@ function Home() {
 
   // Local state
   const [activeTab, setActiveTab] = useState("current");
-  const [visiblePastEvents, setVisiblePastEvents] = useState(15);
+  const [visiblePastYears, setVisiblePastYears] = useState(new Set());
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -96,9 +96,20 @@ function Home() {
     }
   };
 
-  const loadMorePastEvents = () => {
-    setVisiblePastEvents((prev) => prev + 15);
+  const THIS_YEAR = new Date().getFullYear();
+
+  const addPastYear = (year) => {
+    loadYear(year);
+    setVisiblePastYears((prev) => new Set([...prev, year]));
   };
+
+  const shownPastEvents = pastEvents.filter((e) =>
+    visiblePastYears.has(new Date(e.schedule).getFullYear())
+  );
+
+  const nextPastYear = knownYears
+    .filter((y) => y < THIS_YEAR && !visiblePastYears.has(y))
+    .sort((a, b) => b - a)[0];
 
   if (loading) {
     return (
@@ -215,11 +226,12 @@ function Home() {
                 className={`text-sm py-2  w-full lg:w-fit ${activeTab === "past" ? "bg-indigo-800" : "bg-indigo-900/50"}`}
                 onClick={() => {
                   setActiveTab("past");
-                  // 직전 연도부터 순서대로 lazy load
-                  const currentYear = new Date().getFullYear();
-                  knownYears
-                    .filter((y) => y < currentYear)
-                    .forEach((y) => loadYear(y));
+                  if (visiblePastYears.size === 0) {
+                    const firstYear = knownYears
+                      .filter((y) => y < THIS_YEAR)
+                      .sort((a, b) => b - a)[0];
+                    if (firstYear) addPastYear(firstYear);
+                  }
                 }}
               >
                 종료된 이벤트
@@ -240,18 +252,21 @@ function Home() {
               ) : (
                 <div>
                   <EventTable
-                    events={pastEvents.slice(0, visiblePastEvents)}
+                    events={shownPastEvents}
                     className="opacity-70"
                     onEventSelect={handleModalOpen}
                     selectedGenres={selectedGenres}
                     onGenreChange={handleGenreChange}
                   />
-                  {visiblePastEvents < pastEvents.length && (
+                  {nextPastYear && (
                     <button
-                      onClick={loadMorePastEvents}
-                      className="px-4 py-2 mt-4 w-full text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-900 rounded border border-gray-300 dark:border-gray-700 active:bg-gray-300 mouse:hover:bg-gray-300 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors"
+                      onClick={() => addPastYear(nextPastYear)}
+                      disabled={loadingYears.has(nextPastYear)}
+                      className="px-4 py-2 mt-4 w-full text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-900 rounded border border-gray-300 dark:border-gray-700 active:bg-gray-300 mouse:hover:bg-gray-300 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 disabled:opacity-50 transition-colors"
                     >
-                      더보기
+                      {loadingYears.has(nextPastYear)
+                        ? `${nextPastYear}년 불러오는 중...`
+                        : `${nextPastYear}년 더보기`}
                     </button>
                   )}
                 </div>

@@ -14,9 +14,11 @@ export const SearchModal = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [autoLoading, setAutoLoading] = useState(false);
   const modalRef = useRef(null);
   const inputRef = useRef(null);
   const touchStartY = useRef(0);
+  const prevResultCountRef = useRef(0);
 
   useScrollLock(isOpen);
 
@@ -43,6 +45,7 @@ export const SearchModal = ({
   useEffect(() => {
     if (!searchQuery.trim()) {
       setSearchResults([]);
+      setAutoLoading(false);
       return;
     }
 
@@ -58,6 +61,24 @@ export const SearchModal = ({
     });
     setSearchResults(results);
   }, [searchQuery, events]);
+
+  // autoLoading 중: 새 연도 로드 후 결과 없으면 다음 연도 자동 로드
+  useEffect(() => {
+    if (!autoLoading) return;
+    const nextYear = knownYears.find((y) => !loadedYears.has(y));
+    if (!nextYear) {
+      setAutoLoading(false);
+      return;
+    }
+    if (searchResults.length > prevResultCountRef.current) {
+      // 결과 생김 → 중단
+      setAutoLoading(false);
+    } else if (!loadingYears.has(nextYear)) {
+      // 결과 없음 → 다음 연도 자동 로드
+      prevResultCountRef.current = searchResults.length;
+      onYearLoad?.(nextYear);
+    }
+  }, [autoLoading, searchResults, loadedYears, loadingYears]);
 
   useEffect(() => {
     const handleTouchStart = (e) => {
@@ -197,29 +218,18 @@ export const SearchModal = ({
             {searchQuery && (() => {
               const nextYear = knownYears.find((y) => !loadedYears.has(y));
               if (!nextYear) return null;
-
-              // 가장 최근에 로드된 과거 연도에 결과가 없으면 버튼 숨김
-              const currentYear = new Date().getFullYear();
-              const lastLoadedPastYear = knownYears.find(
-                (y) => y !== currentYear && loadedYears.has(y)
-              );
-              if (
-                lastLoadedPastYear &&
-                !searchResults.some(
-                  (e) => new Date(e.schedule).getFullYear() === lastLoadedPastYear
-                )
-              ) return null;
-
-              const isLoading = loadingYears.has(nextYear);
+              const isBusy = autoLoading || loadingYears.has(nextYear);
               return (
                 <button
-                  onClick={() => onYearLoad?.(nextYear)}
-                  disabled={isLoading}
+                  onClick={() => {
+                    prevResultCountRef.current = searchResults.length;
+                    setAutoLoading(true);
+                    onYearLoad?.(nextYear);
+                  }}
+                  disabled={isBusy}
                   className="w-full py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg active:bg-gray-300 mouse:hover:bg-gray-300 dark:active:bg-gray-600 dark:mouse:hover:bg-gray-600 disabled:opacity-50 transition-colors"
                 >
-                  {isLoading
-                    ? `${nextYear}년 불러오는 중...`
-                    : `${nextYear}년 검색 결과 더보기`}
+                  {isBusy ? "검색 중..." : `${nextYear}년 검색 결과 더보기`}
                 </button>
               );
             })()}
