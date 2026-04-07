@@ -27,8 +27,16 @@ import { useAuth } from "../contexts/AuthContext";
 
 function Home() {
   // Data and loading state
-  const { allData: data, knownYears, loadedYears, loadingYears, loadYear, loadAllYears, allYearsLoaded, loading } =
-    useYearEventData();
+  const {
+    allData: data,
+    knownYears,
+    loadedYears,
+    loadingYears,
+    loadYear,
+    loadAllYears,
+    allYearsLoaded,
+    loading,
+  } = useYearEventData();
 
   // Auth
   const { isLoggedIn, user, role } = useAuth();
@@ -104,7 +112,7 @@ function Home() {
   };
 
   const shownPastEvents = pastEvents.filter((e) =>
-    visiblePastYears.has(new Date(e.schedule).getFullYear())
+    visiblePastYears.has(new Date(e.schedule).getFullYear()),
   );
 
   const nextPastYear = knownYears
@@ -234,7 +242,7 @@ function Home() {
                   }
                 }}
               >
-                종료된 이벤트
+                지난 이벤트
               </button>
             </div>
           </div>
