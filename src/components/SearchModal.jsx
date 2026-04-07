@@ -2,7 +2,16 @@ import { useState, useEffect, useRef } from "react";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { EventCard } from "./events/EventCard";
 
-export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
+export const SearchModal = ({
+  isOpen,
+  onClose,
+  events,
+  onEventSelect,
+  knownYears = [],
+  loadedYears = new Set(),
+  loadingYears = new Set(),
+  onYearLoad,
+}) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const modalRef = useRef(null);
@@ -16,7 +25,9 @@ export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
 
     inputRef.current?.focus();
 
-    const handleKeyDown = (e) => { if (e.key === "Escape") onClose(); };
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose();
+    };
     const handleMouseDown = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) onClose();
     };
@@ -181,6 +192,37 @@ export const SearchModal = ({ isOpen, onClose, events, onEventSelect }) => {
                 이벤트를 검색해보세요.
               </div>
             )}
+
+            {/* 미로드 연도 더보기 */}
+            {searchQuery && (() => {
+              const nextYear = knownYears.find((y) => !loadedYears.has(y));
+              if (!nextYear) return null;
+
+              // 가장 최근에 로드된 과거 연도에 결과가 없으면 버튼 숨김
+              const currentYear = new Date().getFullYear();
+              const lastLoadedPastYear = knownYears.find(
+                (y) => y !== currentYear && loadedYears.has(y)
+              );
+              if (
+                lastLoadedPastYear &&
+                !searchResults.some(
+                  (e) => new Date(e.schedule).getFullYear() === lastLoadedPastYear
+                )
+              ) return null;
+
+              const isLoading = loadingYears.has(nextYear);
+              return (
+                <button
+                  onClick={() => onYearLoad?.(nextYear)}
+                  disabled={isLoading}
+                  className="w-full py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg active:bg-gray-300 mouse:hover:bg-gray-300 dark:active:bg-gray-600 dark:mouse:hover:bg-gray-600 disabled:opacity-50 transition-colors"
+                >
+                  {isLoading
+                    ? `${nextYear}년 불러오는 중...`
+                    : `${nextYear}년 검색 결과 더보기`}
+                </button>
+              );
+            })()}
           </div>
         </div>
       </div>

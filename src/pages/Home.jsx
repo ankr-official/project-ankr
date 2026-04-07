@@ -27,7 +27,7 @@ import { useAuth } from "../contexts/AuthContext";
 
 function Home() {
   // Data and loading state
-  const { allData: data, knownYears, loadedYears, loadingYears, loadYear, loading } =
+  const { allData: data, knownYears, loadedYears, loadingYears, loadYear, loadAllYears, allYearsLoaded, loading } =
     useYearEventData();
 
   // Auth
@@ -39,7 +39,7 @@ function Home() {
 
   // Modal and navigation
   const { selectedItem, handleModalOpen, handleModalClose } =
-    useModalNavigation(data);
+    useModalNavigation(data, { loadAllYears, allYearsLoaded });
 
   // Processed event data
   const { currentEvents, pastEvents, thisWeeksEvents } = useEventData(
@@ -159,6 +159,10 @@ function Home() {
         onClose={() => setIsSearchOpen(false)}
         events={[...currentEvents, ...pastEvents]}
         onEventSelect={handleModalOpen}
+        knownYears={knownYears}
+        loadedYears={loadedYears}
+        loadingYears={loadingYears}
+        onYearLoad={loadYear}
       />
 
       <div className="container flex-grow px-2 py-6 mx-auto lg:px-4">

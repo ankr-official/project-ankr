@@ -69,6 +69,13 @@ export const useYearEventData = () => {
 
   const allData = Object.values(yearData).flat();
 
+  const allYearsLoaded =
+    knownYears.length > 0 && knownYears.every((y) => loadedYears.has(y));
+
+  const loadAllYears = () => {
+    knownYears.forEach((y) => loadYear(y));
+  };
+
   return {
     allData,
     yearData,
@@ -76,6 +83,8 @@ export const useYearEventData = () => {
     loadedYears,
     loadingYears,
     loadYear,
+    loadAllYears,
+    allYearsLoaded,
     loading,
   };
 };
