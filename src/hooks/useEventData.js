@@ -22,7 +22,7 @@ export const useEventData = (data, selectedGenres, showConfirmed = true) => {
             .map(item => ({
                 ...item,
                 scheduleDate: new Date(item.schedule),
-                isPast: new Date(item.schedule) < today,
+                isPast: (item.time_start ? new Date(item.time_start) : new Date(item.schedule)) < today,
             }));
     }, [data, selectedGenres, showConfirmed]);
 
