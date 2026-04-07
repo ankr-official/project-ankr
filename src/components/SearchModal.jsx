@@ -14,11 +14,9 @@ export const SearchModal = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [autoLoading, setAutoLoading] = useState(false);
   const modalRef = useRef(null);
   const inputRef = useRef(null);
   const touchStartY = useRef(0);
-  const prevResultCountRef = useRef(0);
 
   useScrollLock(isOpen);
 
@@ -45,7 +43,6 @@ export const SearchModal = ({
   useEffect(() => {
     if (!searchQuery.trim()) {
       setSearchResults([]);
-      setAutoLoading(false);
       return;
     }
 
@@ -61,24 +58,6 @@ export const SearchModal = ({
     });
     setSearchResults(results);
   }, [searchQuery, events]);
-
-  // autoLoading 중: 새 연도 로드 후 결과 없으면 다음 연도 자동 로드
-  useEffect(() => {
-    if (!autoLoading) return;
-    const nextYear = knownYears.find((y) => !loadedYears.has(y));
-    if (!nextYear) {
-      setAutoLoading(false);
-      return;
-    }
-    if (searchResults.length > prevResultCountRef.current) {
-      // 결과 생김 → 중단
-      setAutoLoading(false);
-    } else if (!loadingYears.has(nextYear)) {
-      // 결과 없음 → 다음 연도 자동 로드
-      prevResultCountRef.current = searchResults.length;
-      onYearLoad?.(nextYear);
-    }
-  }, [autoLoading, searchResults, loadedYears, loadingYears]);
 
   useEffect(() => {
     const handleTouchStart = (e) => {
@@ -218,14 +197,10 @@ export const SearchModal = ({
             {searchQuery && (() => {
               const nextYear = knownYears.find((y) => !loadedYears.has(y));
               if (!nextYear) return null;
-              const isBusy = autoLoading || loadingYears.has(nextYear);
+              const isBusy = loadingYears.has(nextYear);
               return (
                 <button
-                  onClick={() => {
-                    prevResultCountRef.current = searchResults.length;
-                    setAutoLoading(true);
-                    onYearLoad?.(nextYear);
-                  }}
+                  onClick={() => onYearLoad?.(nextYear)}
                   disabled={isBusy}
                   className="w-full py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg active:bg-gray-300 mouse:hover:bg-gray-300 dark:active:bg-gray-600 dark:mouse:hover:bg-gray-600 disabled:opacity-50 transition-colors"
                 >
