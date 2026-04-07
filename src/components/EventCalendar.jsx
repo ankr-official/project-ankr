@@ -102,6 +102,7 @@ const EventCalendar = ({
       currentDate.getMonth() - 1,
     );
     setCurrentDate(newDate);
+    onYearLoad?.(newDate.getFullYear());
   };
 
   const nextMonth = () => {
@@ -110,6 +111,7 @@ const EventCalendar = ({
       currentDate.getMonth() + 1,
     );
     setCurrentDate(newDate);
+    onYearLoad?.(newDate.getFullYear());
   };
 
   // 장르 필터링된 이벤트 가져오기
