@@ -175,7 +175,10 @@ exports.onEditRequestCreated = onValueCreated(
       // _snap: 요청 제출 시점의 원본 값 스냅샷 (브라우저에서 저장). 없으면 DB에서 읽음.
       let original = request._snap ?? null;
       if (!original) {
-        const originalSnap = await admin.database().ref(`data_v2/${request.eventId}`).once("value");
+        const evtPath = request.eventYear
+          ? `data_v3/${request.eventYear}/${request.eventId}`
+          : `data_v2/${request.eventId}`;
+        const originalSnap = await admin.database().ref(evtPath).once("value");
         original = originalSnap.val();
       }
 
@@ -303,7 +306,7 @@ exports.weeklyBackup = onSchedule(
     region: "asia-southeast1",
   },
   async () => {
-    const snapshot = await admin.database().ref("data_v2").get();
+    const snapshot = await admin.database().ref("data_v3").get();
     const json = JSON.stringify(snapshot.val(), null, 2);
 
     // 서울 시간 기준 파일명 생성
@@ -318,7 +321,7 @@ exports.weeklyBackup = onSchedule(
       pad(seoul.getUTCHours()),
       pad(seoul.getUTCMinutes()),
     ].join("");
-    const fileName = `backups/data_v2_${timestamp}.json`;
+    const fileName = `backups/data_v3_${timestamp}.json`;
 
     await admin.storage().bucket().file(fileName).save(json, {
       contentType: "application/json",
@@ -514,12 +517,47 @@ exports.recordView = onCall(
     const TTL_MS = 24 * 60 * 60 * 1000;
     if (snap.exists() && now - snap.val() < TTL_MS) return { counted: false };
 
+    const eventYear = data.eventYear;
+    const viewsPath = eventYear
+      ? `data_v3/${eventYear}/${eventId}/views`
+      : `data_v2/${eventId}/views`;
     await admin.database()
-      .ref(`data_v2/${eventId}/views`)
+      .ref(viewsPath)
       .transaction((current) => (current || 0) + 1);
     await ipRef.set(now);
 
     return { counted: true };
+  }
+);
+
+// data_v2 → data_v3/{year}/{id} 마이그레이션 (1회 실행용, owner만 호출 가능)
+exports.migrateToV3 = onCall(
+  { region: "asia-northeast3" },
+  async ({ auth }) => {
+    if (!auth) throw new Error("unauthenticated");
+    const tokenSnap = await admin.auth().getUser(auth.uid);
+    const role = tokenSnap.customClaims?.role;
+    if (role !== "owner") throw new Error("permission-denied");
+
+    const src = await admin.database().ref("data_v2").get();
+    const srcVal = src.val();
+    if (!srcVal) return { migrated: 0 };
+
+    const updates = {};
+    const years = new Set();
+
+    Object.entries(srcVal).forEach(([id, event]) => {
+      if (!event.schedule) return;
+      const year = new Date(event.schedule).getFullYear();
+      if (isNaN(year)) return;
+      years.add(year);
+      updates[`data_v3/${year}/${id}`] = event;
+    });
+
+    updates["data_v3/meta/years"] = [...years].sort((a, b) => a - b);
+
+    await admin.database().ref().update(updates);
+    return { migrated: Object.keys(srcVal).length, years: [...years].sort() };
   }
 );
 

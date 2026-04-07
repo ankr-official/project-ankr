@@ -1,0 +1,58 @@
+{
+  "rules": {
+    "data": {
+      ".read": true,
+      ".write": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner')"
+    },
+    "data_v2": {
+      ".read": true,
+      ".write": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner')"
+    },
+    "data_v3": {
+      "meta": {
+        ".read": true,
+        ".write": "auth != null && auth.token.role === 'owner'"
+      },
+      "$year": {
+        ".read": true,
+        ".write": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner')"
+      }
+    },
+    "reports": {
+      ".read": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner')",
+      ".write": "auth != null",
+      "$reportId": {
+        ".validate": "newData.hasChildren(['event_name', 'schedule', 'location', 'genre', 'event_url'])"
+      }
+    },
+    "reportLimits": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "editRequests": {
+      ".read": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner')",
+      ".write": "auth != null",
+      "$requestId": {
+        ".validate": "newData.hasChildren(['event_name', 'schedule', 'location', 'genre', 'eventId', 'reason'])"
+      }
+    },
+    "editRequestLimits": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "viewIPs": {
+      ".read": false,
+      ".write": false
+    },
+    "likes": {
+      "$uid": {
+        ".read": "auth !== null && auth.uid === $uid",
+        ".write": "auth !== null && auth.uid === $uid"
+      }
+    }
+  }
+}

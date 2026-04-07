@@ -23,6 +23,10 @@ const EventCalendar = ({
   onEventSelect,
   selectedGenres = ["all"],
   onGenreChange,
+  knownYears = [],
+  loadedYears = new Set(),
+  loadingYears = new Set(),
+  onYearLoad,
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [holidays, setHolidays] = useState({});
@@ -167,6 +171,7 @@ const EventCalendar = ({
 
   const handleYearSelect = (year) => {
     setSelectedYear(year);
+    onYearLoad?.(year);
   };
 
   const handleYearMonthSelect = (year, month) => {
@@ -176,13 +181,18 @@ const EventCalendar = ({
     setSelectedYear(year);
   };
 
-  // 이벤트가 있는 년도 추출
-  const availableYears = [
-    ...new Set(events.map((event) => new Date(event.schedule).getFullYear())),
-  ].sort((a, b) => b - a);
-
-  // 최근 4년과 나머지로 분리
+  // knownYears 우선, 없으면 events에서 추출
   const currentYear = new Date().getFullYear();
+  const availableYears =
+    knownYears.length > 0
+      ? knownYears
+      : [
+          ...new Set(
+            events.map((event) => new Date(event.schedule).getFullYear()),
+          ),
+        ].sort((a, b) => b - a);
+
+  // 최근 3년과 나머지로 분리
   const recentYears = availableYears.filter((year) => year >= currentYear - 2);
   const olderYears = availableYears.filter((year) => year < currentYear - 2);
 
@@ -299,13 +309,16 @@ const EventCalendar = ({
                     <button
                       key={year}
                       onClick={() => handleYearSelect(year)}
-                      className={`px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
+                      className={`relative px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
                         year === selectedYear
                           ? "bg-indigo-600 dark:bg-indigo-600 text-white shadow-lg scale-105"
                           : "bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-300 active:bg-gray-300 mouse:hover:bg-gray-300 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 active:text-gray-900 mouse:hover:text-gray-900 dark:active:text-white dark:mouse:hover:text-white focus:text-gray-900 dark:focus:text-white"
                       }`}
                     >
                       {year}
+                      {loadingYears.has(year) && (
+                        <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                      )}
                     </button>
                   ))}
                 </div>

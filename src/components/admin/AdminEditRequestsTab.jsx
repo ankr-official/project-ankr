@@ -13,16 +13,28 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
     if (!editRequestsLoading) onCountChange?.(editRequests.length);
   }, [editRequests.length, editRequestsLoading]);
 
+  const getEventYear = (request) => {
+    if (request.eventYear) return request.eventYear;
+    const found = events.find((e) => e.id === request.eventId);
+    return found ? new Date(found.schedule).getFullYear() : null;
+  };
+
   const handleApprove = async (request) => {
     try {
+      const year = getEventYear(request);
+      if (!year) {
+        toast.error("이벤트 연도를 확인할 수 없습니다.");
+        return;
+      }
       if (request.deleteRequest) {
-        await remove(ref(database, `data_v2/${request.eventId}`));
+        await remove(ref(database, `data_v3/${year}/${request.eventId}`));
         await remove(ref(database, `editRequests/${request.id}`));
         toast.success("삭제 요청이 승인되어 이벤트가 삭제되었습니다.");
       } else {
         const {
           id,
           eventId,
+          eventYear,
           eventName,
           reason,
           submittedAt,
@@ -30,7 +42,7 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
           _snap,
           ...data
         } = request;
-        await update(ref(database, `data_v2/${eventId}`), data);
+        await update(ref(database, `data_v3/${year}/${eventId}`), data);
         await remove(ref(database, `editRequests/${id}`));
         toast.success("요청이 승인되어 이벤트 정보가 업데이트되었습니다.");
       }

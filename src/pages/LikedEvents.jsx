@@ -14,7 +14,7 @@ import { CheckCircleIcon as CheckCircleSolid } from "@heroicons/react/24/solid";
 import { database } from "../config/firebase";
 import { sortByDateTime } from "../utils/dateUtils";
 import { useAuth } from "../contexts/AuthContext";
-import { useRealtimeData } from "../hooks/useRealtimeData";
+import { useYearEventData } from "../hooks/useYearEventData";
 import { EventCard } from "../components/events/EventCard";
 import { AttendedPicker } from "../components/AttendedPicker";
 import { AttendedReceiptModal } from "../components/AttendedReceiptModal";
@@ -49,7 +49,13 @@ const isPast = (schedule) => {
 export default function LikedEvents() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { data: allEvents } = useRealtimeData("data_v2");
+  const { allData: allEvents, knownYears, loadYear } = useYearEventData();
+
+  // 다녀온 행사는 과거 연도도 필요하므로 모든 연도 로드
+  useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    knownYears.forEach((y) => { if (y !== currentYear) loadYear(y); });
+  }, [knownYears]);
   const [likes, setLikes] = useState(null);
   const [activeTab, setActiveTab] = useState("liked");
   const [showPicker, setShowPicker] = useState(false);

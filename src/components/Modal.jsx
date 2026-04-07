@@ -320,9 +320,13 @@ export function Modal({
     if (recordedRef.current === data.id) return;
     recordedRef.current = data.id;
 
-    recordViewFn({ eventId: data.id }).catch(() => {});
+    recordViewFn({
+      eventId: data.id,
+      eventYear: new Date(data.schedule).getFullYear(),
+    }).catch(() => {});
 
-    get(ref(database, `data_v2/${data.id}/views`))
+    const eventYear = new Date(data.schedule).getFullYear();
+    get(ref(database, `data_v3/${eventYear}/${data.id}/views`))
       .then((snap) => setViewCount(snap.val() ?? 0))
       .catch(() => {});
   }, [isOpen, data?.id]);
@@ -365,6 +369,7 @@ export function Modal({
       await push(ref(database, "editRequests"), {
         ...formData,
         eventId: data.id,
+        eventYear: new Date(data.schedule).getFullYear(),
         eventName: data.event_name,
         reason,
         submittedAt: new Date().toISOString(),

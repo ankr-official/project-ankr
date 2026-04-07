@@ -4,7 +4,7 @@ import { ref, remove, update, set, get } from "firebase/database";
 import { toast } from "react-toastify";
 import { database } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
-import { useRealtimeData } from "../hooks/useRealtimeData";
+import { useYearEventData } from "../hooks/useYearEventData";
 import { toArray, GENRES } from "../utils/eventFormUtils";
 import EventEditModal from "../components/admin/EventEditModal";
 import AdminHeader from "../components/admin/AdminHeader";
@@ -18,7 +18,13 @@ import TabBar from "../components/admin/TabBar";
 export default function Admin() {
   const navigate = useNavigate();
   const { role, user, signOut, loading: authLoading } = useAuth();
-  const { data: events, loading: dataLoading } = useRealtimeData("data_v2");
+  const { allData: events, knownYears, loadYear, loading: dataLoading } = useYearEventData();
+
+  // Admin은 모든 연도 데이터 필요
+  useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    knownYears.forEach((y) => { if (y !== currentYear) loadYear(y); });
+  }, [knownYears]);
 
   // ── 모든 훅은 조건부 return 전에 선언 ──
   const [section, setSection] = useState("events");
@@ -124,7 +130,8 @@ export default function Admin() {
   const handleToggleConfirm = async (event, e) => {
     e.stopPropagation();
     try {
-      await update(ref(database, `data_v2/${event.id}`), {
+      const year = new Date(event.schedule).getFullYear();
+      await update(ref(database, `data_v3/${year}/${event.id}`), {
         confirm: !event.confirm,
       });
     } catch {
@@ -136,7 +143,8 @@ export default function Admin() {
     if (!deleteTarget) return;
     setIsDeleting(true);
     try {
-      await remove(ref(database, `data_v2/${deleteTarget.id}`));
+      const year = new Date(deleteTarget.schedule).getFullYear();
+      await remove(ref(database, `data_v3/${year}/${deleteTarget.id}`));
       toast.success("이벤트가 삭제되었습니다.");
       setDeleteTarget(null);
     } catch {
@@ -151,14 +159,16 @@ export default function Admin() {
     setIsSaving(true);
     try {
       if (id) {
-        await update(ref(database, `data_v2/${id}`), data);
+        const year = new Date(data.schedule).getFullYear();
+        await update(ref(database, `data_v3/${year}/${id}`), data);
         toast.success("이벤트가 수정되었습니다.");
       } else {
+        const year = new Date(data.schedule).getFullYear();
         const maxRow = events.reduce((max, e) => {
           const match = e.id?.match(/^row(\d+)$/);
           return match ? Math.max(max, parseInt(match[1], 10)) : max;
         }, 0);
-        await set(ref(database, `data_v2/row${maxRow + 1}`), data);
+        await set(ref(database, `data_v3/${year}/row${maxRow + 1}`), data);
         if (approvingReportId) {
           await remove(ref(database, `reports/${approvingReportId}`));
           toast.success("제보가 승인되어 이벤트로 등록되었습니다.");
