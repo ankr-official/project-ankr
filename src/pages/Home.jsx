@@ -18,7 +18,7 @@ import { AprilFoolsBanner } from "../components/AprilFoolsBanner";
 import ReportEventModal from "../components/ReportEventModal";
 
 // Hooks
-import { useRealtimeData } from "../hooks/useRealtimeData";
+import { useYearEventData } from "../hooks/useYearEventData";
 import { GENRES, toArray } from "../utils/eventFormUtils";
 import { useUserSettings } from "../hooks/useUserSettings";
 import { useEventData } from "../hooks/useEventData";
@@ -27,7 +27,8 @@ import { useAuth } from "../contexts/AuthContext";
 
 function Home() {
   // Data and loading state
-  const { data, loading } = useRealtimeData("data_v2");
+  const { allData: data, knownYears, loadedYears, loadingYears, loadYear, loading } =
+    useYearEventData();
 
   // Auth
   const { isLoggedIn, user, role } = useAuth();
@@ -208,7 +209,14 @@ function Home() {
               </button>
               <button
                 className={`text-sm py-2  w-full lg:w-fit ${activeTab === "past" ? "bg-indigo-800" : "bg-indigo-900/50"}`}
-                onClick={() => setActiveTab("past")}
+                onClick={() => {
+                  setActiveTab("past");
+                  // 직전 연도부터 순서대로 lazy load
+                  const currentYear = new Date().getFullYear();
+                  knownYears
+                    .filter((y) => y < currentYear)
+                    .forEach((y) => loadYear(y));
+                }}
               >
                 종료된 이벤트
               </button>
@@ -250,6 +258,10 @@ function Home() {
                 onEventSelect={handleModalOpen}
                 selectedGenres={selectedGenres}
                 onGenreChange={handleGenreChange}
+                knownYears={knownYears}
+                loadedYears={loadedYears}
+                loadingYears={loadingYears}
+                onYearLoad={loadYear}
               />
             )}
           </div>
