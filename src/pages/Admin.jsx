@@ -164,12 +164,10 @@ export default function Admin() {
         toast.success("이벤트가 수정되었습니다.");
       } else {
         const year = new Date(data.schedule).getFullYear();
-        const maxRow = events
-          .filter(e => new Date(e.schedule).getFullYear() === year)
-          .reduce((max, e) => {
-            const match = e.id?.match(/^row(\d+)$/);
-            return match ? Math.max(max, parseInt(match[1], 10)) : max;
-          }, 0);
+        const maxRow = events.reduce((max, e) => {
+          const match = e.id?.match(/^row(\d+)$/);
+          return match ? Math.max(max, parseInt(match[1], 10)) : max;
+        }, 0);
         await set(ref(database, `data_v3/${year}/row${maxRow + 1}`), data);
         if (!knownYears.includes(year)) {
           const updatedYears = [...knownYears, year].sort((a, b) => b - a);
