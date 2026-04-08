@@ -27,7 +27,7 @@ const getQuarter = (dateStr) => {
   return "Q4";
 };
 
-export function AttendedPicker({ user, allEvents, likes, onClose }) {
+export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [], loadedYears = new Set(), loadingYears = new Set(), onYearLoad }) {
   useScrollLock(true);
   const today = useMemo(() => {
     const d = new Date();
@@ -43,15 +43,10 @@ export function AttendedPicker({ user, allEvents, likes, onClose }) {
     [allEvents, today],
   );
 
-  const availableYears = useMemo(() => {
-    const years = [...new Set(pastEvents.map((e) => new Date(e.schedule).getFullYear()))];
-    return years.sort((a, b) => b - a);
-  }, [pastEvents]);
-
   const currentYear = new Date().getFullYear();
-  const defaultYear = availableYears.includes(currentYear)
+  const defaultYear = knownYears.includes(currentYear)
     ? currentYear
-    : availableYears[0] ?? currentYear;
+    : knownYears[0] ?? currentYear;
 
   const [keyword, setKeyword] = useState("");
   const [selectedYear, setSelectedYear] = useState(defaultYear);
@@ -106,7 +101,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose }) {
       onClick={onClose}
     >
       <div
-        className="w-full sm:max-w-lg bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col max-h-[85vh]"
+        className="w-full sm:max-w-lg bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -142,12 +137,13 @@ export function AttendedPicker({ user, allEvents, likes, onClose }) {
           <div className="px-4 pt-3 pb-2 space-y-2 border-b border-gray-100 dark:border-gray-800">
             {/* Year */}
             <div className="flex gap-1.5 overflow-x-auto pb-0.5 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-              {availableYears.map((year) => (
+              {knownYears.map((year) => (
                 <button
                   key={year}
                   onClick={() => {
                     setSelectedYear(year);
                     setSelectedQuarter("all");
+                    if (!loadedYears.has(year)) onYearLoad?.(year);
                   }}
                   className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     selectedYear === year
@@ -234,7 +230,11 @@ export function AttendedPicker({ user, allEvents, likes, onClose }) {
           })}
           {filtered.length === 0 && (
             <p className="text-center text-sm text-gray-400 dark:text-gray-600 py-8">
-              {isSearching ? "검색 결과가 없습니다." : "해당 기간에 행사가 없습니다."}
+              {loadingYears.has(selectedYear)
+                ? "불러오는 중..."
+                : isSearching
+                  ? "검색 결과가 없습니다."
+                  : "해당 기간에 행사가 없습니다."}
             </p>
           )}
         </div>

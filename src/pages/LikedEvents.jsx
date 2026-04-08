@@ -49,13 +49,7 @@ const isPast = (schedule) => {
 export default function LikedEvents() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { allData: allEvents, knownYears, loadYear } = useYearEventData();
-
-  // 다녀온 행사는 과거 연도도 필요하므로 모든 연도 로드
-  useEffect(() => {
-    const currentYear = new Date().getFullYear();
-    knownYears.forEach((y) => { if (y !== currentYear) loadYear(y); });
-  }, [knownYears]);
+  const { allData: allEvents, knownYears, loadedYears, loadingYears, loadYear } = useYearEventData();
   const [likes, setLikes] = useState(null);
   const [activeTab, setActiveTab] = useState("liked");
   const [showPicker, setShowPicker] = useState(false);
@@ -112,12 +106,46 @@ export default function LikedEvents() {
     [allEvents, likes],
   );
 
+  const [yearsWithAttended, setYearsWithAttended] = useState(null);
+
+  useEffect(() => {
+    if (!likes || knownYears.length === 0) return;
+
+    const attendedIds = new Set(
+      Object.entries(likes)
+        .filter(([, v]) => v === "attended")
+        .map(([k]) => k),
+    );
+
+    if (attendedIds.size === 0) {
+      setYearsWithAttended(new Set());
+      return;
+    }
+
+    const dbUrl = import.meta.env.VITE_FIREBASE_DATABASE_URL;
+
+    Promise.all(
+      knownYears.map(async (year) => {
+        if (loadedYears.has(year)) {
+          return allEvents.some(
+            (e) => new Date(e.schedule).getFullYear() === year && attendedIds.has(e.id),
+          ) ? year : null;
+        }
+        try {
+          const res = await fetch(`${dbUrl}/data_v3/${year}.json?shallow=true`);
+          const keys = await res.json();
+          return keys && Object.keys(keys).some((k) => attendedIds.has(k)) ? year : null;
+        } catch {
+          return null;
+        }
+      }),
+    ).then((results) => setYearsWithAttended(new Set(results.filter(Boolean))));
+  }, [likes, knownYears, loadedYears, allEvents]);
+
   const availableYears = useMemo(() => {
-    const years = [
-      ...new Set(attendedEvents.map((e) => new Date(e.schedule).getFullYear())),
-    ];
-    return years.sort((a, b) => b - a);
-  }, [attendedEvents]);
+    if (!yearsWithAttended) return [];
+    return knownYears.filter((y) => yearsWithAttended.has(y));
+  }, [knownYears, yearsWithAttended]);
 
   const effectiveYear = selectedYear ?? availableYears[0] ?? null;
 
@@ -146,6 +174,7 @@ export default function LikedEvents() {
   const handleYearChange = (year) => {
     setSelectedYear(year);
     setSelectedQuarter("all");
+    if (!loadedYears.has(year)) loadYear(year);
   };
 
   const loading = likes === null || !allEvents;
@@ -158,6 +187,10 @@ export default function LikedEvents() {
           allEvents={allEvents}
           likes={likes}
           onClose={() => setShowPicker(false)}
+          knownYears={knownYears}
+          loadedYears={loadedYears}
+          loadingYears={loadingYears}
+          onYearLoad={loadYear}
         />
       )}
       {showReceipt && (
