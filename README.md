@@ -43,7 +43,7 @@
 
 ```
 Frontend   React 19 + Vite 6 + TailwindCSS 4
-Database   Firebase Realtime Database (data_v2)
+Database   Firebase Realtime Database (연도별 분할)
 Auth       Firebase Authentication (커스텀 클레임 기반 관리자 권한)
 Functions  Firebase Cloud Functions v2 (이메일 알림)
 Hosting    GitHub Pages
