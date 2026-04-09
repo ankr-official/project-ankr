@@ -175,9 +175,7 @@ exports.onEditRequestCreated = onValueCreated(
       // _snap: 요청 제출 시점의 원본 값 스냅샷 (브라우저에서 저장). 없으면 DB에서 읽음.
       let original = request._snap ?? null;
       if (!original) {
-        const evtPath = request.eventYear
-          ? `data_v3/${request.eventYear}/${request.eventId}`
-          : `data_v2/${request.eventId}`;
+        const evtPath = `data_v3/${request.eventYear}/${request.eventId}`;
         const originalSnap = await admin.database().ref(evtPath).once("value");
         original = originalSnap.val();
       }
@@ -518,9 +516,7 @@ exports.recordView = onCall(
     if (snap.exists() && now - snap.val() < TTL_MS) return { counted: false };
 
     const eventYear = data.eventYear;
-    const viewsPath = eventYear
-      ? `data_v3/${eventYear}/${eventId}/views`
-      : `data_v2/${eventId}/views`;
+    const viewsPath = `data_v3/${eventYear}/${eventId}/views`;
     await admin.database()
       .ref(viewsPath)
       .transaction((current) => (current || 0) + 1);
