@@ -65,7 +65,7 @@ export function EventCarousel({ events, onEventClick }) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1 }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
-              src={currentEvent.img_url.replace(/(name=)[^&]*/, "$1large")}
+              src={currentEvent.img_url.replace(/(name=)[^&]*/, "$1medium")}
               alt={currentEvent.event_name}
               className="absolute inset-0 w-full h-full object-cover"
             />

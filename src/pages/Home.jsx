@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useDeferredValue } from "react";
 import { ref, push, get, set } from "firebase/database";
 import { toast } from "react-toastify";
 import { database } from "../config/firebase";
@@ -49,10 +49,12 @@ function Home() {
   const { selectedItem, handleModalOpen, handleModalClose } =
     useModalNavigation(data, { loadAllYears, allYearsLoaded });
 
+  const deferredGenres = useDeferredValue(selectedGenres);
+
   // Processed event data
   const { currentEvents, pastEvents, thisWeeksEvents } = useEventData(
     data,
-    selectedGenres,
+    deferredGenres,
     true, // showConfirmed
   );
 

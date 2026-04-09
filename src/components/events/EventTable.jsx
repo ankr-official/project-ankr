@@ -47,12 +47,14 @@ export const EventTable = ({
                         <img
                           src={item.img_url.replace(/(name=)[^&]*/, "$1small")}
                           alt={item.event_name}
+                          loading="lazy"
                           className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
                         />
                       ) : (
                         <img
                           src="./dummy.svg"
                           alt="Dummy"
+                          loading="lazy"
                           className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
                         />
                       )}

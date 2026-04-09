@@ -33,12 +33,14 @@ export const EventCard = ({
           <img
             src={event.img_url.replace(/(name=)[^&]*/, "$1small")}
             alt={event.event_name}
+            loading="lazy"
             className="object-cover flex-shrink-0 w-24 h-32 rounded-lg"
           />
         ) : (
           <img
             src="./dummy.svg"
             alt="Dummy"
+            loading="lazy"
             className="object-cover flex-shrink-0 w-24 h-32 rounded-lg"
           />
         )}
