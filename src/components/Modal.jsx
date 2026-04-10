@@ -362,6 +362,57 @@ export function Modal({
     return () => document.removeEventListener("keydown", handleEscKey);
   }, [isOpen, isEditOpen, onClose]);
 
+  // JSON-LD Event 스키마 + document.title 동적 삽입
+  useEffect(() => {
+    const DEFAULT_TITLE = "한국 서브컬쳐 DJ 이벤트 캘린더 | ANKR.KR";
+    const SCRIPT_ID = "event-jsonld";
+
+    if (!isOpen || !data?.id) {
+      document.title = DEFAULT_TITLE;
+      document.getElementById(SCRIPT_ID)?.remove();
+      return;
+    }
+
+    document.title = `${data.event_name} | ANKR.KR`;
+
+    const jsonld = {
+      "@context": "https://schema.org",
+      "@type": "Event",
+      name: data.event_name,
+      startDate: data.time_start || data.schedule,
+      ...(data.time_end && { endDate: data.time_end }),
+      location: {
+        "@type": "Place",
+        name: data.location,
+        address: {
+          "@type": "PostalAddress",
+          addressCountry: "KR",
+        },
+      },
+      url: `https://ankr.kr/event/${data.id}`,
+      ...(data.img_url && { image: data.img_url }),
+      eventStatus: "https://schema.org/EventScheduled",
+      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+      organizer: {
+        "@type": "Organization",
+        name: "ANKR.KR",
+        url: "https://ankr.kr",
+      },
+    };
+
+    document.getElementById(SCRIPT_ID)?.remove();
+    const script = document.createElement("script");
+    script.id = SCRIPT_ID;
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(jsonld);
+    document.head.appendChild(script);
+
+    return () => {
+      document.title = DEFAULT_TITLE;
+      document.getElementById(SCRIPT_ID)?.remove();
+    };
+  }, [isOpen, data?.id, data?.event_name, data?.location, data?.schedule, data?.time_start, data?.time_end, data?.img_url]);
+
   const handleEditSubmit = async (formData, reason) => {
     if (isEditLimitReached) return;
     setIsSavingEdit(true);
