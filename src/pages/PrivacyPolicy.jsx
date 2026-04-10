@@ -60,7 +60,7 @@ export default function PrivacyPolicy() {
             개인정보처리방침
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            시행일: 2026년 3월 16일 &nbsp;·&nbsp; 최종 수정일: 2026년 4월 2일
+            시행일: 2026년 3월 16일 &nbsp;·&nbsp; 최종 수정일: 2026년 4월 10일
           </p>
           <p className="mt-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
             ANKR.KR(이하 "서비스")는 이용자의 개인정보를 중요하게 여기며,
@@ -95,6 +95,11 @@ export default function PrivacyPolicy() {
                 "접속 IP 주소, 접속 일시, 서비스 이용 기록 (Firebase·Google Cloud 인프라 자동 수집)",
                 "자동 수집",
               ],
+              [
+                "서비스 이용 통계 (Google Analytics)",
+                "방문 페이지, 체류 시간, 유입 경로, 브라우저·기기 정보, 익명화된 IP 주소",
+                "자동 수집",
+              ],
             ]}
           />
           <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
@@ -127,6 +132,15 @@ export default function PrivacyPolicy() {
               설정을 통해 쿠키 저장을 거부할 수 있으나, 이 경우 로그인이 필요한
               일부 기능 이용이 제한될 수 있습니다.
             </li>
+            <li>
+              <span className="font-medium">Google Analytics 자동 수집:</span>{" "}
+              서비스는 이용 현황 파악을 위해 Google Analytics를 사용합니다.
+              Google Analytics는 쿠키(<code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">_ga</code>,{" "}
+              <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">_gid</code> 등)를 통해
+              방문 페이지, 체류 시간, 유입 경로, 브라우저·기기 정보를 자동으로
+              수집합니다. IP 주소는 수집 시 익명화 처리되며, 광고 타겟팅 및
+              Google Signals에는 사용되지 않습니다.
+            </li>
           </ul>
         </Section>
 
@@ -149,6 +163,10 @@ export default function PrivacyPolicy() {
                 "Firebase UID, 제보 일시",
               ],
               ["서비스 운영·보안·장애 대응", "접속 IP, 접속 일시, 이용 기록"],
+              [
+                "서비스 이용 현황 파악 및 통계 분석",
+                "방문 페이지, 체류 시간, 유입 경로, 브라우저·기기 정보 (Google Analytics)",
+              ],
             ]}
           />
         </Section>
@@ -235,6 +253,11 @@ export default function PrivacyPolicy() {
               [
                 "Google LLC (Cloud Functions)",
                 "이벤트 트리거 처리 및 관리자 알림 이메일 발송",
+                "위탁 계약 종료 시",
+              ],
+              [
+                "Google LLC (Google Analytics)",
+                "서비스 이용 통계 수집·분석",
                 "위탁 계약 종료 시",
               ],
             ]}

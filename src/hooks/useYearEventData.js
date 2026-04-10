@@ -10,16 +10,20 @@ export const useYearEventData = () => {
   const [loadingYears, setLoadingYears] = useState(new Set());
   const [knownYears, setKnownYears] = useState([CURRENT_YEAR]);
   const [loading, setLoading] = useState(true);
+  const [metaLoaded, setMetaLoaded] = useState(false);
 
   // 전체 연도 목록 메타데이터 1회 조회
   useEffect(() => {
-    get(ref(database, "data_v3/meta/years")).then((snap) => {
-      if (snap.exists()) {
-        const val = snap.val();
-        const years = Array.isArray(val) ? val : Object.values(val);
-        setKnownYears(years.sort((a, b) => b - a));
-      }
-    });
+    get(ref(database, "data_v3/meta/years"))
+      .then((snap) => {
+        if (snap.exists()) {
+          const val = snap.val();
+          const years = Array.isArray(val) ? val : Object.values(val);
+          setKnownYears(years.sort((a, b) => b - a));
+        }
+        setMetaLoaded(true);
+      })
+      .catch(() => setMetaLoaded(true));
   }, []);
 
   // 현재 연도만 실시간 구독
@@ -69,8 +73,11 @@ export const useYearEventData = () => {
 
   const allData = Object.values(yearData).flat();
 
+  // metaLoaded 전까지는 allYearsLoaded=false 유지 (조기 완료 판정 방지)
   const allYearsLoaded =
-    knownYears.length > 0 && knownYears.every((y) => loadedYears.has(y));
+    metaLoaded &&
+    knownYears.length > 0 &&
+    knownYears.every((y) => loadedYears.has(y));
 
   const loadAllYears = () => {
     knownYears.forEach((y) => loadYear(y));
@@ -85,6 +92,7 @@ export const useYearEventData = () => {
     loadYear,
     loadAllYears,
     allYearsLoaded,
+    metaLoaded,
     loading,
   };
 };

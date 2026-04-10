@@ -33,8 +33,7 @@ function Home() {
     loadedYears,
     loadingYears,
     loadYear,
-    loadAllYears,
-    allYearsLoaded,
+    metaLoaded,
     loading,
   } = useYearEventData();
 
@@ -47,7 +46,7 @@ function Home() {
 
   // Modal and navigation
   const { selectedItem, handleModalOpen, handleModalClose } =
-    useModalNavigation(data, { loadAllYears, allYearsLoaded });
+    useModalNavigation(data, { loadYear, knownYears, loadedYears, metaLoaded });
 
   const deferredGenres = useDeferredValue(selectedGenres);
 
