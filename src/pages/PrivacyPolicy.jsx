@@ -282,7 +282,7 @@ export default function PrivacyPolicy() {
               [
                 "Google LLC",
                 "미국 및 Google 데이터센터 운영 국가",
-                "Firebase UID, 이메일, 제보 내용, 접속 로그",
+                "Firebase UID, 이메일, 제보 내용, 접속 로그, 방문 페이지·체류 시간·유입 경로·브라우저/기기 정보(Google Analytics)",
                 "인증, 데이터 저장, 서버 운영, 알림 발송",
                 "EU 표준 계약 조항(SCC) 준용, Google 개인정보처리방침 적용",
               ],
