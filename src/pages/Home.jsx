@@ -112,9 +112,10 @@ function Home() {
     setVisiblePastYears((prev) => new Set([...prev, year]));
   };
 
-  const shownPastEvents = pastEvents.filter((e) =>
-    visiblePastYears.has(new Date(e.schedule).getFullYear()),
-  );
+  const shownPastEvents = pastEvents.filter((e) => {
+    const year = new Date(e.schedule).getFullYear();
+    return year === THIS_YEAR || visiblePastYears.has(year);
+  });
 
   const nextPastYear = knownYears
     .filter((y) => y < THIS_YEAR && !visiblePastYears.has(y))
@@ -233,15 +234,7 @@ function Home() {
               </button>
               <button
                 className={`text-sm py-2  w-full lg:w-fit ${activeTab === "past" ? "bg-indigo-800" : "bg-indigo-900/50"}`}
-                onClick={() => {
-                  setActiveTab("past");
-                  if (visiblePastYears.size === 0) {
-                    const firstYear = knownYears
-                      .filter((y) => y < THIS_YEAR)
-                      .sort((a, b) => b - a)[0];
-                    if (firstYear) addPastYear(firstYear);
-                  }
-                }}
+                onClick={() => setActiveTab("past")}
               >
                 지난 이벤트
               </button>
