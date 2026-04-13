@@ -29,7 +29,7 @@ export const EventTable = ({
                 />
               </th>
               <th className="w-[20%]">장소</th>
-              <th className="w-20 min-w-[4rem]">관심</th>
+              <th className="hidden xl:table-cell w-20 min-w-[4rem] whitespace-nowrap">관심</th>
             </tr>
           </thead>
           <tbody className="bg-gray-100 dark:bg-gray-800 divide-y divide-gray-300 dark:divide-gray-700 transition-colors">
@@ -72,7 +72,7 @@ export const EventTable = ({
                       onClick={(e) => e.stopPropagation()}
                     />
                   </td>
-                  <td>
+                  <td className="hidden xl:table-cell">
                     <div className="flex justify-center">
                       <HeartButton
                         eventId={item.id}
