@@ -150,16 +150,14 @@ function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Modals */}
-      {selectedItem && (
-        <Modal
-          isOpen={selectedItem !== null}
-          onClose={handleModalClose}
-          data={selectedItem || {}}
-          locationSuggestions={locationSuggestions}
-          eventNameSuggestions={eventNameSuggestions}
-          genreSuggestions={genreSuggestions}
-        />
-      )}
+      <Modal
+        isOpen={selectedItem !== null}
+        onClose={handleModalClose}
+        data={selectedItem || {}}
+        locationSuggestions={locationSuggestions}
+        eventNameSuggestions={eventNameSuggestions}
+        genreSuggestions={genreSuggestions}
+      />
 
       {isReportOpen && (
         <ReportEventModal

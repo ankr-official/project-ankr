@@ -210,18 +210,16 @@ const ModalContent = ({
   onCloseLogin,
   viewCount,
 }) => (
-  <motion.div
+  <div
     className="px-4 py-4 lg:px-8 lg:py-8 transition-colors"
-    layoutId={`modal-content-${data.id}`}
   >
     <div className="flex items-center justify-between mb-4 gap-2 min-w-0">
       <div className="min-w-0">
-        <motion.h2
+        <h2
           className="text-2xl font-bold text-gray-900 dark:text-white transition-colors truncate"
-          layoutId={`title-${data.id}`}
         >
           {data.event_name}
-        </motion.h2>
+        </h2>
         <div className="flex items-center gap-1 mt-0.5 ml-0.5 text-xs text-gray-400 dark:text-gray-500">
           <EyeIcon className="w-3.5 h-3.5" />
           <span>
@@ -281,7 +279,7 @@ const ModalContent = ({
       )}
       <ShareButtons data={data} />
     </div>
-  </motion.div>
+  </div>
 );
 
 const EDIT_DAILY_LIMIT = 10;
@@ -482,7 +480,7 @@ export function Modal({
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 28, stiffness: 300 }}
+              transition={{ type: "tween", duration: 0.25, ease: "easeOut" }}
               style={{ y: dragY }}
               className="w-full h-[80vh] rounded-t-3xl lg:rounded-xl lg:max-w-3xl lg:h-auto lg:max-h-[90vh] lg:overflow-y-auto bg-gray-200 dark:bg-gray-900 transition-colors"
               onClick={(e) => e.stopPropagation()}
