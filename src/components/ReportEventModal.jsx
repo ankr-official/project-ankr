@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useEventForm } from "../hooks/useEventForm";
 import { useAuth } from "../contexts/AuthContext";
-import { buildSubmitData, inputClass, isValidUrl, validateTimeOrder } from "../utils/eventFormUtils";
+import { buildSubmitData, inputClass, isValidUrl } from "../utils/eventFormUtils";
 import { ModalShell, ModalCloseButton } from "./form/ModalShell";
 import { AutocompleteInput } from "./form/AutocompleteInput";
 import { LocationField } from "./form/LocationField";
@@ -51,8 +51,6 @@ export default function ReportEventModal({
     } else if (!isValidUrl(f.event_url)) {
       errs.event_url = "올바른 URL 형식이 아닙니다. (https://...)";
     }
-    const timeErr = validateTimeOrder(f);
-    if (timeErr) errs.time = timeErr;
     return errs;
   };
 

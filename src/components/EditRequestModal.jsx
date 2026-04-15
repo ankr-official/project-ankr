@@ -8,7 +8,6 @@ import {
   isoToLocal,
   toArray,
   isValidUrl,
-  validateTimeOrder,
 } from "../utils/eventFormUtils";
 import { ModalShell, ModalCloseButton } from "./form/ModalShell";
 import { AutocompleteInput } from "./form/AutocompleteInput";
@@ -89,8 +88,6 @@ export default function EditRequestModal({
       if (!f.location.trim()) errs.location = "장소를 입력해주세요.";
       if (f.genre.length === 0) errs.genre = "장르를 하나 이상 선택해주세요.";
       if (f.event_url && !isValidUrl(f.event_url)) errs.event_url = "올바른 URL 형식이 아닙니다. (https://...)";
-      const timeErr = validateTimeOrder(f);
-      if (timeErr) errs.time = timeErr;
       if (!hasChanges) errs.changes = "변경된 내용이 없습니다.";
     }
     return errs;
