@@ -66,13 +66,6 @@ export const isValidUrl = url => {
     }
 };
 
-export const validateTimeOrder = ({ time_entrance, time_start }) => {
-    const toMin = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
-    if (time_entrance && time_start && toMin(time_entrance) > toMin(time_start))
-        return "입장 시간이 시작 시간보다 늦습니다.";
-    return null;
-};
-
 /** Transforms common form fields into Firebase-ready data.
  *  Does NOT handle confirm, img_url, reason — each modal manages those. */
 export const buildSubmitData = form => {
