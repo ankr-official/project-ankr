@@ -68,6 +68,7 @@ export function EventCarousel({ events, onEventClick }) {
               src={currentEvent.img_url.replace(/(name=)[^&]*/, "$1medium")}
               alt={currentEvent.event_name}
               className="absolute inset-0 w-full h-full object-cover"
+              fetchpriority={currentIndex === 0 ? "high" : "auto"}
             />
           )}
         </AnimatePresence>

@@ -15,4 +15,19 @@ export default defineConfig({
             plugins: [tailwindcss()],
         },
     },
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    firebase: [
+                        "firebase/app",
+                        "firebase/database",
+                        "firebase/auth",
+                        "firebase/functions",
+                    ],
+                    motion: ["framer-motion"],
+                },
+            },
+        },
+    },
 });

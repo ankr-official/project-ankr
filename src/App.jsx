@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { ThemeProvider, useThemeContext } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -5,11 +6,12 @@ import { LoginDropdownProvider } from "./contexts/LoginDropdownContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/Home";
-import Admin from "./pages/Admin";
-import LikedEvents from "./pages/LikedEvents";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
 import "./App.css";
+
+const Admin = lazy(() => import("./pages/Admin"));
+const LikedEvents = lazy(() => import("./pages/LikedEvents"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 
 function AppContent() {
   const { theme } = useThemeContext();
@@ -26,15 +28,17 @@ function AppContent() {
       />
       <Router>
         <div className="rounded-lg bg-indigo-50/50 dark:bg-[#242424] min-h-screen transition-colors">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/event/:id" element={<Home />} />
-            <Route path="/liked" element={<LikedEvents />} />
-<Route path="*" element={<Home />} />
-          </Routes>
+          <Suspense fallback={null}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/event/:id" element={<Home />} />
+              <Route path="/liked" element={<LikedEvents />} />
+              <Route path="*" element={<Home />} />
+            </Routes>
+          </Suspense>
           <footer className="w-full py-8 mt-8 text-gray-600 dark:text-gray-300 bg-gray-300 dark:bg-gray-900 transition-colors">
             <div className="container px-4 mx-auto">
               <div className="flex flex-col items-center space-y-4">

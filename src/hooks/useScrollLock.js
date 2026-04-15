@@ -24,7 +24,7 @@ export const useScrollLock = (isActive) => {
       document.body.classList.remove("modal-open");
       document.body.style.removeProperty("--scroll-y");
       document.body.style.removeProperty("--scrollbar-width");
-      window.scrollTo(0, saved);
+      setTimeout(() => window.scrollTo(0, saved), 300);
     };
   }, [isActive]);
 };
