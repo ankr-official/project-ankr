@@ -473,6 +473,7 @@ export function Modal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.22, ease: "easeIn" }}
             className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-black/50 backdrop-blur-sm"
             onClick={onClose}
           >
@@ -480,7 +481,7 @@ export function Modal({
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
-              transition={{ type: "tween", duration: 0.25, ease: "easeOut" }}
+              transition={{ type: "tween", duration: 0.22, ease: "easeIn" }}
               style={{ y: dragY }}
               className="w-full h-[80vh] rounded-t-3xl lg:rounded-xl lg:max-w-3xl lg:h-auto lg:max-h-[90vh] lg:overflow-y-auto bg-gray-200 dark:bg-gray-900 transition-colors"
               onClick={(e) => e.stopPropagation()}

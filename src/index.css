@@ -43,11 +43,6 @@ body {
 
 body.modal-open {
     overflow: hidden;
-    position: fixed;
-    width: 100%;
-    top: var(--scroll-y);
-    left: 0;
-    right: 0;
     padding-right: var(--scrollbar-width);
 }
 
