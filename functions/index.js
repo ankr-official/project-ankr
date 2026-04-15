@@ -494,8 +494,9 @@ exports.recordView = onCall(
     enforceAppCheck: false,
   },
   async (request) => {
-    const { eventId } = request.data || {};
+    const { eventId, eventYear } = request.data || {};
     if (!eventId || typeof eventId !== "string") throw new Error("Invalid eventId");
+    if (!eventYear || typeof eventYear !== "number") throw new Error("Invalid eventYear");
 
     const ip =
       request.rawRequest.headers["x-forwarded-for"]?.split(",")[0].trim() ||
@@ -515,7 +516,6 @@ exports.recordView = onCall(
     const TTL_MS = 24 * 60 * 60 * 1000;
     if (snap.exists() && now - snap.val() < TTL_MS) return { counted: false };
 
-    const eventYear = data.eventYear;
     const viewsPath = `data_v3/${eventYear}/${eventId}/views`;
     await admin.database()
       .ref(viewsPath)
