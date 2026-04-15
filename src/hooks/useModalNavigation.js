@@ -45,13 +45,18 @@ export const useModalNavigation = (data, { loadYear, knownYears = [], loadedYear
             navigate(`/event/${item.id}`, {
                 replace: false,
                 state: { modal: true },
+                preventScrollReset: true,
             });
         }
     };
 
     const handleModalClose = () => {
         setSelectedItem(null);
-        navigate("/");
+        if (location.state?.modal) {
+            navigate(-1);
+        } else {
+            navigate("/", { replace: true });
+        }
     };
 
     return {
