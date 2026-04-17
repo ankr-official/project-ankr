@@ -28,7 +28,19 @@ function AppContent() {
       />
       <Router>
         <div className="rounded-lg bg-indigo-50/50 dark:bg-[#242424] min-h-screen transition-colors">
-          <Suspense fallback={null}>
+          <Suspense
+            fallback={
+              <div
+                className="flex justify-center items-center        
+         +h-64"
+              >
+                <div
+                  className="w-12 h-12 rounded-full border-b-2 border-indigo-700 anima
+         +te-spin"
+                />
+              </div>
+            }
+          >
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/admin" element={<Admin />} />
