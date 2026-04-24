@@ -18,7 +18,7 @@ import TabBar from "../components/admin/TabBar";
 export default function Admin() {
   const navigate = useNavigate();
   const { role, user, signOut, loading: authLoading } = useAuth();
-  const { allData: events, knownYears, loadYear, loading: dataLoading } = useYearEventData();
+  const { allData: events, knownYears, loadYear, loading: dataLoading, updateLocalEvent, removeLocalEvent } = useYearEventData();
 
   // Admin은 모든 연도 데이터 필요
   useEffect(() => {
@@ -131,9 +131,11 @@ export default function Admin() {
     e.stopPropagation();
     try {
       const year = new Date(event.schedule).getFullYear();
+      const newConfirm = !event.confirm;
       await update(ref(database, `data_v3/${year}/${event.id}`), {
-        confirm: !event.confirm,
+        confirm: newConfirm,
       });
+      updateLocalEvent(year, event.id, { confirm: newConfirm });
     } catch {
       toast.error("변경 중 오류가 발생했습니다.");
     }
@@ -145,6 +147,7 @@ export default function Admin() {
     try {
       const year = new Date(deleteTarget.schedule).getFullYear();
       await remove(ref(database, `data_v3/${year}/${deleteTarget.id}`));
+      removeLocalEvent(year, deleteTarget.id);
       toast.success("이벤트가 삭제되었습니다.");
       setDeleteTarget(null);
     } catch {
@@ -161,6 +164,7 @@ export default function Admin() {
       if (id) {
         const year = new Date(data.schedule).getFullYear();
         await update(ref(database, `data_v3/${year}/${id}`), data);
+        updateLocalEvent(year, id, data);
         toast.success("이벤트가 수정되었습니다.");
       } else {
         const year = new Date(data.schedule).getFullYear();
