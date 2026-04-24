@@ -83,6 +83,25 @@ export const useYearEventData = () => {
     knownYears.forEach((y) => loadYear(y));
   };
 
+  // 과거 연도(get()로 1회 조회)는 onValue 구독이 없으므로 저장/삭제 후 로컬 state를 직접 패치
+  const updateLocalEvent = (year, id, newData) => {
+    if (year === CURRENT_YEAR) return; // 현재 연도는 onValue가 자동 처리
+    setYearData((prev) => ({
+      ...prev,
+      [year]: (prev[year] || []).map((e) =>
+        e.id === id ? { ...e, ...newData } : e,
+      ),
+    }));
+  };
+
+  const removeLocalEvent = (year, id) => {
+    if (year === CURRENT_YEAR) return;
+    setYearData((prev) => ({
+      ...prev,
+      [year]: (prev[year] || []).filter((e) => e.id !== id),
+    }));
+  };
+
   return {
     allData,
     yearData,
@@ -94,5 +113,7 @@ export const useYearEventData = () => {
     allYearsLoaded,
     metaLoaded,
     loading,
+    updateLocalEvent,
+    removeLocalEvent,
   };
 };
