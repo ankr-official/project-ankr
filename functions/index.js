@@ -5,13 +5,7 @@ const nodemailer = require("nodemailer");
 const { onRequest, onCall } = require("firebase-functions/v2/https");
 const { onValueCreated } = require("firebase-functions/v2/database");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
-const { defineSecret } = require("firebase-functions/params");
 const crypto = require("crypto");
-
-// Secret Manager 에 저장된 값들과 매핑되는 Secret 정의
-const FUNCTION_SECRET = defineSecret("ANKR_FUNCTION_SECRET");
-const GMAIL_USER = defineSecret("ANKR_GMAIL_USER");
-const GMAIL_APP_PASSWORD = defineSecret("ANKR_GMAIL_APP_PASSWORD");
 
 const serviceAccount = require("./service-account-key.json");
 
@@ -26,7 +20,6 @@ exports.onReportCreated = onValueCreated(
     ref: "/reports/{reportId}",
     instance: "ankr-db-default-rtdb",
     region: "asia-southeast1",
-    secrets: [GMAIL_USER, GMAIL_APP_PASSWORD],
   },
   async (event) => {
     const report = event.data.val();
@@ -99,7 +92,6 @@ exports.onEditRequestCreated = onValueCreated(
     ref: "/editRequests/{requestId}",
     instance: "ankr-db-default-rtdb",
     region: "asia-southeast1",
-    secrets: [GMAIL_USER, GMAIL_APP_PASSWORD],
   },
   async (event) => {
     const request = event.data.val();
@@ -266,7 +258,6 @@ exports.onEditRequestCreated = onValueCreated(
 exports.syncData = onRequest(
   {
     timeoutSeconds: 60,
-    secrets: [FUNCTION_SECRET],
   },
   async (req, res) => {
     try {
@@ -350,7 +341,6 @@ exports.setUserRole = onRequest(
   {
     timeoutSeconds: 60,
     region: "asia-northeast3",
-    secrets: [FUNCTION_SECRET],
   },
   async (req, res) => {
     setCors(res);
@@ -393,7 +383,6 @@ exports.listUsers = onRequest(
   {
     timeoutSeconds: 60,
     region: "asia-northeast3",
-    secrets: [FUNCTION_SECRET],
   },
   async (req, res) => {
     setCors(res);
@@ -421,7 +410,6 @@ exports.setUserDisabled = onRequest(
   {
     timeoutSeconds: 60,
     region: "asia-northeast3",
-    secrets: [FUNCTION_SECRET],
   },
   async (req, res) => {
     setCors(res);
@@ -561,7 +549,6 @@ exports.deleteSelf = onRequest(
   {
     timeoutSeconds: 60,
     region: "asia-northeast3",
-    secrets: [GMAIL_USER, GMAIL_APP_PASSWORD],
   },
   async (req, res) => {
     setCors(res);
@@ -623,7 +610,6 @@ exports.deleteUser = onRequest(
   {
     timeoutSeconds: 60,
     region: "asia-northeast3",
-    secrets: [FUNCTION_SECRET],
   },
   async (req, res) => {
     setCors(res);
