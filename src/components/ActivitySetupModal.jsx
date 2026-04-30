@@ -15,11 +15,14 @@ const isValidSlug = (s) => {
 };
 
 const SLUG_STATUS = {
-  checking:  { text: "확인 중...", color: "text-gray-400 dark:text-gray-500" },
+  checking: { text: "확인 중...", color: "text-gray-400 dark:text-gray-500" },
   available: { text: "사용 가능한 주소입니다.", color: "text-green-500" },
-  taken:     { text: "이미 사용 중인 주소입니다.", color: "text-red-500" },
-  reserved:  { text: "사용할 수 없는 주소입니다.", color: "text-red-500" },
-  invalid:   { text: "3~20자, 영문 소문자·숫자·하이픈·언더바 (첫·끝은 영문·숫자).", color: "text-red-500" },
+  taken: { text: "이미 사용 중인 주소입니다.", color: "text-red-500" },
+  reserved: { text: "사용할 수 없는 주소입니다.", color: "text-red-500" },
+  invalid: {
+    text: "3~20자, 영문 소문자·숫자·하이픈·언더바 (첫·끝은 영문·숫자).",
+    color: "text-red-500",
+  },
 };
 
 export default function ActivitySetupModal({ onClose }) {
@@ -40,9 +43,15 @@ export default function ActivitySetupModal({ onClose }) {
     setSlugStatus(null);
     clearTimeout(slugTimer.current);
     if (!val) return;
-    if (!isValidSlug(val)) { setSlugStatus("invalid"); return; }
+    if (!isValidSlug(val)) {
+      setSlugStatus("invalid");
+      return;
+    }
     const isPrivileged = role === "owner" || role === "admin";
-    if (!isPrivileged && RESERVED_SLUGS.some(w => val.includes(w))) { setSlugStatus("reserved"); return; }
+    if (!isPrivileged && RESERVED_SLUGS.some((w) => val.includes(w))) {
+      setSlugStatus("reserved");
+      return;
+    }
     setSlugStatus("checking");
     slugTimer.current = setTimeout(async () => {
       const snap = await get(ref(database, `activitySlugs/${val}`));
@@ -52,10 +61,16 @@ export default function ActivitySetupModal({ onClose }) {
 
   const handleNicknameChange = (val) => {
     setNickname(val);
-    if (!val.trim()) { setNicknameError(null); return; }
+    if (!val.trim()) {
+      setNicknameError(null);
+      return;
+    }
     const isPrivileged = role === "owner" || role === "admin";
     const lower = val.trim().toLowerCase();
-    if (!isPrivileged && RESERVED_NICKNAMES.some(w => lower.includes(w.toLowerCase()))) {
+    if (
+      !isPrivileged &&
+      RESERVED_NICKNAMES.some((w) => lower.includes(w.toLowerCase()))
+    ) {
       setNicknameError("사용할 수 없는 닉네임입니다.");
     } else {
       setNicknameError(null);
@@ -68,7 +83,11 @@ export default function ActivitySetupModal({ onClose }) {
     setSaving(true);
     try {
       const snap = await get(ref(database, `activitySlugs/${slugInput}`));
-      if (snap.exists()) { setSlugStatus("taken"); setSaving(false); return; }
+      if (snap.exists()) {
+        setSlugStatus("taken");
+        setSaving(false);
+        return;
+      }
       const updates = {
         [`activitySlugs/${slugInput}`]: user.uid,
         [`users/${user.uid}/activitySlug`]: slugInput,
@@ -118,16 +137,22 @@ export default function ActivitySetupModal({ onClose }) {
         <div className="px-6 py-5 space-y-5 text-left">
           {/* 닉네임 */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">
-              닉네임{" "}
-              <span className="normal-case font-normal">(선택)</span>
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                닉네임 <span className="normal-case font-normal">(선택)</span>
+              </label>
+              <span className={`text-xs tabular-nums ${nickname.length >= 16 ? "text-red-400" : "text-gray-400 dark:text-gray-500"}`}>
+                {nickname.length}/16
+              </span>
+            </div>
             <input
               autoFocus
               value={nickname}
               onChange={(e) => handleNicknameChange(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Escape") onClose(); }}
-              maxLength={20}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") onClose();
+              }}
+              maxLength={16}
               placeholder="나를 부를 이름"
               className={`w-full px-3 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-sm border focus:outline-none transition-colors ${
                 nicknameError
@@ -136,7 +161,9 @@ export default function ActivitySetupModal({ onClose }) {
               }`}
             />
             {nicknameError && (
-              <p className="text-xs mt-1.5 px-1 text-red-500">{nicknameError}</p>
+              <p className="text-xs mt-1.5 px-1 text-red-500">
+                {nicknameError}
+              </p>
             )}
           </div>
 
@@ -144,23 +171,30 @@ export default function ActivitySetupModal({ onClose }) {
           <div>
             <label className="block text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">
               활동 주소{" "}
-              <span className="normal-case font-normal text-red-400">*필수</span>
+              <span className="normal-case font-normal text-red-400">
+                *필수
+              </span>
             </label>
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-400 dark:text-gray-500 flex-shrink-0 whitespace-nowrap">
-                ankr.kr/activity/
+                ankr.kr/@
               </span>
               <input
                 value={slugInput}
                 onChange={(e) => handleSlugChange(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); if (e.key === "Escape") onClose(); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSubmit();
+                  if (e.key === "Escape") onClose();
+                }}
                 maxLength={20}
-                placeholder="my-page"
+                placeholder="my-handle"
                 className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-sm border border-gray-200 dark:border-gray-700 focus:outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
               />
             </div>
             {statusInfo ? (
-              <p className={`text-xs mt-1.5 px-1 ${statusInfo.color}`}>{statusInfo.text}</p>
+              <p className={`text-xs mt-1.5 px-1 ${statusInfo.color}`}>
+                {statusInfo.text}
+              </p>
             ) : (
               <p className="text-xs mt-1.5 px-1 text-gray-400 dark:text-gray-500">
                 한 번 설정하면 링크로 공유할 수 있습니다.

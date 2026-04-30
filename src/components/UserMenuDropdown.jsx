@@ -1,9 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { ref, get } from "firebase/database";
-import { database } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import {
-  HeartIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   ShieldCheckIcon,
@@ -18,19 +15,9 @@ export default function UserMenuDropdown({
   const navigate = useNavigate();
   const { user, signOut, role } = useAuth();
 
-  const handleLiked = () => {
+  const handleActivity = () => {
     onClose();
-    navigate("/liked");
-  };
-
-  const handleActivity = async () => {
-    onClose();
-    const snap = await get(ref(database, `users/${user.uid}/activitySlug`));
-    if (snap.exists()) {
-      navigate("/activity");
-    } else {
-      onActivitySetup();
-    }
+    navigate("/activity");
   };
 
   const handleAdmin = () => {
@@ -65,13 +52,6 @@ export default function UserMenuDropdown({
         className="flex items-center gap-2 w-full px-4 py-3 text-sm rounded-none text-gray-700 dark:text-gray-300 active:bg-gray-50 mouse:hover:bg-gray-50 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800 transition-colors"
       >
         <Square2StackIcon className="w-4 h-4" />내 활동
-      </button>
-      <button
-        onClick={handleLiked}
-        className="flex items-center gap-2 w-full px-4 py-3 text-sm rounded-none text-gray-700 dark:text-gray-300 active:bg-gray-50 mouse:hover:bg-gray-50 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800 transition-colors"
-      >
-        <HeartIcon className="w-4 h-4" />
-        관심 행사
       </button>
       <button
         onClick={handleSettings}

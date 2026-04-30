@@ -12,6 +12,13 @@ import { sortByDateTime } from "../utils/dateUtils";
 import { useYearEventData } from "../hooks/useYearEventData";
 import { EventCard } from "../components/events/EventCard";
 
+const isPast = (event) => {
+  const cutoff = event.time_start
+    ? new Date(event.time_start)
+    : new Date(event.schedule);
+  return cutoff < new Date();
+};
+
 const TABS = [
   { key: "liked", label: "관심 행사", icon: HeartIcon },
   { key: "attended", label: "다녀온 행사", icon: CheckCircleIcon },
@@ -74,6 +81,7 @@ export default function ActivityGuest() {
     knownYears,
     loadedYears,
     loadYear,
+    loading: eventsLoading,
   } = useYearEventData();
 
   useEffect(() => {
@@ -112,7 +120,6 @@ export default function ActivityGuest() {
       .sort((a, b) => sortByDateTime(a, b, true));
   }, [allEvents, activityData]);
 
-  const currentEvents = activeTab === "liked" ? likedEvents : attendedEvents;
 
   // @ 없는 경로는 Home으로
   if (!slug) return <Navigate to="/" replace />;
@@ -153,7 +160,15 @@ export default function ActivityGuest() {
     );
   }
 
-  if (profileLoaded && !profile?.historyPublic) {
+  if (!profileLoaded) {
+    return shell(
+      <div className="text-center py-16 text-gray-400 dark:text-gray-600 text-sm">
+        불러오는 중...
+      </div>,
+    );
+  }
+
+  if (!profile?.historyPublic) {
     return shell(
       <>
         <div className="flex items-center gap-3 mb-8">{backBtn}</div>
@@ -167,17 +182,21 @@ export default function ActivityGuest() {
     );
   }
 
-  const displayName = profile?.nickname || "익명";
-  const dataLoading = !profileLoaded || activityData === null || !allEvents;
+  const uidSuffix = slugUid
+    ? String(slugUid.split("").reduce((h, c) => (((h * 31) + c.charCodeAt(0)) >>> 0), 0) % 1000000).padStart(6, "0")
+    : "000000";
+  const displayName = profile?.nickname || `익명${uidSuffix}`;
+  const dataLoading = !profileLoaded || activityData === null || eventsLoading;
 
   return shell(
     <>
       {/* 헤더 */}
       <div className="flex items-center gap-3 mb-6">
         {backBtn}
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white flex-1">
-          활동
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white flex-1 text-center">
+          {displayName}님의 활동
         </h1>
+        <div className="w-9 h-9 flex-shrink-0" />
       </div>
 
       {/* 프로필 카드 */}
@@ -224,15 +243,64 @@ export default function ActivityGuest() {
         <div className="text-center py-16 text-gray-400 dark:text-gray-600 text-sm">
           불러오는 중...
         </div>
-      ) : currentEvents.length === 0 ? (
+      ) : activeTab === "liked" ? (
+        likedEvents.length === 0 ? (
+          <div className="text-center py-16 text-gray-400 dark:text-gray-600 text-sm">
+            관심 행사가 없습니다.
+          </div>
+        ) : (
+          (() => {
+            const upcomingLiked = likedEvents.filter((e) => !isPast(e));
+            const pastLiked = likedEvents.filter((e) => isPast(e));
+            return (
+              <div className="space-y-6">
+                {upcomingLiked.length > 0 && (
+                  <div>
+                    <p className="text-left text-xs font-medium text-gray-500 dark:text-gray-400 my-4 mb-2 px-2">
+                      다가오는 행사
+                    </p>
+                    <div className="space-y-3">
+                      {upcomingLiked.map((event) => (
+                        <EventCard
+                          key={event.id}
+                          event={event}
+                          onEventSelect={() => navigate(`/event/${event.id}`)}
+                          showHeart={false}
+                          className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow transition-colors cursor-pointer active:bg-indigo-100 dark:active:bg-indigo-900/40"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {pastLiked.length > 0 && (
+                  <div>
+                    <p className="text-left text-xs font-medium text-gray-500 dark:text-gray-400 my-4 mb-2 px-2">
+                      지난 행사
+                    </p>
+                    <div className="space-y-3">
+                      {pastLiked.map((event) => (
+                        <EventCard
+                          key={event.id}
+                          event={event}
+                          onEventSelect={() => navigate(`/event/${event.id}`)}
+                          showHeart={false}
+                          className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow transition-colors cursor-pointer active:bg-indigo-100 dark:active:bg-indigo-900/40"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()
+        )
+      ) : attendedEvents.length === 0 ? (
         <div className="text-center py-16 text-gray-400 dark:text-gray-600 text-sm">
-          {activeTab === "liked"
-            ? "관심 행사가 없습니다."
-            : "다녀온 행사가 없습니다."}
+          다녀온 행사가 없습니다.
         </div>
       ) : (
         <div className="space-y-3">
-          {currentEvents.map((event) => (
+          {attendedEvents.map((event) => (
             <EventCard
               key={event.id}
               event={event}
