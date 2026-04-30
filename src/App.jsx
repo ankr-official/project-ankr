@@ -10,6 +10,8 @@ import "./App.css";
 
 const Admin = lazy(() => import("./pages/Admin"));
 const LikedEvents = lazy(() => import("./pages/LikedEvents"));
+const Activity = lazy(() => import("./pages/Activity"));
+const ActivityGuest = lazy(() => import("./pages/ActivityGuest"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 
@@ -48,6 +50,8 @@ function AppContent() {
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/event/:id" element={<Home />} />
               <Route path="/liked" element={<LikedEvents />} />
+              <Route path="/activity" element={<Activity />} />
+              <Route path="/:handle" element={<ActivityGuest />} />
               <Route path="*" element={<Home />} />
             </Routes>
           </Suspense>

@@ -6,12 +6,14 @@ import { useAuth } from "../../contexts/AuthContext";
 import LoginDropdown from "../LoginDropdown";
 import UserMenuDropdown from "../UserMenuDropdown";
 import SettingsModal from "../SettingsModal";
+import ActivitySetupModal from "../ActivitySetupModal";
 
 export const Header = ({ onSearchOpen }) => {
   const { isLoggedIn, role } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showActivitySetup, setShowActivitySetup] = useState(false);
   const loginRefMobile = useRef(null);
   const loginRefDesktop = useRef(null);
 
@@ -95,6 +97,7 @@ export const Header = ({ onSearchOpen }) => {
                 <UserMenuDropdown
                   onClose={() => setShowUserMenu(false)}
                   onSettings={() => setShowSettings(true)}
+                  onActivitySetup={() => { setShowUserMenu(false); setShowActivitySetup(true); }}
                 />
               )}
             </div>
@@ -136,6 +139,7 @@ export const Header = ({ onSearchOpen }) => {
               <UserMenuDropdown
                 onClose={() => setShowUserMenu(false)}
                 onSettings={() => setShowSettings(true)}
+                onActivitySetup={() => { setShowUserMenu(false); setShowActivitySetup(true); }}
               />
             )}
           </div>
@@ -143,6 +147,7 @@ export const Header = ({ onSearchOpen }) => {
       </div>
 
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+      {showActivitySetup && <ActivitySetupModal onClose={() => setShowActivitySetup(false)} />}
     </>
   );
 };
