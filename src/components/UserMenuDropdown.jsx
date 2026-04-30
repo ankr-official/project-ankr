@@ -1,19 +1,23 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
-  HeartIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   ShieldCheckIcon,
+  Square2StackIcon,
 } from "@heroicons/react/24/outline";
 
-export default function UserMenuDropdown({ onClose, onSettings }) {
+export default function UserMenuDropdown({
+  onClose,
+  onSettings,
+  onActivitySetup,
+}) {
   const navigate = useNavigate();
-  const { signOut, role } = useAuth();
+  const { user, signOut, role } = useAuth();
 
-  const handleLiked = () => {
+  const handleActivity = () => {
     onClose();
-    navigate("/liked");
+    navigate("/activity");
   };
 
   const handleAdmin = () => {
@@ -44,11 +48,10 @@ export default function UserMenuDropdown({ onClose, onSettings }) {
         </button>
       )}
       <button
-        onClick={handleLiked}
+        onClick={handleActivity}
         className="flex items-center gap-2 w-full px-4 py-3 text-sm rounded-none text-gray-700 dark:text-gray-300 active:bg-gray-50 mouse:hover:bg-gray-50 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800 transition-colors"
       >
-        <HeartIcon className="w-4 h-4" />
-        관심 행사
+        <Square2StackIcon className="w-4 h-4" />내 활동
       </button>
       <button
         onClick={handleSettings}

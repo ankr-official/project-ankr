@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import { ThemeProvider, useThemeContext } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { LoginDropdownProvider } from "./contexts/LoginDropdownContext";
@@ -9,7 +9,8 @@ import Home from "./pages/Home";
 import "./App.css";
 
 const Admin = lazy(() => import("./pages/Admin"));
-const LikedEvents = lazy(() => import("./pages/LikedEvents"));
+const Activity = lazy(() => import("./pages/Activity"));
+const ActivityGuest = lazy(() => import("./pages/ActivityGuest"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 
@@ -47,7 +48,9 @@ function AppContent() {
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/event/:id" element={<Home />} />
-              <Route path="/liked" element={<LikedEvents />} />
+              <Route path="/liked" element={<Navigate to="/activity" replace />} />
+              <Route path="/activity" element={<Activity />} />
+              <Route path="/:handle" element={<ActivityGuest />} />
               <Route path="*" element={<Home />} />
             </Routes>
           </Suspense>

@@ -60,7 +60,7 @@ export default function PrivacyPolicy() {
             개인정보처리방침
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            시행일: 2026년 3월 16일 &nbsp;·&nbsp; 최종 수정일: 2026년 4월 10일
+            시행일: 2026년 3월 16일 &nbsp;·&nbsp; 최종 수정일: 2026년 4월 30일
           </p>
           <p className="mt-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
             ANKR.KR(이하 "서비스")는 이용자의 개인정보를 중요하게 여기며,
@@ -91,6 +91,11 @@ export default function PrivacyPolicy() {
                 "선택(관심/다녀온 행사 기능 이용 시)",
               ],
               [
+                "내 활동 페이지",
+                "닉네임(표시 이름), 활동 주소(고유 URL 핸들), 공개/비공개 설정, 이벤트별 공개 여부, 공개 활동 데이터(행사 ID·참여 유형)",
+                "선택(내 활동 페이지 기능 이용 시)",
+              ],
+              [
                 "접속 기록",
                 "접속 IP 주소, 접속 일시, 서비스 이용 기록 (Firebase·Google Cloud 인프라 자동 수집)",
                 "자동 수집",
@@ -118,8 +123,9 @@ export default function PrivacyPolicy() {
             </li>
             <li>
               <span className="font-medium">이용자 직접 입력:</span> 행사 제보
-              양식 작성 시 이용자가 직접 입력한 정보가 Firebase Realtime
-              Database에 저장됩니다.
+              양식 작성 시 이용자가 직접 입력한 정보, 내 활동 페이지에서 설정한
+              닉네임 및 활동 주소(handle)가 Firebase Realtime Database에
+              저장됩니다.
             </li>
             <li>
               <span className="font-medium">자동 수집:</span> Firebase 및 Google
@@ -159,6 +165,10 @@ export default function PrivacyPolicy() {
                 "Firebase UID, 행사 ID, 등록 유형, 등록 일시",
               ],
               [
+                "내 활동 페이지 생성 및 공개 공유",
+                "닉네임, 활동 주소, 공개/비공개 설정, 이벤트별 공개 여부, 공개 활동 데이터",
+              ],
+              [
                 "일일 제보 횟수 제한 적용 (남용 방지)",
                 "Firebase UID, 제보 일시",
               ],
@@ -196,6 +206,16 @@ export default function PrivacyPolicy() {
               [
                 "관심 행사 · 다녀온 행사 데이터",
                 "이용자 직접 삭제 또는 회원 탈퇴 시까지",
+                "서비스 운영",
+              ],
+              [
+                "닉네임, 활동 주소(slug)",
+                "이용자 직접 삭제, 활동 페이지 삭제 또는 회원 탈퇴 시까지",
+                "서비스 운영",
+              ],
+              [
+                "공개 활동 데이터 (publicActivity)",
+                "비공개 전환, 활동 페이지 삭제 또는 회원 탈퇴 시까지",
                 "서비스 운영",
               ],
               [
@@ -282,7 +302,7 @@ export default function PrivacyPolicy() {
               [
                 "Google LLC",
                 "미국 및 Google 데이터센터 운영 국가",
-                "Firebase UID, 이메일, 제보 내용, 접속 로그, 방문 페이지·체류 시간·유입 경로·브라우저/기기 정보(Google Analytics)",
+                "Firebase UID, 이메일, 제보 내용, 관심·다녀온 행사 데이터, 닉네임, 활동 주소, 공개 활동 데이터, 접속 로그, 방문 페이지·체류 시간·유입 경로·브라우저/기기 정보(Google Analytics)",
                 "인증, 데이터 저장, 서버 운영, 알림 발송",
                 "EU 표준 계약 조항(SCC) 준용, Google 개인정보처리방침 적용",
               ],
