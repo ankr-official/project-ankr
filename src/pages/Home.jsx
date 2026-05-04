@@ -1,12 +1,10 @@
-import { useState, useEffect, useDeferredValue } from "react";
+import { useState, useEffect, useDeferredValue, lazy, Suspense } from "react";
 import { ref, push, get, set } from "firebase/database";
 import { toast } from "react-toastify";
 import { database } from "../config/firebase";
 
 // Components
-import { Modal } from "../components/Modal";
 import { EventCarousel } from "../components/EventCarousel";
-import { SearchModal } from "../components/SearchModal";
 import EventCalendar from "../components/EventCalendar";
 import { EventTable } from "../components/events/EventTable";
 import { TabButton } from "../components/ui/TabButton";
@@ -15,7 +13,10 @@ import { Header } from "../components/ui/Header";
 import { ActionButtons } from "../components/ui/ActionButtons";
 import { YearEndReceiptBanner } from "../components/YearEndReceiptBanner";
 import { AprilFoolsBanner } from "../components/AprilFoolsBanner";
-import ReportEventModal from "../components/ReportEventModal";
+
+const Modal = lazy(() => import("../components/Modal").then((m) => ({ default: m.Modal })));
+const SearchModal = lazy(() => import("../components/SearchModal").then((m) => ({ default: m.SearchModal })));
+const ReportEventModal = lazy(() => import("../components/ReportEventModal"));
 
 // Hooks
 import { useYearEventData } from "../hooks/useYearEventData";
@@ -125,6 +126,7 @@ function Home() {
     return (
       <div className="flex flex-col min-h-screen">
         <div className="container flex-grow px-2 py-6 mx-auto lg:px-4">
+          <Header onSearchOpen={() => {}} />
           <div className="flex justify-center items-center h-64">
             <div className="w-12 h-12 rounded-full border-b-2 border-indigo-700 animate-spin"></div>
           </div>
@@ -150,39 +152,45 @@ function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Modals */}
-      <Modal
-        isOpen={selectedItem !== null}
-        onClose={handleModalClose}
-        data={selectedItem || {}}
-        locationSuggestions={locationSuggestions}
-        eventNameSuggestions={eventNameSuggestions}
-        genreSuggestions={genreSuggestions}
-      />
-
-      {isReportOpen && (
-        <ReportEventModal
-          onSubmit={handleReportSubmit}
-          onClose={() => setIsReportOpen(false)}
-          isSaving={isSaving}
-          isLimitReached={isLimitReached}
-          reportCount={reportCount}
-          dailyLimit={DAILY_LIMIT}
+      <Suspense fallback={null}>
+        <Modal
+          isOpen={selectedItem !== null}
+          onClose={handleModalClose}
+          data={selectedItem || {}}
           locationSuggestions={locationSuggestions}
           eventNameSuggestions={eventNameSuggestions}
           genreSuggestions={genreSuggestions}
         />
+      </Suspense>
+
+      {isReportOpen && (
+        <Suspense fallback={null}>
+          <ReportEventModal
+            onSubmit={handleReportSubmit}
+            onClose={() => setIsReportOpen(false)}
+            isSaving={isSaving}
+            isLimitReached={isLimitReached}
+            reportCount={reportCount}
+            dailyLimit={DAILY_LIMIT}
+            locationSuggestions={locationSuggestions}
+            eventNameSuggestions={eventNameSuggestions}
+            genreSuggestions={genreSuggestions}
+          />
+        </Suspense>
       )}
 
-      <SearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        events={[...currentEvents, ...pastEvents]}
-        onEventSelect={handleModalOpen}
-        knownYears={knownYears}
-        loadedYears={loadedYears}
-        loadingYears={loadingYears}
-        onYearLoad={loadYear}
-      />
+      <Suspense fallback={null}>
+        <SearchModal
+          isOpen={isSearchOpen}
+          onClose={() => setIsSearchOpen(false)}
+          events={[...currentEvents, ...pastEvents]}
+          onEventSelect={handleModalOpen}
+          knownYears={knownYears}
+          loadedYears={loadedYears}
+          loadingYears={loadingYears}
+          onYearLoad={loadYear}
+        />
+      </Suspense>
 
       <div className="container flex-grow px-2 py-6 mx-auto lg:px-4">
         {/* Header */}
