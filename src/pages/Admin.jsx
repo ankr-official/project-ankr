@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ref, remove, update, set, get } from "firebase/database";
 import { toast } from "react-toastify";
@@ -35,6 +35,7 @@ export default function Admin() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [approvingReportId, setApprovingReportId] = useState(null);
+  const maxSavedRowRef = useRef(null);
   const [reportsCount, setReportsCount] = useState(0);
   const [editRequestsCount, setEditRequestsCount] = useState(0);
 
@@ -168,11 +169,23 @@ export default function Admin() {
         toast.success("이벤트가 수정되었습니다.");
       } else {
         const year = new Date(data.schedule).getFullYear();
-        const maxRow = events.reduce((max, e) => {
-          const match = e.id?.match(/^row(\d+)$/);
-          return match ? Math.max(max, parseInt(match[1], 10)) : max;
-        }, 0);
+        const dbUrl = import.meta.env.VITE_FIREBASE_DATABASE_URL;
+        const maxes = await Promise.all(
+          knownYears.map(async (yr) => {
+            try {
+              const res = await fetch(`${dbUrl}/data_v3/${yr}.json?shallow=true`);
+              const keys = await res.json();
+              if (!keys || typeof keys !== "object") return 0;
+              return Object.keys(keys).reduce((m, k) => {
+                const match = k.match(/^row(\d+)$/);
+                return match ? Math.max(m, parseInt(match[1], 10)) : m;
+              }, 0);
+            } catch { return 0; }
+          })
+        );
+        const maxRow = Math.max(0, ...maxes, maxSavedRowRef.current ?? 0);
         const newId = `row${maxRow + 1}`;
+        maxSavedRowRef.current = maxRow + 1;
         await set(ref(database, `data_v3/${year}/${newId}`), data);
         addLocalEvent(year, newId, data);
         if (!knownYears.includes(year)) {
