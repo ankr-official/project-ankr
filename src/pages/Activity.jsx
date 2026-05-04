@@ -225,21 +225,28 @@ export default function Activity() {
     };
   }, [user?.uid]);
 
+  // shallow fetch를 시도한 연도를 추적 — loadedYears를 deps에 넣으면
+  // 연도 로드 완료마다 effect가 재실행되어 중복 fetch가 발생하므로 ref로 관리
+  const shallowCheckedRef = useRef(new Set());
+
   useEffect(() => {
     if (!activityData || !knownYears.length) return;
     const allIds = new Set(Object.keys(activityData));
     if (!allIds.size) return;
     const dbUrl = import.meta.env.VITE_FIREBASE_DATABASE_URL;
     knownYears.forEach(async (year) => {
-      if (loadedYears.has(year)) return;
+      if (shallowCheckedRef.current.has(year)) return;
+      shallowCheckedRef.current.add(year);
       try {
         const res = await fetch(`${dbUrl}/data_v3/${year}.json?shallow=true`);
         const keys = await res.json();
         if (keys && Object.keys(keys).some((k) => allIds.has(k)))
           loadYear(year);
-      } catch {}
+      } catch {
+        shallowCheckedRef.current.delete(year);
+      }
     });
-  }, [activityData, knownYears, loadedYears]);
+  }, [activityData, knownYears]);
 
   const likedAll = useMemo(() => {
     if (!allEvents || !activityData) return [];
