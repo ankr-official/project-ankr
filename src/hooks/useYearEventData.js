@@ -94,6 +94,14 @@ export const useYearEventData = () => {
     }));
   };
 
+  const addLocalEvent = (year, id, data) => {
+    if (year === CURRENT_YEAR) return; // 현재 연도는 onValue가 자동 처리
+    setYearData((prev) => ({
+      ...prev,
+      [year]: [...(prev[year] || []), { id, ...data }],
+    }));
+  };
+
   const removeLocalEvent = (year, id) => {
     if (year === CURRENT_YEAR) return;
     setYearData((prev) => ({
@@ -114,6 +122,7 @@ export const useYearEventData = () => {
     metaLoaded,
     loading,
     updateLocalEvent,
+    addLocalEvent,
     removeLocalEvent,
   };
 };

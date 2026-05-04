@@ -18,7 +18,7 @@ import TabBar from "../components/admin/TabBar";
 export default function Admin() {
   const navigate = useNavigate();
   const { role, user, signOut, loading: authLoading } = useAuth();
-  const { allData: events, knownYears, loadYear, loading: dataLoading, updateLocalEvent, removeLocalEvent } = useYearEventData();
+  const { allData: events, knownYears, loadYear, loading: dataLoading, updateLocalEvent, addLocalEvent, removeLocalEvent } = useYearEventData();
 
   // Admin은 모든 연도 데이터 필요
   useEffect(() => {
@@ -172,7 +172,9 @@ export default function Admin() {
           const match = e.id?.match(/^row(\d+)$/);
           return match ? Math.max(max, parseInt(match[1], 10)) : max;
         }, 0);
-        await set(ref(database, `data_v3/${year}/row${maxRow + 1}`), data);
+        const newId = `row${maxRow + 1}`;
+        await set(ref(database, `data_v3/${year}/${newId}`), data);
+        addLocalEvent(year, newId, data);
         if (!knownYears.includes(year)) {
           const updatedYears = [...knownYears, year].sort((a, b) => b - a);
           await set(ref(database, "data_v3/meta/years"), updatedYears);
