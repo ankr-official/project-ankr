@@ -27,8 +27,8 @@ const Table = ({ headers, rows }) => (
         </tr>
       </thead>
       <tbody>
-        {rows.map((row, i) => (
-          <tr key={i} className="even:bg-gray-50 dark:even:bg-gray-800/50">
+        {rows.map((row) => (
+          <tr key={row[0]} className="even:bg-gray-50 dark:even:bg-gray-800/50">
             {row.map((cell, j) => (
               <td
                 key={j}

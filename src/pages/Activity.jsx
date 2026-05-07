@@ -234,18 +234,20 @@ export default function Activity() {
     const allIds = new Set(Object.keys(activityData));
     if (!allIds.size) return;
     const dbUrl = import.meta.env.VITE_FIREBASE_DATABASE_URL;
-    knownYears.forEach(async (year) => {
-      if (shallowCheckedRef.current.has(year)) return;
-      shallowCheckedRef.current.add(year);
-      try {
-        const res = await fetch(`${dbUrl}/data_v3/${year}.json?shallow=true`);
-        const keys = await res.json();
-        if (keys && Object.keys(keys).some((k) => allIds.has(k)))
-          loadYear(year);
-      } catch {
-        shallowCheckedRef.current.delete(year);
-      }
-    });
+    Promise.all(
+      knownYears.map(async (year) => {
+        if (shallowCheckedRef.current.has(year)) return;
+        shallowCheckedRef.current.add(year);
+        try {
+          const res = await fetch(`${dbUrl}/data_v3/${year}.json?shallow=true`);
+          const keys = await res.json();
+          if (keys && Object.keys(keys).some((k) => allIds.has(k)))
+            loadYear(year);
+        } catch {
+          shallowCheckedRef.current.delete(year);
+        }
+      })
+    );
   }, [activityData, knownYears]);
 
   const likedAll = useMemo(() => {

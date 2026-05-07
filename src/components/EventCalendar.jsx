@@ -453,9 +453,9 @@ const EventCalendar = ({
                   </div>
                   {holidayList && (
                     <div className="flex flex-col items-end space-y-0.5">
-                      {holidayList.map((holiday, index) => (
+                      {holidayList.map((holiday) => (
                         <div
-                          key={index}
+                          key={holiday}
                           className={`text-right text-[10px] lg:text-xs text-red-600 dark:text-red-400 transition-colors ${!isCurrentMonth ? "opacity-50" : ""}`}
                         >
                           {holiday}
