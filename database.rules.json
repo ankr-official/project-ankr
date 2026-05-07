@@ -1,0 +1,80 @@
+{
+  "rules": {
+    "data": {
+      ".read": false,
+      ".write": false
+    },
+    "data_v2": {
+      ".read": false,
+      ".write": false
+    },
+    "data_v3": {
+      "meta": {
+        ".read": true,
+        ".write": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner')"
+      },
+      "$year": {
+        ".read": true,
+        ".write": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner')"
+      }
+    },
+    "reports": {
+      ".read": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner')",
+      ".write": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner')"
+    },
+    "reportLimits": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": false
+      }
+    },
+    "editRequests": {
+      ".read": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner')",
+      ".write": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner')"
+    },
+    "editRequestLimits": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": false
+      }
+    },
+    "viewIPs": {
+      ".read": false,
+      ".write": false
+    },
+    "likes": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        "nickname":      { ".read": true },
+        "activitySlug":  { ".read": true },
+        "historyPublic": { ".read": true },
+        "publicActivity": {
+          ".read": "data.parent().child('historyPublic').val() == true"
+        }
+      }
+    },
+    "activitySlugs": {
+      "$slug": {
+        ".read": true,
+        ".write": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner' || newData.val() == auth.uid || (!newData.exists() && data.val() == auth.uid))"
+      }
+    },
+    "auditLogs": {
+      ".read": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner')",
+      ".write": false
+    },
+    "suspensions": {
+      "$uid": {
+        ".read": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner')",
+        ".write": false
+      }
+    }
+  }
+}

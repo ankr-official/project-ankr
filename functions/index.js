@@ -452,6 +452,84 @@ exports.setUserDisabled = onRequest(
 );
 
 
+const DAILY_LIMIT = 10;
+
+const checkAndIncrementLimit = async (db, path) => {
+  const today = new Date().toISOString().slice(0, 10);
+  const snap = await db.ref(path).once("value");
+  const val = snap.val();
+  const count = val?.date === today ? (val.count ?? 0) : 0;
+  if (count >= DAILY_LIMIT) return false;
+  await db.ref(path).set({ date: today, count: count + 1 });
+  return true;
+};
+
+exports.submitReport = onCall(
+  { region: "asia-southeast1" },
+  async (request) => {
+    if (!request.auth) throw new Error("unauthenticated");
+    const { event_name, schedule, location, genre, event_url, etc } = request.data || {};
+    if (!event_name || !schedule || !location || !genre || !event_url)
+      throw new Error("missing-required-fields");
+
+    const db = admin.database();
+    const uid = request.auth.uid;
+    const token = await admin.auth().getUser(uid);
+    const role = token.customClaims?.role;
+
+    if (role !== "admin" && role !== "owner") {
+      const allowed = await checkAndIncrementLimit(db, `reportLimits/${uid}`);
+      if (!allowed) throw new Error("daily-limit-exceeded");
+    }
+
+    await db.ref("reports").push({
+      event_name,
+      schedule,
+      location,
+      genre,
+      event_url,
+      ...(etc != null && { etc }),
+      submittedAt: new Date().toISOString(),
+      submittedBy: request.auth.token.email || uid,
+    });
+
+    return { ok: true };
+  }
+);
+
+exports.submitEditRequest = onCall(
+  { region: "asia-southeast1" },
+  async (request) => {
+    if (!request.auth) throw new Error("unauthenticated");
+    const { eventId, eventYear, eventName, reason, formData, _snap } = request.data || {};
+    if (!eventId || !eventYear || !eventName || !reason || !formData)
+      throw new Error("missing-required-fields");
+
+    const db = admin.database();
+    const uid = request.auth.uid;
+    const token = await admin.auth().getUser(uid);
+    const role = token.customClaims?.role;
+
+    if (role !== "admin" && role !== "owner") {
+      const allowed = await checkAndIncrementLimit(db, `editRequestLimits/${uid}`);
+      if (!allowed) throw new Error("daily-limit-exceeded");
+    }
+
+    await db.ref("editRequests").push({
+      ...formData,
+      eventId,
+      eventYear,
+      eventName,
+      reason,
+      submittedAt: new Date().toISOString(),
+      submittedBy: request.auth.token.email || uid,
+      ...(_snap != null && { _snap }),
+    });
+
+    return { ok: true };
+  }
+);
+
 exports.recordView = onCall(
   {
     region: "asia-southeast1",

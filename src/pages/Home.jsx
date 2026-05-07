@@ -1,7 +1,8 @@
 import { useState, useEffect, useDeferredValue, lazy, Suspense } from "react";
-import { ref, push, get, set } from "firebase/database";
+import { ref, get } from "firebase/database";
+import { httpsCallable } from "firebase/functions";
 import { toast } from "react-toastify";
-import { database } from "../config/firebase";
+import { database, functions } from "../config/firebase";
 
 // Components
 import { EventCarousel } from "../components/EventCarousel";
@@ -84,23 +85,18 @@ function Home() {
     if (isLimitReached) return;
     setIsSaving(true);
     try {
-      await push(ref(database, "reports"), {
-        ...formData,
-        submittedAt: new Date().toISOString(),
-        submittedBy: user?.email || user?.uid || "unknown",
-      });
-      const today = new Date().toISOString().slice(0, 10);
-      const newCount = reportCount + 1;
-      await set(ref(database, `reportLimits/${user.uid}`), {
-        date: today,
-        count: newCount,
-      });
-      setReportCount(newCount);
+      const submitReport = httpsCallable(functions, "submitReport");
+      await submitReport(formData);
+      setReportCount((c) => c + 1);
       setIsReportOpen(false);
       toast.success("제보가 완료되었습니다!");
     } catch (err) {
-      console.error("제보 저장 실패:", err);
-      alert("저장에 실패했습니다. 다시 시도해 주세요.");
+      if (err.message === "daily-limit-exceeded") {
+        toast.error("오늘 제보 한도에 도달했습니다.");
+      } else {
+        console.error("제보 저장 실패:", err);
+        alert("저장에 실패했습니다. 다시 시도해 주세요.");
+      }
     } finally {
       setIsSaving(false);
     }
