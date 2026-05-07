@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { ref, get } from "firebase/database";
+import { database } from "../../config/firebase";
 import * as adminApi from "../../utils/adminApi";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import TabBar from "./TabBar";
@@ -160,10 +162,10 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
   };
 
   const handleShowReason = async (user) => {
-    setReasonModal({ email: user.email, reason: null }); // null = 로딩 중
+    setReasonModal({ email: user.email, reason: null });
     try {
-      const data = await adminApi.getSuspensionReason(user.email);
-      setReasonModal({ email: user.email, reason: data.reason || "" });
+      const snap = await get(ref(database, `suspensions/${user.uid}`));
+      setReasonModal({ email: user.email, reason: snap.val()?.reason || "" });
     } catch {
       setReasonModal({ email: user.email, reason: "" });
     }

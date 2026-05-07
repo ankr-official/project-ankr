@@ -7,13 +7,28 @@ const { onValueCreated } = require("firebase-functions/v2/database");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const crypto = require("crypto");
 
-const serviceAccount = require("./service-account-key.json");
-
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://ankr-db-default-rtdb.asia-southeast1.firebasedatabase.app",
   storageBucket: "ankr-db.firebasestorage.app",
 });
+
+const escapeHtml = (str) => {
+  if (str == null) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+};
+
+const safeUrl = (url) => {
+  if (!url || typeof url !== "string") return "";
+  try {
+    const { protocol } = new URL(url);
+    return ["http:", "https:"].includes(protocol) ? escapeHtml(url) : "";
+  } catch { return ""; }
+};
 
 exports.onReportCreated = onValueCreated(
   {
@@ -52,13 +67,13 @@ exports.onReportCreated = onValueCreated(
     };
 
     const rows = [
-      ["이벤트명", report.event_name || "-"],
+      ["이벤트명", escapeHtml(report.event_name) || "-"],
       ["날짜", formatDate(report.schedule)],
-      ["장소", report.location || "-"],
-      ["장르", report.genre || "-"],
-      ["SNS 링크", report.event_url || "-"],
-      ["기타", report.etc || "-"],
-      ["제보자", report.submittedBy || "-"],
+      ["장소", escapeHtml(report.location) || "-"],
+      ["장르", escapeHtml(report.genre) || "-"],
+      ["SNS 링크", safeUrl(report.event_url) || "-"],
+      ["기타", escapeHtml(report.etc) || "-"],
+      ["제보자", escapeHtml(report.submittedBy) || "-"],
       ["제보 시각", report.submittedAt ? new Date(report.submittedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }) : "-"],
     ];
 
@@ -135,11 +150,11 @@ exports.onEditRequestCreated = onValueCreated(
       } catch { return iso; }
     };
 
-    const eventName = request.eventName || request.event_name || "(이름 없음)";
+    const eventName = escapeHtml(request.eventName || request.event_name) || "(이름 없음)";
     const metaRows = [
       ["대상 이벤트", eventName],
-      ["사유", request.reason || "-"],
-      ["요청자", request.submittedBy || "-"],
+      ["사유", escapeHtml(request.reason) || "-"],
+      ["요청자", escapeHtml(request.submittedBy) || "-"],
       ["요청 시각", request.submittedAt ? new Date(request.submittedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }) : "-"],
     ];
     const metaTableRows = metaRows
@@ -192,23 +207,23 @@ exports.onEditRequestCreated = onValueCreated(
       const diffs = [];
       if (original) {
         if ((original.event_name ?? "") !== (request.event_name ?? ""))
-          diffs.push(["이벤트명", original.event_name || "-", request.event_name || "-"]);
+          diffs.push(["이벤트명", escapeHtml(original.event_name) || "-", escapeHtml(request.event_name) || "-"]);
         if (toLocalDate(original.schedule) !== toLocalDate(request.schedule))
           diffs.push(["날짜", formatDate(original.schedule), formatDate(request.schedule)]);
         if ((original.location ?? "") !== (request.location ?? ""))
-          diffs.push(["장소", original.location || "-", request.location || "-"]);
+          diffs.push(["장소", escapeHtml(original.location) || "-", escapeHtml(request.location) || "-"]);
         const origGenre = toArray(original.genre).slice().sort().join(",");
         const reqGenre = toArray(request.genre).slice().sort().join(",");
         if (origGenre !== reqGenre)
-          diffs.push(["장르", toArray(original.genre).join(", ") || "-", toArray(request.genre).join(", ") || "-"]);
+          diffs.push(["장르", escapeHtml(toArray(original.genre).join(", ")) || "-", escapeHtml(toArray(request.genre).join(", ")) || "-"]);
         [["time_start","시작"], ["time_entrance","입장"], ["time_end","종료"]].forEach(([field, label]) => {
           if (formatTime(original[field]) !== formatTime(request[field]))
             diffs.push([`시간(${label})`, formatTime(original[field]) || "-", formatTime(request[field]) || "-"]);
         });
         if ((original.event_url ?? "") !== (request.event_url ?? ""))
-          diffs.push(["SNS 링크", original.event_url || "-", request.event_url || "-"]);
+          diffs.push(["SNS 링크", safeUrl(original.event_url) || "-", safeUrl(request.event_url) || "-"]);
         if ((original.etc ?? "") !== (request.etc ?? ""))
-          diffs.push(["기타", original.etc || "-", request.etc || "-"]);
+          diffs.push(["기타", escapeHtml(original.etc) || "-", escapeHtml(request.etc) || "-"]);
       }
 
       const diffTableRows = diffs.length > 0
@@ -255,38 +270,6 @@ exports.onEditRequestCreated = onValueCreated(
   },
 );
 
-exports.syncData = onRequest(
-  {
-    timeoutSeconds: 60,
-  },
-  async (req, res) => {
-    try {
-      const secret = req.headers["x-secret"];
-      const expectedSecret = process.env.ANKR_FUNCTION_SECRET;
-      if (secret !== expectedSecret) {
-        console.warn("⚠️ Unauthorized request with invalid secret");
-        return res.status(403).send("Forbidden: Invalid secret");
-      }
-
-      const data = req.body;
-
-      if (!data || typeof data !== "object") {
-        console.warn("⚠️ Invalid or missing data received");
-        return res.status(400).send("Invalid data");
-      }
-
-      console.log("📥 Received payload:", JSON.stringify(data, null, 2));
-
-      await admin.database().ref("data").set(data);
-      console.log("✅ Data written to Firebase Realtime Database");
-
-      res.status(200).send("✅ Data synced successfully");
-    } catch (error) {
-      console.error("❌ Error syncing data:", error);
-      res.status(500).send("Internal Server Error");
-    }
-  },
-);
 
 exports.weeklyBackup = onSchedule(
   {
@@ -320,22 +303,48 @@ exports.weeklyBackup = onSchedule(
   },
 );
 
+const ADMIN_ALLOWED_ORIGINS = new Set([
+  "https://ankr.kr",
+  ...(process.env.ADMIN_EXTRA_ORIGIN ? [process.env.ADMIN_EXTRA_ORIGIN] : []),
+]);
+
 const setCors = (res) => {
   res.set("Access-Control-Allow-Origin", "*");
   res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.set("Access-Control-Allow-Headers", "Content-Type, x-secret, Authorization");
+  res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
 };
 
-const checkSecret = (req, res) => {
-  const secret = req.headers["x-secret"];
-  const expected = process.env.ANKR_FUNCTION_SECRET;
-  if (secret !== expected) {
-    console.warn("⚠️ Unauthorized request with invalid secret");
-    res.status(403).send("Forbidden: Invalid secret");
-    return false;
-  }
-  return true;
+const setAdminCors = (res, req) => {
+  const origin = req.headers.origin || "";
+  res.set("Access-Control-Allow-Origin", ADMIN_ALLOWED_ORIGINS.has(origin) ? origin : "null");
+  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.set("Vary", "Origin");
 };
+
+const verifyToken = async (req, res, allowedRoles) => {
+  const authHeader = req.headers["authorization"] || "";
+  const idToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  if (!idToken) {
+    res.status(403).send("Forbidden: missing token");
+    return null;
+  }
+  let decoded;
+  try {
+    decoded = await admin.auth().verifyIdToken(idToken);
+  } catch {
+    res.status(403).send("Forbidden: invalid token");
+    return null;
+  }
+  if (!allowedRoles.includes(decoded.role)) {
+    res.status(403).send("Forbidden: insufficient role");
+    return null;
+  }
+  return decoded;
+};
+
+const verifyOwnerToken = (req, res) => verifyToken(req, res, ["owner"]);
+const verifyAdminOrOwnerToken = (req, res) => verifyToken(req, res, ["admin", "owner"]);
 
 exports.setUserRole = onRequest(
   {
@@ -343,22 +352,9 @@ exports.setUserRole = onRequest(
     region: "asia-northeast3",
   },
   async (req, res) => {
-    setCors(res);
+    setAdminCors(res, req);
     if (req.method === "OPTIONS") return res.status(204).send("");
-    if (!checkSecret(req, res)) return;
-
-    // Caller must be owner
-    const authHeader = req.headers["authorization"] || "";
-    const idToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
-    if (!idToken) return res.status(403).send("Forbidden: missing token");
-
-    let decoded;
-    try {
-      decoded = await admin.auth().verifyIdToken(idToken);
-    } catch {
-      return res.status(403).send("Forbidden: invalid token");
-    }
-    if (decoded.role !== "owner") return res.status(403).send("Forbidden: owner only");
+    if (!(await verifyOwnerToken(req, res))) return;
 
     try {
       const { uid, role } = req.body || {};
@@ -385,9 +381,9 @@ exports.listUsers = onRequest(
     region: "asia-northeast3",
   },
   async (req, res) => {
-    setCors(res);
+    setAdminCors(res, req);
     if (req.method === "OPTIONS") return res.status(204).send("");
-    if (!checkSecret(req, res)) return;
+    if (!(await verifyAdminOrOwnerToken(req, res))) return;
 
     try {
       const listResult = await admin.auth().listUsers(1000);
@@ -412,25 +408,39 @@ exports.setUserDisabled = onRequest(
     region: "asia-northeast3",
   },
   async (req, res) => {
-    setCors(res);
+    setAdminCors(res, req);
     if (req.method === "OPTIONS") return res.status(204).send("");
-    if (!checkSecret(req, res)) return;
+    const caller = await verifyAdminOrOwnerToken(req, res);
+    if (!caller) return;
 
     try {
       const { uid, disabled, reason } = req.body || {};
       if (!uid || typeof uid !== "string") return res.status(400).send("Invalid uid");
       if (typeof disabled !== "boolean") return res.status(400).send("Invalid disabled");
 
+      const targetUser = await admin.auth().getUser(uid);
+      if (targetUser.customClaims?.role === "owner") return res.status(403).send("Forbidden: cannot disable owner");
+
       await admin.auth().updateUser(uid, { disabled });
 
+      const db = admin.database();
       if (disabled) {
-        await admin.database().ref(`suspensions/${uid}`).set({
+        await db.ref(`suspensions/${uid}`).set({
           reason: reason || "",
           suspendedAt: new Date().toISOString(),
         });
       } else {
-        await admin.database().ref(`suspensions/${uid}`).remove();
+        await db.ref(`suspensions/${uid}`).remove();
       }
+
+      await db.ref(`auditLogs`).push({
+        action: disabled ? "disable" : "enable",
+        targetUid: uid,
+        performedBy: caller.uid,
+        performedByRole: caller.role,
+        reason: reason || "",
+        timestamp: new Date().toISOString(),
+      });
 
       console.log("✅ User disabled state updated:", { uid, disabled });
       return res.status(200).json({ ok: true, uid, disabled });
@@ -441,40 +451,6 @@ exports.setUserDisabled = onRequest(
   },
 );
 
-exports.getSuspensionReason = onRequest(
-  {
-    timeoutSeconds: 30,
-    region: "asia-northeast3",
-  },
-  async (req, res) => {
-    setCors(res);
-    if (req.method === "OPTIONS") return res.status(204).send("");
-
-    try {
-      const { email } = req.body || {};
-      if (!email || typeof email !== "string") return res.status(400).send("Invalid email");
-
-      let userRecord;
-      try {
-        userRecord = await admin.auth().getUserByEmail(email);
-      } catch {
-        return res.status(200).json({ suspended: false });
-      }
-
-      if (!userRecord.disabled) {
-        return res.status(200).json({ suspended: false });
-      }
-
-      const snap = await admin.database().ref(`suspensions/${userRecord.uid}`).once("value");
-      const data = snap.val();
-
-      return res.status(200).json({ suspended: true, reason: data?.reason || "" });
-    } catch (error) {
-      console.error("❌ Error getting suspension reason:", error);
-      return res.status(500).send("Internal Server Error");
-    }
-  },
-);
 
 exports.recordView = onCall(
   {
@@ -483,11 +459,16 @@ exports.recordView = onCall(
   },
   async (request) => {
     const { eventId, eventYear } = request.data || {};
-    if (!eventId || typeof eventId !== "string") throw new Error("Invalid eventId");
-    if (!eventYear || typeof eventYear !== "number") throw new Error("Invalid eventYear");
+    if (!eventId || !/^row\d+$/.test(eventId)) throw new Error("Invalid eventId");
+    if (!Number.isInteger(eventYear) || eventYear < 2020 || eventYear > 2100) throw new Error("Invalid eventYear");
 
+    const db = admin.database();
+    const eventSnap = await db.ref(`data_v3/${eventYear}/${eventId}`).once("value");
+    if (!eventSnap.exists()) return { counted: false };
+
+    const forwarded = request.rawRequest.headers["x-forwarded-for"];
     const ip =
-      request.rawRequest.headers["x-forwarded-for"]?.split(",")[0].trim() ||
+      (forwarded ? forwarded.split(",").at(-1).trim() : null) ||
       request.rawRequest.socket?.remoteAddress ||
       "unknown";
 
@@ -497,16 +478,14 @@ exports.recordView = onCall(
       .digest("hex")
       .slice(0, 16);
 
-    const ipRef = admin.database().ref(`viewIPs/${eventId}/${hash}`);
+    const ipRef = db.ref(`viewIPs/${eventId}/${hash}`);
     const snap = await ipRef.once("value");
 
     const now = Date.now();
     const TTL_MS = 24 * 60 * 60 * 1000;
     if (snap.exists() && now - snap.val() < TTL_MS) return { counted: false };
 
-    const viewsPath = `data_v3/${eventYear}/${eventId}/views`;
-    await admin.database()
-      .ref(viewsPath)
+    await db.ref(`data_v3/${eventYear}/${eventId}/views`)
       .transaction((current) => (current || 0) + 1);
     await ipRef.set(now);
 
@@ -515,35 +494,6 @@ exports.recordView = onCall(
 );
 
 // data_v2 → data_v3/{year}/{id} 마이그레이션 (1회 실행용, owner만 호출 가능)
-exports.migrateToV3 = onCall(
-  { region: "asia-northeast3" },
-  async ({ auth }) => {
-    if (!auth) throw new Error("unauthenticated");
-    const tokenSnap = await admin.auth().getUser(auth.uid);
-    const role = tokenSnap.customClaims?.role;
-    if (role !== "owner") throw new Error("permission-denied");
-
-    const src = await admin.database().ref("data_v2").get();
-    const srcVal = src.val();
-    if (!srcVal) return { migrated: 0 };
-
-    const updates = {};
-    const years = new Set();
-
-    Object.entries(srcVal).forEach(([id, event]) => {
-      if (!event.schedule) return;
-      const year = new Date(event.schedule).getFullYear();
-      if (isNaN(year)) return;
-      years.add(year);
-      updates[`data_v3/${year}/${id}`] = event;
-    });
-
-    updates["data_v3/meta/years"] = [...years].sort((a, b) => a - b);
-
-    await admin.database().ref().update(updates);
-    return { migrated: Object.keys(srcVal).length, years: [...years].sort() };
-  }
-);
 
 exports.deleteSelf = onRequest(
   {
@@ -612,17 +562,30 @@ exports.deleteUser = onRequest(
     region: "asia-northeast3",
   },
   async (req, res) => {
-    setCors(res);
+    setAdminCors(res, req);
     if (req.method === "OPTIONS") return res.status(204).send("");
-    if (!checkSecret(req, res)) return;
+    const caller = await verifyOwnerToken(req, res);
+    if (!caller) return;
 
     try {
       const { uid } = req.body || {};
       if (!uid || typeof uid !== "string") return res.status(400).send("Invalid uid");
 
-      await admin.auth().deleteUser(uid);
+      const targetUser = await admin.auth().getUser(uid);
+      if (targetUser.customClaims?.role === "owner") return res.status(403).send("Forbidden: cannot delete owner");
 
       const db = admin.database();
+      await db.ref(`auditLogs`).push({
+        action: "delete",
+        targetUid: uid,
+        targetEmail: targetUser.email || "",
+        performedBy: caller.uid,
+        performedByRole: caller.role,
+        timestamp: new Date().toISOString(),
+      });
+
+      await admin.auth().deleteUser(uid);
+
       await Promise.all([
         db.ref(`reportLimits/${uid}`).remove(),
         db.ref(`editRequestLimits/${uid}`).remove(),

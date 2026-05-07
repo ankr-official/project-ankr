@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { auth } from "../config/firebase";
-import { getSuspensionReason } from "../utils/adminApi";
 import SuspendedModal from "./SuspendedModal";
 
 export default function LoginDropdown({
@@ -30,14 +29,7 @@ export default function LoginDropdown({
       onClose();
     } catch (err) {
       if (err.code === "auth/user-disabled") {
-        try {
-          const base64 = idToken.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-          const { email } = JSON.parse(atob(base64));
-          const data = await getSuspensionReason(email);
-          setSuspended({ reason: data.reason || "" });
-        } catch {
-          setSuspended({ reason: "" });
-        }
+        setSuspended({ reason: "" });
       } else {
         alert("구글 로그인에 실패했습니다. 잠시 후 다시 시도해주세요.");
       }
