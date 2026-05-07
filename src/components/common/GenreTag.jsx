@@ -14,9 +14,9 @@ export const GenreTag = ({ genre, className = "justify-start" }) => {
 
     return (
         <div className={`flex flex-wrap gap-1 ${className}`}>
-            {sortedGenres.map((g, index) => (
+            {sortedGenres.map((g) => (
                 <span
-                    key={index}
+                    key={g}
                     className={`px-2 py-1 text-xs font-medium rounded-full ${GENRE_COLORS[g] || GENRE_COLORS.default}`}
                 >
                     {g}

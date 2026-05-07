@@ -131,9 +131,9 @@ export function EventCarousel({ events, onEventClick }) {
         className="flex justify-center py-4 space-x-2"
         onClick={(e) => e.stopPropagation()}
       >
-        {events.map((_, index) => (
+        {events.map((event, index) => (
           <button
-            key={index}
+            key={event.id}
             onClick={(e) => {
               e.stopPropagation();
               if (autoAdvanceTimeout.current) {

@@ -89,15 +89,17 @@ export default function ActivityGuest() {
     const allIds = new Set(Object.keys(activityData));
     if (!allIds.size) return;
     const dbUrl = import.meta.env.VITE_FIREBASE_DATABASE_URL;
-    knownYears.forEach(async (year) => {
-      if (loadedYears.has(year)) return;
-      try {
-        const res = await fetch(`${dbUrl}/data_v3/${year}.json?shallow=true`);
-        const keys = await res.json();
-        if (keys && Object.keys(keys).some((k) => allIds.has(k)))
-          loadYear(year);
-      } catch {}
-    });
+    Promise.all(
+      knownYears.map(async (year) => {
+        if (loadedYears.has(year)) return;
+        try {
+          const res = await fetch(`${dbUrl}/data_v3/${year}.json?shallow=true`);
+          const keys = await res.json();
+          if (keys && Object.keys(keys).some((k) => allIds.has(k)))
+            loadYear(year);
+        } catch {}
+      })
+    );
   }, [activityData, knownYears, loadedYears]);
 
   const likedEvents = useMemo(() => {

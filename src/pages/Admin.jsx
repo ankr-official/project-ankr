@@ -34,7 +34,7 @@ export default function Admin() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [approvingReportId, setApprovingReportId] = useState(null);
+  const approvingReportIdRef = useRef(null);
   const maxSavedRowRef = useRef(null);
   const [reportsCount, setReportsCount] = useState(0);
   const [editRequestsCount, setEditRequestsCount] = useState(0);
@@ -192,15 +192,15 @@ export default function Admin() {
           const updatedYears = [...knownYears, year].sort((a, b) => b - a);
           await set(ref(database, "data_v3/meta/years"), updatedYears);
         }
-        if (approvingReportId) {
-          await remove(ref(database, `reports/${approvingReportId}`));
+        if (approvingReportIdRef.current) {
+          await remove(ref(database, `reports/${approvingReportIdRef.current}`));
           toast.success("제보가 승인되어 이벤트로 등록되었습니다.");
         } else {
           toast.success("이벤트가 추가되었습니다.");
         }
       }
       setEditingEvent(null);
-      setApprovingReportId(null);
+      approvingReportIdRef.current = null;
     } catch {
       toast.error("저장 중 오류가 발생했습니다.");
     } finally {
@@ -210,7 +210,7 @@ export default function Admin() {
 
   const handleApproveReport = (report) => {
     const { id, submittedAt, submittedBy, ...data } = report;
-    setApprovingReportId(id);
+    approvingReportIdRef.current = id;
     setEditingEvent({ ...data, confirm: false });
   };
 
@@ -398,7 +398,7 @@ export default function Admin() {
           onSave={handleSave}
           onClose={() => {
             setEditingEvent(null);
-            setApprovingReportId(null);
+            approvingReportIdRef.current = null;
           }}
           isSaving={isSaving}
           locationSuggestions={[
