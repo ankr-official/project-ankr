@@ -19,7 +19,7 @@ import { useLoginDropdown } from "../contexts/LoginDropdownContext";
 import EditRequestModal from "./EditRequestModal";
 import LoginDropdown from "./LoginDropdown";
 import { HeartButton } from "./common/HeartButton";
-import { ref, push, get, set } from "firebase/database";
+import { ref, get } from "firebase/database";
 import { httpsCallable } from "firebase/functions";
 import { isoToTime, isoToLocal } from "../utils/eventFormUtils";
 import { database, functions } from "../config/firebase";
@@ -415,14 +415,13 @@ export function Modal({
     if (isEditLimitReached) return;
     setIsSavingEdit(true);
     try {
-      await push(ref(database, "editRequests"), {
-        ...formData,
+      const submitEditRequest = httpsCallable(functions, "submitEditRequest");
+      await submitEditRequest({
+        formData,
         eventId: data.id,
         eventYear: new Date(data.schedule).getFullYear(),
         eventName: data.event_name,
         reason,
-        submittedAt: new Date().toISOString(),
-        submittedBy: user?.email || user?.uid || "unknown",
         _snap: {
           event_name: data.event_name ?? null,
           schedule: isoToLocal(data.schedule) || null,
@@ -435,17 +434,15 @@ export function Modal({
           etc: data.etc ?? null,
         },
       });
-      const today = new Date().toISOString().slice(0, 10);
-      const newCount = editRequestCount + 1;
-      await set(ref(database, `editRequestLimits/${user.uid}`), {
-        date: today,
-        count: newCount,
-      });
-      setEditRequestCount(newCount);
+      setEditRequestCount((c) => c + 1);
       setIsEditOpen(false);
       toast.success("요청이 접수되었습니다!");
-    } catch {
-      toast.error("요청 전송에 실패했습니다. 다시 시도해 주세요.");
+    } catch (err) {
+      if (err.message === "daily-limit-exceeded") {
+        toast.error("오늘 수정 요청 한도에 도달했습니다.");
+      } else {
+        toast.error("요청 전송에 실패했습니다. 다시 시도해 주세요.");
+      }
     } finally {
       setIsSavingEdit(false);
     }
