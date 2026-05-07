@@ -354,7 +354,8 @@ exports.setUserRole = onRequest(
   async (req, res) => {
     setAdminCors(res, req);
     if (req.method === "OPTIONS") return res.status(204).send("");
-    if (!(await verifyOwnerToken(req, res))) return;
+    const caller = await verifyOwnerToken(req, res);
+    if (!caller) return;
 
     try {
       const { uid, role } = req.body || {};
@@ -366,6 +367,18 @@ exports.setUserRole = onRequest(
       if (targetUser.customClaims?.role === "owner") return res.status(403).send("Forbidden: cannot change owner's role");
 
       await admin.auth().setCustomUserClaims(uid, { role });
+
+      const db = admin.database();
+      await db.ref("auditLogs").push({
+        action: "setRole",
+        targetUid: uid,
+        targetEmail: targetUser.email || "",
+        newRole: role,
+        performedBy: caller.uid,
+        performedByRole: caller.role,
+        timestamp: new Date().toISOString(),
+      });
+
       console.log("✅ Custom claims set:", { uid, role });
       return res.status(200).json({ ok: true, uid, role });
     } catch (error) {
