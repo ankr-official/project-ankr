@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { ref, onValue, get } from "firebase/database";
+import { ref, get, onChildAdded, onChildChanged, onChildRemoved } from "firebase/database";
 import { database } from "../config/firebase";
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -30,11 +30,15 @@ export const useYearEventData = () => {
       .catch(() => setMetaLoaded(true));
   }, []);
 
-  // 현재 연도만 실시간 구독
+  // 현재 연도: get()으로 초기 로드 후 child 리스너로 delta 구독
   useEffect(() => {
-    const unsubscribe = onValue(
-      ref(database, `data_v3/${CURRENT_YEAR}`),
-      (snapshot) => {
+    const yearRef = ref(database, `data_v3/${CURRENT_YEAR}`);
+    const unsubs = [];
+    let cancelled = false;
+
+    get(yearRef)
+      .then((snapshot) => {
+        if (cancelled) return;
         const fetched = [];
         snapshot.forEach((child) => {
           fetched.push({ id: child.key, ...child.val() });
@@ -43,10 +47,42 @@ export const useYearEventData = () => {
         loadedYearsRef.current.add(CURRENT_YEAR);
         setLoadedYears((prev) => new Set([...prev, CURRENT_YEAR]));
         setLoading(false);
-      },
-      () => setLoading(false),
-    );
-    return () => unsubscribe();
+
+        // get() 완료 후 구독 — 이후 추가/수정/삭제된 이벤트만 delta로 수신
+        unsubs.push(
+          onChildAdded(yearRef, (snap) => {
+            const event = { id: snap.key, ...snap.val() };
+            setYearData((prev) => {
+              const list = prev[CURRENT_YEAR] || [];
+              if (list.some((e) => e.id === event.id)) return prev;
+              return { ...prev, [CURRENT_YEAR]: [...list, event] };
+            });
+          }),
+          onChildChanged(yearRef, (snap) => {
+            const event = { id: snap.key, ...snap.val() };
+            setYearData((prev) => ({
+              ...prev,
+              [CURRENT_YEAR]: (prev[CURRENT_YEAR] || []).map((e) =>
+                e.id === event.id ? event : e,
+              ),
+            }));
+          }),
+          onChildRemoved(yearRef, (snap) => {
+            setYearData((prev) => ({
+              ...prev,
+              [CURRENT_YEAR]: (prev[CURRENT_YEAR] || []).filter(
+                (e) => e.id !== snap.key,
+              ),
+            }));
+          }),
+        );
+      })
+      .catch(() => { if (!cancelled) setLoading(false); });
+
+    return () => {
+      cancelled = true;
+      unsubs.forEach((u) => u());
+    };
   }, []);
 
   const loadYear = async (year) => {
@@ -104,9 +140,9 @@ export const useYearEventData = () => {
     knownYears.forEach((y) => loadYear(y));
   };
 
-  // 과거 연도(get()로 1회 조회)는 onValue 구독이 없으므로 저장/삭제 후 로컬 state를 직접 패치
+  // 과거 연도(get()로 1회 조회)는 child 리스너가 없으므로 저장/삭제 후 로컬 state를 직접 패치
   const updateLocalEvent = (year, id, newData) => {
-    if (year === CURRENT_YEAR) return; // 현재 연도는 onValue가 자동 처리
+    if (year === CURRENT_YEAR) return; // 현재 연도는 child 리스너가 자동 처리
     setYearData((prev) => ({
       ...prev,
       [year]: (prev[year] || []).map((e) =>
@@ -116,7 +152,7 @@ export const useYearEventData = () => {
   };
 
   const addLocalEvent = (year, id, data) => {
-    if (year === CURRENT_YEAR) return; // 현재 연도는 onValue가 자동 처리
+    if (year === CURRENT_YEAR) return; // 현재 연도는 child 리스너가 자동 처리
     setYearData((prev) => {
       if ((prev[year] || []).some((e) => e.id === id)) return prev; // 이미 존재하면 추가 안 함
       return {
