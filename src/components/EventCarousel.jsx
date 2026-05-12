@@ -46,6 +46,7 @@ export function EventCarousel({ events, onEventClick }) {
     };
   }, [currentIndex, events.length]);
 
+
   if (events.length === 0) return null;
 
   const currentEvent = events[currentIndex];

@@ -81,15 +81,24 @@ const FieldRow = ({ label, children }) => (
   </div>
 );
 
-const EventImage = ({ imgUrl, eventName }) => (
-  <div className="mb-6">
-    <img
-      src={imgUrl.replace(/(name=)[^&]*/, "$1large")}
-      alt={eventName}
-      className="object-cover w-full h-auto rounded-lg"
-    />
-  </div>
-);
+const EventImage = ({ imgUrl, eventName }) => {
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const done = () => setImgLoaded(true);
+  return (
+    <div className="mb-6">
+      {!imgLoaded && (
+        <div className="w-full h-48 rounded-lg animate-pulse bg-gray-300 dark:bg-gray-600" />
+      )}
+      <img
+        src={imgUrl.replace(/(name=)[^&]*/, "$1large")}
+        alt={eventName}
+        className={`object-cover w-full rounded-lg transition-opacity duration-300 ${imgLoaded ? "opacity-100 h-auto" : "opacity-0 h-0"}`}
+        onLoad={done}
+        onError={done}
+      />
+    </div>
+  );
+};
 
 const EventInfo = ({ data }) => (
   <div

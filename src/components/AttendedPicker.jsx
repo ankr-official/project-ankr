@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { ImageWithSkeleton } from "./common/ImageWithSkeleton";
 import { ref, set } from "firebase/database";
 import {
   XMarkIcon,
@@ -194,15 +195,20 @@ export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [
                     : "bg-gray-50 dark:bg-gray-800 active:bg-gray-100 mouse:hover:bg-gray-100 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700"
                 }`}
               >
-                <img
-                  src={
-                    event.img_url
-                      ? event.img_url.replace(/(name=)[^&]*/, "$1small")
-                      : "./dummy.svg"
-                  }
-                  alt={event.event_name}
-                  className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                />
+                {event.img_url ? (
+                  <ImageWithSkeleton
+                    src={event.img_url.replace(/(name=)[^&]*/, "$1small")}
+                    alt={event.event_name}
+                    wrapperClassName="w-10 h-10 rounded-full flex-shrink-0"
+                    imgClassName="object-cover w-full h-full"
+                  />
+                ) : (
+                  <img
+                    src="./dummy.svg"
+                    alt={event.event_name}
+                    className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                  />
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     {formatDate(event.schedule)}
