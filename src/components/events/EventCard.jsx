@@ -2,6 +2,7 @@ import { formatDate } from "../../utils/dateUtils";
 import { GenreTag } from "../common/GenreTag";
 import { LocationLink } from "../common/LocationLink";
 import { HeartButton } from "../common/HeartButton";
+import { ImageWithSkeleton } from "../common/ImageWithSkeleton";
 
 const pad = (n) => String(n).padStart(2, "0");
 
@@ -30,11 +31,11 @@ export const EventCard = ({
       {showHeart && <HeartButton eventId={event.id} eventDate={event.schedule} className="absolute top-2 right-2 z-10" />}
       <div className="flex items-center space-x-4 h-full">
         {event.img_url ? (
-          <img
+          <ImageWithSkeleton
             src={event.img_url.replace(/(name=)[^&]*/, "$1small")}
             alt={event.event_name}
-            loading="lazy"
-            className="object-cover flex-shrink-0 w-24 h-32 rounded-lg"
+            wrapperClassName="flex-shrink-0 w-24 h-32 rounded-lg"
+            imgClassName="object-cover w-full h-full"
           />
         ) : (
           <img

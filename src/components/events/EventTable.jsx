@@ -5,6 +5,7 @@ import { HeartButton } from "../common/HeartButton";
 import { DesktopGenreFilter } from "./DesktopGenreFilter";
 import { MobileGenreFilter } from "./MobileGenreFilter";
 import { EventCard } from "./EventCard";
+import { ImageWithSkeleton } from "../common/ImageWithSkeleton";
 
 export const EventTable = ({
   events,
@@ -44,11 +45,11 @@ export const EventTable = ({
                   <td className="w-[35%]">
                     <div className="flex items-center">
                       {item.img_url ? (
-                        <img
+                        <ImageWithSkeleton
                           src={item.img_url.replace(/(name=)[^&]*/, "$1small")}
                           alt={item.event_name}
-                          loading="lazy"
-                          className="h-[50px] w-[50px] max-w-[50px] rounded-full mr-3 object-cover"
+                          wrapperClassName="h-[50px] w-[50px] shrink-0 rounded-full mr-3"
+                          imgClassName="object-cover w-full h-full"
                         />
                       ) : (
                         <img
