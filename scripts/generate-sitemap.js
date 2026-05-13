@@ -4,12 +4,16 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// .env에서 DB URL 읽기
-const envPath = resolve(__dirname, "../.env");
-const env = readFileSync(envPath, "utf-8");
-const dbUrl = env.match(/VITE_FIREBASE_DATABASE_URL=(.+)/)?.[1]?.trim();
+// 환경변수 우선, 없으면 .env 파일에서 읽기
+let dbUrl = process.env.VITE_FIREBASE_DATABASE_URL;
 if (!dbUrl) {
-  console.error("VITE_FIREBASE_DATABASE_URL not found in .env");
+  try {
+    const env = readFileSync(resolve(__dirname, "../.env"), "utf-8");
+    dbUrl = env.match(/VITE_FIREBASE_DATABASE_URL=(.+)/)?.[1]?.trim();
+  } catch {}
+}
+if (!dbUrl) {
+  console.error("VITE_FIREBASE_DATABASE_URL is not set");
   process.exit(1);
 }
 
