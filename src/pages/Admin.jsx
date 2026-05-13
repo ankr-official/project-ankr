@@ -169,7 +169,7 @@ export default function Admin() {
           await set(ref(database, `data_v3/${newYear}/${id}`), data);
           await remove(ref(database, `data_v3/${oldYear}/${id}`));
           removeLocalEvent(oldYear, id);
-          updateLocalEvent(newYear, id, { id, ...data });
+          addLocalEvent(newYear, id, data);
         } else {
           await update(ref(database, `data_v3/${newYear}/${id}`), data);
           updateLocalEvent(newYear, id, data);
