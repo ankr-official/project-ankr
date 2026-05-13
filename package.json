@@ -6,7 +6,8 @@
     "homepage": "https://ankr-official.github.io",
     "scripts": {
         "dev": "vite",
-        "build": "node scripts/generate-sitemap.js && vite build",
+        "build": "vite build",
+        "sitemap": "node scripts/generate-sitemap.js",
         "lint": "eslint .",
         "preview": "vite preview"
     },
