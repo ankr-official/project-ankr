@@ -163,9 +163,17 @@ export default function Admin() {
     setIsSaving(true);
     try {
       if (id) {
-        const year = new Date(data.schedule).getFullYear();
-        await update(ref(database, `data_v3/${year}/${id}`), data);
-        updateLocalEvent(year, id, data);
+        const newYear = new Date(data.schedule).getFullYear();
+        const oldYear = new Date(editingEvent.schedule).getFullYear();
+        if (newYear !== oldYear) {
+          await set(ref(database, `data_v3/${newYear}/${id}`), data);
+          await remove(ref(database, `data_v3/${oldYear}/${id}`));
+          removeLocalEvent(oldYear, id);
+          updateLocalEvent(newYear, id, { id, ...data });
+        } else {
+          await update(ref(database, `data_v3/${newYear}/${id}`), data);
+          updateLocalEvent(newYear, id, data);
+        }
         toast.success("이벤트가 수정되었습니다.");
       } else {
         const year = new Date(data.schedule).getFullYear();
