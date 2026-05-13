@@ -11,6 +11,7 @@
 [![Firebase](https://img.shields.io/badge/Firebase-Realtime%20DB-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com)
 [![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Cloudflare](https://img.shields.io/badge/Cloudflare-R2%20%2B%20Worker-F38020?logo=cloudflare&logoColor=white)](https://www.cloudflare.com)
 
 </div>
 
@@ -42,10 +43,11 @@
 ## Tech Stack
 
 ```
-Frontend   React 19 + Vite 6 + TailwindCSS 4
+Frontend   React 19 + Vite 6 + TailwindCSS 3
 Database   Firebase Realtime Database (연도별 분할)
 Auth       Firebase Authentication (커스텀 클레임 기반 관리자 권한)
 Functions  Firebase Cloud Functions v2 (이메일 알림)
+Storage    Cloudflare R2 + Worker (이벤트 포스터 이미지)
 Hosting    GitHub Pages
 ```
 
@@ -55,6 +57,10 @@ Hosting    GitHub Pages
 - `date-fns` — 날짜 포맷 처리
 - `react-toastify` — 알림 토스트
 - `html-to-image` — 영수증 이미지 생성·다운로드
+
+### 이미지 호스팅 구조
+
+이벤트 포스터는 트위터(X)에 게시된 이미지를 수집하여 Cloudflare R2 버킷(`ankr-assets`)에 백업하고, Cloudflare Worker를 통해 서빙합니다. R2 버킷은 Private으로 설정되어 있으며 Worker를 통해서만 접근 가능합니다. Worker는 Cloudflare Free 플랜으로 운영됩니다 (100k req/일).
 
 ## 프로젝트 구조
 
