@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { database, functions } from "../config/firebase";
 
 // Components
+import { EventSeoHelmet } from "../components/EventSeoHelmet";
 import { EventCarousel } from "../components/EventCarousel";
 import EventCalendar from "../components/EventCalendar";
 import { EventTable } from "../components/events/EventTable";
@@ -147,6 +148,8 @@ function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <EventSeoHelmet event={selectedItem} />
+
       {/* Modals */}
       <Suspense fallback={null}>
         <Modal
