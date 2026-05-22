@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toKSTDate } from "../../utils/dateUtils";
 import { toast } from "react-toastify";
 import { ref, get } from "firebase/database";
 import { database } from "../../config/firebase";
@@ -49,9 +50,10 @@ function SortHeader({ label, sortKey, sort, onSort }) {
 
 const formatCreatedAt = (iso) => {
   if (!iso) return "-";
-  const d = new Date(iso);
-  const date = `${d.getFullYear()}. ${String(d.getMonth() + 1).padStart(2, "0")}. ${String(d.getDate()).padStart(2, "0")}.`;
-  const time = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  const kst = toKSTDate(iso);
+  const pad = (n) => String(n).padStart(2, "0");
+  const date = `${kst.getUTCFullYear()}. ${pad(kst.getUTCMonth() + 1)}. ${pad(kst.getUTCDate())}.`;
+  const time = `${pad(kst.getUTCHours())}:${pad(kst.getUTCMinutes())}`;
   return `${date} ${time}`;
 };
 

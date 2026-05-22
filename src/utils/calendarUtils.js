@@ -14,12 +14,10 @@ export const isSafari = () => {
 export const addToGoogleCalendar = event => {
     const formatDateForGoogle = date => {
         if (!date) return "";
-
-        const dateObj = new Date(date);
-        // YYYYMMDD 형식으로 반환 (종일 이벤트)
-        const year = dateObj.getFullYear();
-        const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-        const day = String(dateObj.getDate()).padStart(2, "0");
+        const kst = new Date(new Date(date).getTime() + 9 * 60 * 60 * 1000);
+        const year = kst.getUTCFullYear();
+        const month = String(kst.getUTCMonth() + 1).padStart(2, "0");
+        const day = String(kst.getUTCDate()).padStart(2, "0");
         return `${year}${month}${day}`;
     };
 
@@ -27,8 +25,8 @@ export const addToGoogleCalendar = event => {
     const startDate = formatDateForGoogle(event.schedule);
 
     // 종료 날짜는 다음 날로 설정 (Google Calendar의 종일 이벤트 규칙)
-    const nextDay = new Date(event.schedule);
-    nextDay.setDate(nextDay.getDate() + 1);
+    const scheduleKST = new Date(String(event.schedule).slice(0, 10) + "T00:00:00+09:00");
+    const nextDay = new Date(scheduleKST.getTime() + 24 * 60 * 60 * 1000);
     const endDate = formatDateForGoogle(nextDay);
 
     // Google Calendar URL 생성

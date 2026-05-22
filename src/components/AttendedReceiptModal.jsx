@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toKSTDate } from "../utils/dateUtils";
 import * as htmlToImage from "html-to-image";
 import { XMarkIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { YearEndReceiptView } from "./receipt/YearEndReceiptView";
@@ -16,14 +17,14 @@ export function AttendedReceiptModal({
 
   const processedEvents = events.map((e) => ({
     ...e,
-    scheduleDate: new Date(e.schedule),
+    scheduleDate: toKSTDate(e.schedule),
   }));
 
   const resolvedYear =
     year ??
     (processedEvents.length > 0
-      ? new Date(processedEvents[0].schedule).getFullYear()
-      : new Date().getFullYear());
+      ? toKSTDate(processedEvents[0].schedule).getUTCFullYear()
+      : toKSTDate(new Date()).getUTCFullYear());
 
   const handleDownload = async () => {
     const node = document.getElementById("year-end-receipt-target");

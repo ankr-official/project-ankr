@@ -9,7 +9,7 @@ import { useScrollLock } from "./useScrollLock";
 export function useEventForm(initialData = {}, onClose) {
     const [form, setForm] = useState(() => ({
         event_name: initialData.event_name ?? "",
-        schedule: isoToLocal(initialData.schedule) || new Date().toISOString().slice(0, 10),
+        schedule: isoToLocal(initialData.schedule) || new Date(new Date().getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10),
         location: initialData.location ?? "",
         genre: toArray(initialData.genre),
         event_url: initialData.event_url ?? "",

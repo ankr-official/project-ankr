@@ -7,7 +7,7 @@ import {
   EyeIcon,
 } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence, useMotionValue } from "framer-motion";
-import { formatDate, formatTime } from "../utils/dateUtils";
+import { formatDate, formatTime, toKSTDate, kstDateStr } from "../utils/dateUtils";
 import { useEffect, useRef, useState } from "react";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { GenreTag } from "./common/GenreTag";
@@ -155,18 +155,10 @@ const EventUrl = ({ eventUrl }) => (
 
 const ShareButtons = ({ data }) => {
   const handleTwitterShare = () => {
-    const today = new Date();
-    const eventDate = new Date(data.schedule);
-    const todayDate = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-    );
-    const eventDateOnly = new Date(
-      eventDate.getFullYear(),
-      eventDate.getMonth(),
-      eventDate.getDate(),
-    );
+    const kstNow = toKSTDate(new Date());
+    const kstEvent = toKSTDate(data.schedule);
+    const todayDate = new Date(Date.UTC(kstNow.getUTCFullYear(), kstNow.getUTCMonth(), kstNow.getUTCDate()));
+    const eventDateOnly = new Date(Date.UTC(kstEvent.getUTCFullYear(), kstEvent.getUTCMonth(), kstEvent.getUTCDate()));
 
     let text;
     if (eventDateOnly > todayDate) {
@@ -329,10 +321,10 @@ export function Modal({
 
     recordViewFn({
       eventId: data.id,
-      eventYear: new Date(data.schedule).getFullYear(),
+      eventYear: toKSTDate(data.schedule).getUTCFullYear(),
     }).catch(() => {});
 
-    const eventYear = new Date(data.schedule).getFullYear();
+    const eventYear = toKSTDate(data.schedule).getUTCFullYear();
     get(ref(database, `data_v3/${eventYear}/${data.id}/views`))
       .then((snap) => setViewCount(snap.val() ?? 0))
       .catch(() => {});
@@ -340,7 +332,7 @@ export function Modal({
 
   useEffect(() => {
     if (!user?.uid || role === "admin") return;
-    const today = new Date().toISOString().slice(0, 10);
+    const today = kstDateStr(new Date());
     get(ref(database, `editRequestLimits/${user.uid}`))
       .then((snap) => {
         const val = snap.val();
@@ -428,7 +420,7 @@ export function Modal({
       await submitEditRequest({
         formData,
         eventId: data.id,
-        eventYear: new Date(data.schedule).getFullYear(),
+        eventYear: toKSTDate(data.schedule).getUTCFullYear(),
         eventName: data.event_name,
         reason,
         _snap: {

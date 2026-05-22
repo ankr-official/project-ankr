@@ -5,6 +5,7 @@ import { database } from "../../config/firebase";
 import { useRealtimeData } from "../../hooks/useRealtimeData";
 import { GENRE_COLORS } from "../../constants";
 import { getChangedFields } from "../../utils/adminUtils";
+import { toKSTDate, kstDateStr } from "../../utils/dateUtils";
 
 export default function AdminEditRequestsTab({ events, onCountChange }) {
   const { data: editRequests, loading: editRequestsLoading } = useRealtimeData("editRequests");
@@ -16,7 +17,7 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
   const getEventYear = (request) => {
     if (request.eventYear) return request.eventYear;
     const found = events.find((e) => e.id === request.eventId);
-    return found ? new Date(found.schedule).getFullYear() : null;
+    return found ? toKSTDate(found.schedule).getUTCFullYear() : null;
   };
 
   const handleApprove = async (request) => {
@@ -112,7 +113,7 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
               </div>
               <span className="shrink-0 text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">
                 {request.submittedAt
-                  ? new Date(request.submittedAt).toLocaleDateString("ko-KR")
+                  ? kstDateStr(request.submittedAt)
                   : ""}
               </span>
             </div>

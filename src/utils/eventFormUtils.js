@@ -1,4 +1,5 @@
 import { GENRE_COLORS } from "../constants";
+import { toKSTDate } from "./dateUtils";
 
 export const GENRES = Object.keys(GENRE_COLORS).filter(g => g !== "default");
 
@@ -8,10 +9,10 @@ export const inputClass =
 export const isoToTime = iso => {
     if (!iso) return "";
     try {
-        const d = new Date(iso);
-        if (isNaN(d)) return "";
+        const kst = toKSTDate(iso);
+        if (isNaN(kst)) return "";
         const pad = n => String(n).padStart(2, "0");
-        return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        return `${pad(kst.getUTCHours())}:${pad(kst.getUTCMinutes())}`;
     } catch {
         return "";
     }
@@ -20,10 +21,10 @@ export const isoToTime = iso => {
 export const isoToLocal = iso => {
     if (!iso) return "";
     try {
-        const d = new Date(iso);
-        if (isNaN(d)) return iso.slice(0, 10);
+        const kst = toKSTDate(iso);
+        if (isNaN(kst)) return iso.slice(0, 10);
         const pad = n => String(n).padStart(2, "0");
-        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        return `${kst.getUTCFullYear()}-${pad(kst.getUTCMonth() + 1)}-${pad(kst.getUTCDate())}`;
     } catch {
         return iso.slice(0, 10);
     }
@@ -49,9 +50,9 @@ export const toArray = val => {
 
 export const timeToISO = (timeVal, scheduleDateStr) => {
     if (!timeVal) return null;
-    const datePart = scheduleDateStr?.slice(0, 10) || new Date().toISOString().slice(0, 10);
+    const datePart = scheduleDateStr?.slice(0, 10) || new Date(new Date().getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
     try {
-        return new Date(`${datePart}T${timeVal}`).toISOString();
+        return new Date(`${datePart}T${timeVal}+09:00`).toISOString();
     } catch {
         return null;
     }

@@ -1,10 +1,12 @@
 import { useMemo } from "react";
-import { getThisWeeksEvents, sortByDateTime } from "../utils/dateUtils";
+import { getThisWeeksEvents, sortByDateTime, toKSTDate } from "../utils/dateUtils";
 
 export const useEventData = (data, selectedGenres, showConfirmed = true) => {
     const processedData = useMemo(() => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const kstNow = toKSTDate(new Date());
+        const pad = n => String(n).padStart(2, "0");
+        const todayStr = `${kstNow.getUTCFullYear()}-${pad(kstNow.getUTCMonth() + 1)}-${pad(kstNow.getUTCDate())}`;
+        const todayKSTMidnight = new Date(`${todayStr}T00:00:00+09:00`);
 
         return data
             .filter(item => item.confirm === showConfirmed)
@@ -21,8 +23,8 @@ export const useEventData = (data, selectedGenres, showConfirmed = true) => {
             })
             .map(item => ({
                 ...item,
-                scheduleDate: new Date(item.schedule),
-                isPast: (item.time_start ? new Date(item.time_start) : new Date(item.schedule)) < today,
+                scheduleDate: toKSTDate(item.schedule),
+                isPast: (item.time_start ? new Date(item.time_start) : new Date(String(item.schedule).slice(0, 10) + "T00:00:00+09:00")) < todayKSTMidnight,
             }));
     }, [data, selectedGenres, showConfirmed]);
 

@@ -1,11 +1,10 @@
 import { Helmet } from "react-helmet-async";
 import { toArray } from "../utils/eventFormUtils";
+import { kstDateStr } from "../utils/dateUtils";
 
-const pad = (n) => String(n).padStart(2, "0");
 const formatSchedule = (dateString) => {
   if (!dateString) return "";
-  const d = new Date(dateString);
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return kstDateStr(dateString);
 };
 
 export function EventSeoHelmet({ event }) {

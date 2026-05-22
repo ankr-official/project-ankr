@@ -1,6 +1,8 @@
+import { toKSTDate } from "../utils/dateUtils";
+
 const isAprilFools = () => {
-  const now = new Date();
-  return now.getMonth() === 3 && now.getDate() === 1;
+  const kst = toKSTDate(new Date());
+  return kst.getUTCMonth() === 3 && kst.getUTCDate() === 1;
 };
 
 export function AprilFoolsBanner() {

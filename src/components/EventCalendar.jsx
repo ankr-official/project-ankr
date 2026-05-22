@@ -1,17 +1,14 @@
 import { useState, useEffect, useRef } from "react";
+import { kstDateStr, toKSTDate } from "../utils/dateUtils";
 import {
   format,
   startOfMonth,
   endOfMonth,
   eachDayOfInterval,
   isSameMonth,
-  isToday,
   isSameDay,
-  isBefore,
-  startOfDay,
   startOfWeek,
   endOfWeek,
-  addDays,
 } from "date-fns";
 import { ko } from "date-fns/locale";
 import { GENRE_COLORS } from "../constants";
@@ -33,10 +30,10 @@ const EventCalendar = ({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState(toKSTDate(new Date()).getUTCFullYear());
   const [showAllYears, setShowAllYears] = useState(false);
   const datePickerRef = useRef(null);
-  const today = startOfDay(new Date());
+  const todayKST = kstDateStr(new Date());
 
   // 달력의 시작일과 종료일 계산 (이전 달의 날짜들도 포함)
   const monthStart = startOfMonth(currentDate);
@@ -129,13 +126,13 @@ const EventCalendar = ({
 
   const getEventsForDay = (day) => {
     const dayEvents = events.filter((event) =>
-      isSameDay(new Date(event.schedule), day),
+      event.schedule.slice(0, 10) === kstDateStr(day),
     );
     const filteredEvents = getFilteredEvents(dayEvents);
 
     return filteredEvents.sort((a, b) => {
-      const ta = a.time_start ?? "";
-      const tb = b.time_start ?? "";
+      const ta = a.time_entrance ?? a.time_start ?? "";
+      const tb = b.time_entrance ?? b.time_start ?? "";
       if (ta && tb) return ta < tb ? -1 : ta > tb ? 1 : 0;
       if (ta) return -1;
       if (tb) return 1;
@@ -158,9 +155,7 @@ const EventCalendar = ({
     }
   };
 
-  const isPastDate = (date) => {
-    return isBefore(startOfDay(date), today);
-  };
+  const isPastDate = (date) => kstDateStr(date) < todayKST;
 
   const handleDatePickerToggle = () => {
     if (!showDatePicker) {
@@ -184,13 +179,13 @@ const EventCalendar = ({
   };
 
   // knownYears 우선, 없으면 events에서 추출
-  const currentYear = new Date().getFullYear();
+  const currentYear = toKSTDate(new Date()).getUTCFullYear();
   const availableYears =
     knownYears.length > 0
       ? knownYears
       : [
           ...new Set(
-            events.map((event) => new Date(event.schedule).getFullYear()),
+            events.map((event) => toKSTDate(event.schedule).getUTCFullYear()),
           ),
         ].sort((a, b) => b - a);
 
@@ -206,9 +201,9 @@ const EventCalendar = ({
     ...new Set(
       events
         .filter(
-          (event) => new Date(event.schedule).getFullYear() === selectedYear,
+          (event) => toKSTDate(event.schedule).getUTCFullYear() === selectedYear,
         )
-        .map((event) => new Date(event.schedule).getMonth()),
+        .map((event) => toKSTDate(event.schedule).getUTCMonth()),
     ),
   ].sort((a, b) => b - a);
 
@@ -431,7 +426,7 @@ const EventCalendar = ({
                     : isPast
                       ? "bg-gray-200 dark:bg-gray-700 bg-opacity-40 dark:bg-opacity-40"
                       : "bg-gray-300/50 dark:bg-gray-700 bg-opacity-80 dark:bg-opacity-80"
-                } ${isToday(day) ? "ring-2 ring-indigo-500 dark:ring-indigo-500" : ""} ${
+                } ${kstDateStr(day) === todayKST ? "ring-2 ring-indigo-500 dark:ring-indigo-500" : ""} ${
                   selectedDate && isSameDay(day, selectedDate)
                     ? "ring-2 ring-indigo-400 dark:ring-indigo-300"
                     : ""

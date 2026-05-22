@@ -27,7 +27,7 @@ export default function TermsOfService() {
             이용약관
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            시행일: 2026년 3월 16일 &nbsp;·&nbsp; 최종 수정일: 2026년 4월 30일
+            시행일: 2026년 3월 16일 &nbsp;·&nbsp; 최종 수정일: 2026년 5월 22일
           </p>
           <p className="mt-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
             본 이용약관은 ANKR.KR(이하 "서비스")이 제공하는 모든 서비스의 이용
@@ -228,6 +228,28 @@ export default function TermsOfService() {
               이용자 간 또는 이용자와 제3자 간 서비스를 매개로 발생한 분쟁에
               대해 운영자는 개입 의무가 없으며 이로 인한 손해를 배상할 책임이
               없습니다.
+            </li>
+          </ul>
+        </Section>
+
+        {/* Section 8 */}
+        <Section number="8" title="시간 기준">
+          <p>
+            서비스의 모든 날짜 및 시간 정보는 한국 표준시(KST, UTC+9)를 기준으로
+            표시됩니다.
+          </p>
+          <ul className="list-disc list-inside space-y-1 mt-2">
+            <li>
+              행사 일정, 시작 시간, 입장 시간, 종료 시간 등 모든 시간 데이터는
+              이용자의 기기 시간대 설정과 무관하게 항상 KST로 저장 및 표시됩니다.
+            </li>
+            <li>
+              "오늘의 행사", "이번 주 행사" 등 날짜 기반 기능은 모두 KST 기준으로
+              동작합니다.
+            </li>
+            <li>
+              해외에서 서비스를 이용하더라도 표시되는 시간은 KST 기준이며, 현지
+              시간으로 자동 변환되지 않습니다.
             </li>
           </ul>
         </Section>
