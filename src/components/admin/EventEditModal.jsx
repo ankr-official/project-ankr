@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useEventForm } from "../../hooks/useEventForm";
-import { buildSubmitData, inputClass, isValidUrl } from "../../utils/eventFormUtils";
+import { buildSubmitData, inputClass, isValidUrl, parseTweetData } from "../../utils/eventFormUtils";
 import { ModalShell, ModalCloseButton } from "../form/ModalShell";
 import { AutocompleteInput } from "../form/AutocompleteInput";
 import { LocationField } from "../form/LocationField";
@@ -30,6 +30,64 @@ export default function EventEditModal({
     const [confirm, setConfirm] = useState(event?.confirm ?? false);
     const [errors, setErrors] = useState({});
     const [submitted, setSubmitted] = useState(false);
+
+    const [tweetUrl, setTweetUrl] = useState("");
+    const [isFetching, setIsFetching] = useState(false);
+    const [fetchError, setFetchError] = useState("");
+
+    const matchLocation = (parsed, suggestions) => {
+        if (!parsed || !suggestions.length) return parsed || "";
+        const norm = s => s.trim().toLowerCase().replace(/\s+/g, " ");
+        const np = norm(parsed);
+        const exact = suggestions.find(s => norm(s) === np);
+        if (exact) return exact;
+        const partial = suggestions.find(s => { const ns = norm(s); return ns.includes(np) || np.includes(ns); });
+        return partial || parsed;
+    };
+
+    const findLocationInText = (text, suggestions) => {
+        if (!text || !suggestions.length) return null;
+        const norm = s => s.trim().toLowerCase().replace(/\s+/g, " ");
+        const nt = norm(text);
+        const matches = suggestions.filter(s => s && nt.includes(norm(s)));
+        return matches.sort((a, b) => b.length - a.length)[0] || null;
+    };
+
+    const handleFetchTweet = async () => {
+        setFetchError("");
+        const m = tweetUrl.match(/(?:twitter\.com|x\.com)\/@?(\w+)\/status\/(\d+)/);
+        if (!m) { setFetchError("트위터/X URL을 입력해주세요."); return; }
+        setIsFetching(true);
+        try {
+            const res = await fetch(`https://api.fxtwitter.com/${m[1]}/status/${m[2]}`);
+            const data = await res.json();
+            if (data.code !== 200 || !data.tweet) throw new Error();
+            const parsed = parseTweetData(data.tweet);
+            const todayKST = new Date(new Date().getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+            set("event_name", parsed.event_name || "");
+            set("schedule", parsed.schedule || todayKST);
+            const rawText = data.tweet.text || "";
+            const resolvedLocation = matchLocation(parsed.location, locationSuggestions)
+                || findLocationInText(rawText, locationSuggestions)
+                || parsed.location || "";
+            handleLocationTbdChange(false);
+            set("location", resolvedLocation);
+            set("genre", []);
+            set("time_start", parsed.time_start || "");
+            set("time_entrance", "");
+            set("time_end", parsed.time_end || "");
+            set("etc", "");
+            set("event_url", `https://x.com/${m[1]}/status/${m[2]}`);
+            setImgUrl(parsed.img_url || "");
+            setConfirm(false);
+            setErrors({});
+            setSubmitted(false);
+        } catch {
+            setFetchError("트윗 정보를 가져오지 못했습니다.");
+        } finally {
+            setIsFetching(false);
+        }
+    };
 
     const validate = (f = form, img = imgUrl) => {
         const errs = {};
@@ -81,6 +139,39 @@ export default function EventEditModal({
 
             {/* Form */}
             <form id="event-edit-form" onSubmit={handleSubmit} className="px-6 py-5 space-y-5 overflow-y-auto flex-1">
+                {/* 트윗에서 가져오기 - 신규 등록 시만 */}
+                {isNew && (
+                    <div className="space-y-1.5">
+                        <label className="block text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
+                            X URL로 가져오기 (Beta)
+                        </label>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={tweetUrl}
+                                onChange={e => { setTweetUrl(e.target.value); setFetchError(""); }}
+                                onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleFetchTweet(); } }}
+                                placeholder="https://x.com/..."
+                                className={`${inputClass} flex-1 min-w-0`}
+                                disabled={isFetching}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleFetchTweet}
+                                disabled={isFetching || !tweetUrl.trim()}
+                                className="shrink-0 px-3 py-2 rounded-lg text-sm bg-sky-500 mouse:hover:bg-sky-600 active:bg-sky-600 text-white font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+                            >
+                                {isFetching
+                                    ? <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    : <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                                }
+                                가져오기
+                            </button>
+                        </div>
+                        {fetchError && <p className="text-xs text-red-500 dark:text-red-400 pl-2">{fetchError}</p>}
+                    </div>
+                )}
+
                 {/* 이벤트명 */}
                 <div className="space-y-1.5">
                     <label className="block text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
@@ -98,7 +189,7 @@ export default function EventEditModal({
                 </div>
 
                 {/* 날짜 + 장소 */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                         <label className="block text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
                             날짜 <span className="text-red-500">*</span>
@@ -149,7 +240,7 @@ export default function EventEditModal({
                 </div>
 
                 {/* URL 정보 */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                         <label className="block text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
                             이벤트 SNS 링크 <span className="text-red-500">*</span>
