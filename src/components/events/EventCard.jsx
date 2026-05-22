@@ -1,4 +1,4 @@
-import { formatDate } from "../../utils/dateUtils";
+import { formatDate, toKSTDate } from "../../utils/dateUtils";
 import { GenreTag } from "../common/GenreTag";
 import { LocationLink } from "../common/LocationLink";
 import { HeartButton } from "../common/HeartButton";
@@ -6,14 +6,16 @@ import { ImageWithSkeleton } from "../common/ImageWithSkeleton";
 
 const pad = (n) => String(n).padStart(2, "0");
 
-const formatTimeRange = (time_start, time_end) => {
-  const ds = new Date(time_start);
-  const hs = ds.getHours();
+const formatTimeRange = (time_start, time_entrance, time_end) => {
+  const startISO = time_entrance || time_start;
+  if (!startISO) return null;
+  const kstStart = toKSTDate(startISO);
+  const hs = kstStart.getUTCHours();
   const icon = hs >= 6 && hs < 17 ? "☀️" : "🌙";
-  const start = `${pad(hs)}:${pad(ds.getMinutes())}`;
+  const start = `${pad(hs)}:${pad(kstStart.getUTCMinutes())}`;
   if (!time_end) return `${icon} ${start} ~ 정보 없음`;
-  const de = new Date(time_end);
-  return `${icon} ${start} ~ ${pad(de.getHours())}:${pad(de.getMinutes())}`;
+  const kstEnd = toKSTDate(time_end);
+  return `${icon} ${start} ~ ${pad(kstEnd.getUTCHours())}:${pad(kstEnd.getUTCMinutes())}`;
 };
 
 export const EventCard = ({
@@ -54,12 +56,12 @@ export const EventCard = ({
           <h3 className="mb-1 text-base font-medium text-gray-900 dark:text-white truncate transition-colors">
             {event.event_name}
           </h3>
-          {event.time_start && (
+          {(event.time_entrance || event.time_start) && (
             <p className="mb-2 text-sm text-gray-600 dark:text-gray-300 transition-colors">
-              {formatTimeRange(event.time_start, event.time_end)}
+              {formatTimeRange(event.time_start, event.time_entrance, event.time_end)}
             </p>
           )}
-          {!event.time_start && showDate && <div className="mb-2" />}
+          {!event.time_entrance && !event.time_start && showDate && <div className="mb-2" />}
           <div className="mb-2">
             <GenreTag genre={event.genre} />
           </div>

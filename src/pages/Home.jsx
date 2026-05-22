@@ -23,6 +23,7 @@ const ReportEventModal = lazy(() => import("../components/ReportEventModal"));
 // Hooks
 import { useYearEventData } from "../hooks/useYearEventData";
 import { GENRES, toArray } from "../utils/eventFormUtils";
+import { toKSTDate, kstDateStr } from "../utils/dateUtils";
 import { useUserSettings } from "../hooks/useUserSettings";
 import { useEventData } from "../hooks/useEventData";
 import { useModalNavigation } from "../hooks/useModalNavigation";
@@ -73,7 +74,7 @@ function Home() {
 
   useEffect(() => {
     if (!user?.uid || role === "admin") return;
-    const today = new Date().toISOString().slice(0, 10);
+    const today = kstDateStr(new Date());
     get(ref(database, `reportLimits/${user.uid}`))
       .then((snap) => {
         const data = snap.val();
@@ -103,7 +104,7 @@ function Home() {
     }
   };
 
-  const THIS_YEAR = new Date().getFullYear();
+  const THIS_YEAR = toKSTDate(new Date()).getUTCFullYear();
 
   const addPastYear = (year) => {
     loadYear(year);
@@ -111,7 +112,7 @@ function Home() {
   };
 
   const shownPastEvents = pastEvents.filter((e) => {
-    const year = new Date(e.schedule).getFullYear();
+    const year = toKSTDate(e.schedule).getUTCFullYear();
     return year === THIS_YEAR || visiblePastYears.has(year);
   });
 

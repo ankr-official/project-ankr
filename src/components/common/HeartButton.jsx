@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { kstDateStr } from "../../utils/dateUtils";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import { useAuth } from "../../contexts/AuthContext";
@@ -23,9 +24,7 @@ export function HeartButton({
 
   const isPast = () => {
     if (!eventDate) return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return new Date(eventDate) < today;
+    return kstDateStr(eventDate) < kstDateStr(new Date());
   };
 
   const handleClick = (e) => {

@@ -1,5 +1,15 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { kstDateStr, toKSTDate } from "../../utils/dateUtils";
+
+const toKSTDateTimeStr = () => {
+  const kst = toKSTDate(new Date());
+  const pad = (n) => String(n).padStart(2, "0");
+  const h = kst.getUTCHours();
+  const ampm = h < 12 ? "오전" : "오후";
+  const h12 = pad(h % 12 || 12);
+  return `${kst.getUTCFullYear()}. ${pad(kst.getUTCMonth() + 1)}. ${pad(kst.getUTCDate())}. ${ampm} ${h12}:${pad(kst.getUTCMinutes())}:${pad(kst.getUTCSeconds())}`;
+};
 
 const QUARTER_LABELS = { Q1: "1분기", Q2: "2분기", Q3: "3분기", Q4: "4분기" };
 
@@ -14,14 +24,7 @@ export function YearEndReceiptView({
 }) {
   const [role, setRole] = useState("Listener");
   const [printedDateStr, setPrintedDateStr] = useState(
-    new Date().toLocaleString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    }),
+    toKSTDateTimeStr(),
   );
 
   const containerRef = useRef(null);
@@ -54,16 +57,7 @@ export function YearEndReceiptView({
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      setPrintedDateStr(
-        new Date().toLocaleString("ko-KR", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        }),
-      );
+      setPrintedDateStr(toKSTDateTimeStr());
     }, 1000);
 
     return () => clearInterval(intervalId);
@@ -182,11 +176,9 @@ export function YearEndReceiptView({
                   className="relative p-0 w-full flex justify-between items-center text-left cursor-pointer"
                 >
                   <span className="w-1/5 text-center">
-                    {event.scheduleDate?.toLocaleDateString("ko-KR", {
-                      year: "2-digit",
-                      month: "2-digit",
-                      day: "2-digit",
-                    }) || event.schedule}
+                    {event.schedule
+                      ? (() => { const s = kstDateStr(event.schedule); return `${s.slice(2,4)}. ${s.slice(5,7)}. ${s.slice(8,10)}.`; })()
+                      : ""}
                   </span>
                   <span className="px-2 w-3/5 truncate">{event.event_name}</span>
                   <span className="px-2 w-1/5 truncate">{event.location}</span>

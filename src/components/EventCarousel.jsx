@@ -90,7 +90,7 @@ export function EventCarousel({ events, onEventClick }) {
             <div className="w-full text-center lg:text-left flex flex-col items-center lg:items-start gap-2 lg:gap-3">
               {/* 상단 날짜/시간 */}
               <p className="text-xs lg:text-sm font-medium dark:text-gray-200/90 tracking-wide">
-                {formatDate(currentEvent.schedule, currentEvent.time_start)}
+                {formatDate(currentEvent.schedule, currentEvent.time_entrance || currentEvent.time_start)}
               </p>
 
               {/* 이벤트 이름 */}

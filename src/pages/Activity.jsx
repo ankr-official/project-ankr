@@ -20,7 +20,7 @@ import {
   TicketIcon,
 } from "@heroicons/react/24/outline";
 import { database } from "../config/firebase";
-import { sortByDateTime } from "../utils/dateUtils";
+import { sortByDateTime, toKSTDate } from "../utils/dateUtils";
 import { RESERVED_SLUGS, RESERVED_NICKNAMES } from "../constants";
 import { useAuth } from "../contexts/AuthContext";
 import { useYearEventData } from "../hooks/useYearEventData";
@@ -60,7 +60,7 @@ const QUARTERS = [
 ];
 
 const getQuarter = (dateStr) => {
-  const month = new Date(dateStr).getMonth();
+  const month = toKSTDate(dateStr).getUTCMonth();
   if (month <= 2) return "Q1";
   if (month <= 5) return "Q2";
   if (month <= 8) return "Q3";
@@ -68,10 +68,9 @@ const getQuarter = (dateStr) => {
 };
 
 const isPast = (event) => {
-  const cutoff = event.time_start
-    ? new Date(event.time_start)
-    : new Date(event.schedule);
-  return cutoff < new Date();
+  if (event.time_start) return new Date(event.time_start) < new Date();
+  const todayKST = toKSTDate(new Date()).toISOString().slice(0, 10);
+  return event.schedule.slice(0, 10) < todayKST;
 };
 
 function useSlugCheck(currentOwnerUid, role) {
@@ -273,7 +272,7 @@ export default function Activity() {
   // ── 다녀온 탭 연도/분기 필터 ─────────────────────────────
   const availableYears = useMemo(() => {
     const years = new Set(
-      attendedAll.map((e) => new Date(e.schedule).getFullYear()),
+      attendedAll.map((e) => toKSTDate(e.schedule).getUTCFullYear()),
     );
     return knownYears.filter((y) => years.has(y));
   }, [attendedAll, knownYears]);
@@ -284,14 +283,14 @@ export default function Activity() {
     if (!effectiveYear) return new Set();
     return new Set(
       attendedAll
-        .filter((e) => new Date(e.schedule).getFullYear() === effectiveYear)
+        .filter((e) => toKSTDate(e.schedule).getUTCFullYear() === effectiveYear)
         .map((e) => getQuarter(e.schedule)),
     );
   }, [attendedAll, effectiveYear]);
 
   const filteredAttendedEvents = useMemo(() => {
     return attendedAll.filter((e) => {
-      if (effectiveYear && new Date(e.schedule).getFullYear() !== effectiveYear)
+      if (effectiveYear && toKSTDate(e.schedule).getUTCFullYear() !== effectiveYear)
         return false;
       if (
         selectedQuarter !== "all" &&

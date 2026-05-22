@@ -8,16 +8,15 @@ import {
   LockClosedIcon,
 } from "@heroicons/react/24/outline";
 import { database } from "../config/firebase";
-import { sortByDateTime, formatDate } from "../utils/dateUtils";
+import { sortByDateTime, formatDate, toKSTDate } from "../utils/dateUtils";
 import { useYearEventData } from "../hooks/useYearEventData";
 import { EventCard } from "../components/events/EventCard";
 import { ImageWithSkeleton } from "../components/common/ImageWithSkeleton";
 
 const isPast = (event) => {
-  const cutoff = event.time_start
-    ? new Date(event.time_start)
-    : new Date(event.schedule);
-  return cutoff < new Date();
+  if (event.time_start) return new Date(event.time_start) < new Date();
+  const todayKST = toKSTDate(new Date()).toISOString().slice(0, 10);
+  return event.schedule.slice(0, 10) < todayKST;
 };
 
 export default function ActivityGuest() {

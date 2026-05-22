@@ -6,6 +6,7 @@ import { database } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { useYearEventData } from "../hooks/useYearEventData";
 import { toArray, GENRES } from "../utils/eventFormUtils";
+import { toKSTDate } from "../utils/dateUtils";
 import EventEditModal from "../components/admin/EventEditModal";
 import AdminHeader from "../components/admin/AdminHeader";
 import AdminReportsTab from "../components/admin/AdminReportsTab";
@@ -22,7 +23,7 @@ export default function Admin() {
 
   // Admin은 모든 연도 데이터 필요
   useEffect(() => {
-    const currentYear = new Date().getFullYear();
+    const currentYear = toKSTDate(new Date()).getUTCFullYear();
     knownYears.forEach((y) => { if (y !== currentYear) loadYear(y); });
   }, [knownYears]);
 
@@ -49,16 +50,20 @@ export default function Admin() {
     }).catch(() => {});
   }, []);
 
-  const now = new Date();
-
   const getEventTime = (e) =>
-    e.time_start ? new Date(e.time_start) : new Date(e.schedule);
+    e.time_start
+      ? new Date(e.time_start)
+      : new Date(e.schedule.slice(0, 10) + "T00:00:00+09:00");
+
+  const isEventPast = (e) => {
+    if (e.time_start) return new Date(e.time_start) < new Date();
+    const todayKST = toKSTDate(new Date()).toISOString().slice(0, 10);
+    return e.schedule.slice(0, 10) < todayKST;
+  };
 
   const stats = useMemo(() => {
-    const upcoming = events.filter(
-      (e) => getEventTime(e) >= now && e.confirm,
-    ).length;
-    const past = events.filter((e) => getEventTime(e) < now).length;
+    const upcoming = events.filter((e) => !isEventPast(e) && e.confirm).length;
+    const past = events.filter((e) => isEventPast(e)).length;
     const unconfirmed = events.filter((e) => !e.confirm).length;
     return { total: events.length, upcoming, past, unconfirmed };
   }, [events]);
@@ -67,9 +72,9 @@ export default function Admin() {
     let filtered = [...events];
 
     if (tab === "upcoming")
-      filtered = filtered.filter((e) => getEventTime(e) >= now);
+      filtered = filtered.filter((e) => !isEventPast(e));
     else if (tab === "past")
-      filtered = filtered.filter((e) => getEventTime(e) < now);
+      filtered = filtered.filter((e) => isEventPast(e));
     else if (tab === "unconfirmed")
       filtered = filtered.filter((e) => !e.confirm);
 
@@ -131,7 +136,7 @@ export default function Admin() {
   const handleToggleConfirm = async (event, e) => {
     e.stopPropagation();
     try {
-      const year = new Date(event.schedule).getFullYear();
+      const year = toKSTDate(event.schedule).getUTCFullYear();
       const newConfirm = !event.confirm;
       await update(ref(database, `data_v3/${year}/${event.id}`), {
         confirm: newConfirm,
@@ -146,7 +151,7 @@ export default function Admin() {
     if (!deleteTarget) return;
     setIsDeleting(true);
     try {
-      const year = new Date(deleteTarget.schedule).getFullYear();
+      const year = toKSTDate(deleteTarget.schedule).getUTCFullYear();
       await remove(ref(database, `data_v3/${year}/${deleteTarget.id}`));
       removeLocalEvent(year, deleteTarget.id);
       toast.success("이벤트가 삭제되었습니다.");
@@ -163,8 +168,8 @@ export default function Admin() {
     setIsSaving(true);
     try {
       if (id) {
-        const newYear = new Date(data.schedule).getFullYear();
-        const oldYear = new Date(editingEvent.schedule).getFullYear();
+        const newYear = toKSTDate(data.schedule).getUTCFullYear();
+        const oldYear = toKSTDate(editingEvent.schedule).getUTCFullYear();
         if (newYear !== oldYear) {
           await set(ref(database, `data_v3/${newYear}/${id}`), data);
           await remove(ref(database, `data_v3/${oldYear}/${id}`));
@@ -176,7 +181,7 @@ export default function Admin() {
         }
         toast.success("이벤트가 수정되었습니다.");
       } else {
-        const year = new Date(data.schedule).getFullYear();
+        const year = toKSTDate(data.schedule).getUTCFullYear();
         const dbUrl = import.meta.env.VITE_FIREBASE_DATABASE_URL;
         const maxes = await Promise.all(
           knownYears.map(async (yr) => {

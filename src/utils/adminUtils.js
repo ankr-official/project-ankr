@@ -1,14 +1,13 @@
 import { isoToTime, isoToLocal, toArray } from "./eventFormUtils";
+import { toKSTDate } from "./dateUtils";
 
 export const formatScheduleDisplay = (dateStr) => {
   if (!dateStr) return "-";
   try {
-    return new Date(dateStr).toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      weekday: "short",
-    });
+    const kst = toKSTDate(dateStr);
+    const days = ["일", "월", "화", "수", "목", "금", "토"];
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${kst.getUTCFullYear()}. ${pad(kst.getUTCMonth() + 1)}. ${pad(kst.getUTCDate())}. ${days[kst.getUTCDay()]}`;
   } catch {
     return dateStr;
   }

@@ -8,7 +8,7 @@ import {
   PlusIcon,
 } from "@heroicons/react/24/outline";
 import { database } from "../config/firebase";
-import { formatDate, sortByDateTime } from "../utils/dateUtils";
+import { formatDate, sortByDateTime, toKSTDate, kstDateStr } from "../utils/dateUtils";
 import { GenreTag } from "./common/GenreTag";
 import { useScrollLock } from "../hooks/useScrollLock";
 
@@ -21,7 +21,7 @@ const QUARTERS = [
 ];
 
 const getQuarter = (dateStr) => {
-  const month = new Date(dateStr).getMonth(); // 0~11
+  const month = toKSTDate(dateStr).getUTCMonth();
   if (month <= 2) return "Q1";
   if (month <= 5) return "Q2";
   if (month <= 8) return "Q3";
@@ -30,21 +30,17 @@ const getQuarter = (dateStr) => {
 
 export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [], loadedYears = new Set(), loadingYears = new Set(), onYearLoad }) {
   useScrollLock(true);
-  const today = useMemo(() => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }, []);
+  const todayKST = useMemo(() => kstDateStr(new Date()), []);
 
   const pastEvents = useMemo(
     () =>
       (allEvents || [])
-        .filter((e) => new Date(e.schedule) < today)
+        .filter((e) => e.schedule.slice(0, 10) < todayKST)
         .sort((a, b) => sortByDateTime(a, b, true)),
-    [allEvents, today],
+    [allEvents, todayKST],
   );
 
-  const currentYear = new Date().getFullYear();
+  const currentYear = toKSTDate(new Date()).getUTCFullYear();
   const defaultYear = knownYears.includes(currentYear)
     ? currentYear
     : knownYears[0] ?? currentYear;
@@ -56,7 +52,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [
   const activeQuarters = useMemo(() => {
     const quarters = new Set(
       pastEvents
-        .filter((e) => new Date(e.schedule).getFullYear() === selectedYear)
+        .filter((e) => toKSTDate(e.schedule).getUTCFullYear() === selectedYear)
         .map((e) => getQuarter(e.schedule)),
     );
     return quarters;
@@ -81,7 +77,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [
       );
     }
     return pastEvents.filter((e) => {
-      const year = new Date(e.schedule).getFullYear();
+      const year = toKSTDate(e.schedule).getUTCFullYear();
       if (year !== selectedYear) return false;
       if (selectedQuarter !== "all" && getQuarter(e.schedule) !== selectedQuarter)
         return false;

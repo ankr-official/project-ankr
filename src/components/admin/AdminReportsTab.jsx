@@ -6,6 +6,7 @@ import { useRealtimeData } from "../../hooks/useRealtimeData";
 import { GENRE_COLORS } from "../../constants";
 import { toArray, isoToTime, sortGenres } from "../../utils/eventFormUtils";
 import { formatScheduleDisplay } from "../../utils/adminUtils";
+import { kstDateStr } from "../../utils/dateUtils";
 
 export default function AdminReportsTab({ onApprove, onCountChange }) {
   const { data: reports, loading: reportsLoading } = useRealtimeData("reports");
@@ -60,7 +61,7 @@ export default function AdminReportsTab({ onApprove, onCountChange }) {
               </div>
               <span className="shrink-0 text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">
                 {report.submittedAt
-                  ? new Date(report.submittedAt).toLocaleDateString("ko-KR")
+                  ? kstDateStr(report.submittedAt)
                   : ""}
               </span>
             </div>

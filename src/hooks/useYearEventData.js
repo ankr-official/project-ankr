@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { ref, get, onChildAdded, onChildChanged, onChildRemoved } from "firebase/database";
 import { database } from "../config/firebase";
 
-const CURRENT_YEAR = new Date().getFullYear();
+const CURRENT_YEAR = new Date(new Date().getTime() + 9 * 60 * 60 * 1000).getUTCFullYear();
 
 export const useYearEventData = () => {
   const [yearData, setYearData] = useState({});

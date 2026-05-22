@@ -16,7 +16,7 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 
 function AppContent() {
   const { theme } = useThemeContext();
-  const currentYear = new Date().getFullYear();
+  const currentYear = new Date(new Date().getTime() + 9 * 60 * 60 * 1000).getUTCFullYear();
 
   return (
     <>
