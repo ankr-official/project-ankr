@@ -1,6 +1,6 @@
 import { GenreBadge } from 'ankr-design-system';
 
-export const AllGenres = () => (
+export const SingleGenre = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 16 }}>
     <GenreBadge genre="원곡" />
     <GenreBadge genre="우치이베" />
@@ -12,9 +12,6 @@ export const AllGenres = () => (
     <GenreBadge genre="보컬로이드" />
     <GenreBadge genre="코스프레" />
     <GenreBadge genre="Any Song (복합)" />
-    <GenreBadge genre="원곡, 리믹스" />
-    <GenreBadge genre="전자음악, 동인음악, 랜플댄" />
-    <GenreBadge genre="보컬로이드, Any Song (복합)" />
   </div>
 );
 
