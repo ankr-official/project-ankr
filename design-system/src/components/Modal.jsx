@@ -3,48 +3,24 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 /**
- * @typedef {'sm'|'md'|'lg'|'xl'} ModalSize
- */
-
-const sizeClasses = {
-  sm: 'lg:max-w-sm',
-  md: 'lg:max-w-lg',
-  lg: 'lg:max-w-2xl',
-  xl: 'lg:max-w-4xl',
-};
-
-/**
- * Overlay modal. Slides up from bottom on mobile, centered on desktop.
+ * Bottom-sheet modal on mobile, centered overlay on desktop.
+ * Mobile: slides up from bottom (h-[80vh], rounded-t-3xl, bg-gray-200).
+ * Desktop: centered, rounded-xl, max-w-3xl, scrollable up to 90vh.
  * Closes on backdrop click or Escape key.
  *
- * @param {{ isOpen: boolean, onClose: () => void, title?: string, children: import('react').ReactNode, size?: ModalSize, showCloseButton?: boolean }} props
+ * @param {{ isOpen: boolean, onClose: () => void, title?: string, children: import('react').ReactNode, mobileActions?: import('react').ReactNode }} props
  */
-export function Modal({
-  isOpen,
-  onClose,
-  title,
-  children,
-  size = 'md',
-  showCloseButton = true,
-}) {
+export function Modal({ isOpen, onClose, title, children, mobileActions }) {
   useEffect(() => {
     if (!isOpen) return;
-    const handler = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
+    const handler = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, [isOpen, onClose]);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
   return (
@@ -54,7 +30,7 @@ export function Modal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.22 }}
+          transition={{ duration: 0.22, ease: 'easeIn' }}
           className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-black/50 backdrop-blur-sm"
           onClick={onClose}
         >
@@ -63,35 +39,54 @@ export function Modal({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'tween', duration: 0.22, ease: 'easeIn' }}
-            className={[
-              'w-full rounded-t-3xl lg:rounded-xl bg-white dark:bg-gray-900 transition-colors',
-              'lg:max-h-[90vh] lg:overflow-y-auto',
-              sizeClasses[size],
-            ].join(' ')}
+            className="w-full h-[80vh] rounded-t-3xl lg:rounded-xl lg:max-w-3xl lg:h-auto lg:max-h-[90vh] lg:overflow-y-auto bg-gray-200 dark:bg-gray-900 transition-colors"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="lg:hidden py-4 flex justify-center">
-              <div className="w-12 h-1.5 bg-gray-400 dark:bg-gray-600 rounded-full" />
+            {/* 모바일 헤더 (드래그 바 + 닫기 + 액션) */}
+            <div className="lg:hidden relative w-full py-6">
+              <button
+                onClick={onClose}
+                className="absolute top-3 left-6 p-1 text-indigo-600 dark:text-indigo-300 transition-colors"
+              >
+                닫기
+              </button>
+              <div className="w-12 h-1.5 mx-auto bg-gray-400 dark:bg-gray-300 rounded-full" />
+              {mobileActions && (
+                <div className="absolute top-3 right-6 flex items-center gap-2">
+                  {mobileActions}
+                </div>
+              )}
             </div>
-            <div className="px-6 pb-6">
-              {(title || showCloseButton) && (
-                <div className="flex items-center justify-between mb-4">
-                  {title && (
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+
+            {/* 스크롤 영역 */}
+            <div className="h-[calc(80vh-4rem)] overflow-y-auto lg:h-auto lg:overflow-visible">
+              <div className="px-4 py-4 lg:px-8 lg:py-8">
+                {/* 데스크탑 헤더 */}
+                {(title) && (
+                  <div className="hidden lg:flex items-center justify-between mb-4 gap-2">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">
                       {title}
                     </h2>
-                  )}
-                  {showCloseButton && (
                     <button
                       onClick={onClose}
-                      className="hidden lg:flex p-1.5 rounded-full text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors"
+                      className="p-1 w-8 h-8 flex items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors"
                     >
                       <XMarkIcon className="w-5 h-5" />
                     </button>
-                  )}
-                </div>
-              )}
-              {children}
+                  </div>
+                )}
+                {!title && (
+                  <div className="hidden lg:flex justify-end mb-4">
+                    <button
+                      onClick={onClose}
+                      className="p-1 w-8 h-8 flex items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors"
+                    >
+                      <XMarkIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+                {children}
+              </div>
             </div>
           </motion.div>
         </motion.div>

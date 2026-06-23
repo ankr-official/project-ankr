@@ -1,110 +1,90 @@
-import { Button } from 'ankr-design-system';
+// Modal uses fixed inset-0 — preview renders the panel appearance inline
+// without the backdrop overlay to avoid blank iframe issue.
 
-// Modal uses fixed inset-0 — preview renders the open state inline
-// to show the panel appearance without the backdrop overlay
-const ModalPanel = ({ title, children, size = 'md' }: {
-  title?: string;
-  children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg';
-}) => {
-  const maxWidth = size === 'sm' ? 384 : size === 'md' ? 512 : 672;
-  return (
-    <div style={{ padding: 16, display: 'flex', justifyContent: 'center' }}>
-      <div style={{
-        width: '100%',
-        maxWidth,
-        background: 'white',
-        borderRadius: 12,
-        boxShadow: '0 20px 25px -5px rgba(0,0,0,0.15), 0 10px 10px -5px rgba(0,0,0,0.06)',
-        overflow: 'hidden',
-        border: '1px solid #e5e7eb',
-      }}>
-        {/* Mobile drag handle */}
-        <div style={{ padding: '16px 0 0', display: 'flex', justifyContent: 'center' }}>
-          <div style={{ width: 48, height: 6, background: '#9ca3af', borderRadius: 999 }} />
+const ModalPanel = ({ title, mobileMode = false, dark = false, children }: {
+  title?: string; mobileMode?: boolean; dark?: boolean; children: React.ReactNode;
+}) => (
+  <div className={dark ? 'dark' : ''} style={{ background: dark ? '#111827' : '#f3f4f6' }}>
+    <div
+      style={{ width: mobileMode ? 375 : 640, margin: '0 auto' }}
+      className={`${mobileMode ? 'rounded-t-3xl' : 'rounded-xl'} bg-gray-200 dark:bg-gray-900 transition-colors overflow-hidden shadow-2xl`}
+    >
+      {/* 모바일 헤더: 드래그 바 + 닫기 + 액션 */}
+      {mobileMode && (
+        <div className="relative w-full py-6">
+          <span className="absolute top-3 left-6 text-sm text-indigo-600 dark:text-indigo-300">닫기</span>
+          <div className="w-12 h-1.5 mx-auto bg-gray-400 dark:bg-gray-300 rounded-full" />
+          <span className="absolute top-3 right-6 text-sm text-indigo-600 dark:text-indigo-300">수정 요청</span>
         </div>
-        <div style={{ padding: '16px 24px 24px' }}>
-          {title && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#111827', margin: 0 }}>{title}</h2>
-              <div style={{ width: 32, height: 32, borderRadius: 999, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#6b7280', fontSize: 18 }}>×</div>
+      )}
+      <div className="px-4 py-4 lg:px-8 lg:py-8">
+        {/* 데스크탑 제목 + X버튼 */}
+        {!mobileMode && (
+          <div className="flex items-center justify-between mb-4 gap-2">
+            {title
+              ? <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h2>
+              : <span />
+            }
+            <div className="p-1 w-8 h-8 flex items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-full">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+              </svg>
             </div>
-          )}
-          {children}
+          </div>
+        )}
+        {children}
+      </div>
+    </div>
+  </div>
+);
+
+export const MobileSheet = () => (
+  <ModalPanel mobileMode title="CLUB DIMENSION Vol.14">
+    <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+      <div className="w-full h-40 rounded-lg bg-gray-300 dark:bg-gray-700" />
+      <div className="grid grid-cols-2 gap-4 bg-gray-100 dark:bg-gray-800 p-4 rounded-xl">
+        <div className="space-y-2">
+          <p><span className="text-gray-500">일정</span> 2026-07-15 (수)</p>
+          <p><span className="text-gray-500">장르</span> 원곡, 리믹스</p>
+          <p><span className="text-gray-500">장소</span> 홍대 클럽 FF</p>
+        </div>
+        <div className="space-y-2">
+          <p><span className="text-gray-500">입장</span> 21:00</p>
+          <p><span className="text-gray-500">시작</span> 22:00</p>
+          <p><span className="text-gray-500">종료</span> 05:00</p>
         </div>
       </div>
     </div>
-  );
-};
-
-export const Open = () => (
-  <ModalPanel title="이벤트 상세 정보" size="md">
-    <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.6, margin: '0 0 16px' }}>
-      2026년 7월 15일 홍대 클럽에서 열리는 서브컬쳐 DJ 이벤트입니다.
-      원곡/리믹스 장르 위주의 세트리스트로 구성됩니다.
-    </p>
-    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-      <Button variant="secondary" size="sm">닫기</Button>
-      <Button variant="primary" size="sm">Google Calendar에 추가</Button>
-    </div>
   </ModalPanel>
 );
 
-export const SmallModal = () => (
-  <ModalPanel title="삭제 확인" size="sm">
-    <p style={{ fontSize: 14, color: '#374151', margin: '0 0 16px' }}>
-      이 이벤트를 삭제하면 복구할 수 없습니다. 계속하시겠습니까?
-    </p>
-    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-      <Button variant="secondary" size="sm">취소</Button>
-      <Button variant="danger" size="sm">삭제</Button>
-    </div>
-  </ModalPanel>
-);
-
-export const LargeModal = () => (
-  <ModalPanel title="이벤트 목록" size="lg">
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {['CLUB DIMENSION Vol.14', 'VOCALOID NIGHT FEST 2026', '랜덤플레이댄스 @ 신촌'].map((name, i) => (
-        <div key={i} style={{ padding: '12px 16px', background: '#f9fafb', borderRadius: 8, fontSize: 14, color: '#374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>{name}</span>
-          <Button variant="ghost" size="sm">보기</Button>
-        </div>
-      ))}
-    </div>
-    <div style={{ marginTop: 16, display: 'flex', justifyContent: 'flex-end' }}>
-      <Button variant="secondary" size="sm">닫기</Button>
+export const DesktopCentered = () => (
+  <ModalPanel title="VOCALOID NIGHT FEST 2026">
+    <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+      <div className="w-full h-48 rounded-lg bg-gray-300 dark:bg-gray-700" />
+      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg space-y-2">
+        <p><span className="text-gray-500 w-12 inline-block">일정</span> 2026-08-20 (목)</p>
+        <p><span className="text-gray-500 w-12 inline-block">장르</span> 보컬로이드, 동인음악</p>
+        <p><span className="text-gray-500 w-12 inline-block">장소</span> 홍대 클럽 빵</p>
+      </div>
+      <div className="flex gap-3 pt-2">
+        <button className="flex-1 px-4 py-2 text-sm text-white bg-indigo-600 rounded-lg">Google Calendar에 추가</button>
+        <button className="flex-1 px-4 py-2 text-sm text-white bg-blue-500 rounded-lg">X(Twitter)에 공유하기</button>
+      </div>
     </div>
   </ModalPanel>
 );
 
 export const DarkMode = () => (
-  <div className="dark" style={{ background: '#0f172a', padding: 16, display: 'flex', justifyContent: 'center' }}>
-    <div style={{
-      width: '100%',
-      maxWidth: 512,
-      background: '#1e293b',
-      borderRadius: 12,
-      boxShadow: '0 20px 25px -5px rgba(0,0,0,0.5)',
-      overflow: 'hidden',
-      border: '1px solid #334155',
-    }}>
-      <div style={{ padding: '16px 0 0', display: 'flex', justifyContent: 'center' }}>
-        <div style={{ width: 48, height: 6, background: '#475569', borderRadius: 999 }} />
-      </div>
-      <div style={{ padding: '16px 24px 24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: '#f1f5f9', margin: 0 }}>이벤트 상세 정보</h2>
-          <div style={{ width: 32, height: 32, borderRadius: 999, background: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', fontSize: 18 }}>×</div>
-        </div>
-        <p style={{ fontSize: 14, color: '#94a3b8', lineHeight: 1.6, margin: '0 0 16px' }}>
-          2026년 7월 15일 홍대 클럽에서 열리는 서브컬쳐 DJ 이벤트입니다.
-        </p>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-          <Button variant="secondary" size="sm">닫기</Button>
-          <Button variant="primary" size="sm">Google Calendar에 추가</Button>
-        </div>
+  <ModalPanel mobileMode dark>
+    <div className="space-y-3 text-sm text-gray-300">
+      <h2 className="text-xl font-bold text-white">CLUB DIMENSION Vol.14</h2>
+      <div className="w-full h-36 rounded-lg bg-gray-700" />
+      <div className="bg-gray-800 p-4 rounded-xl space-y-2">
+        <p><span className="text-gray-500">일정</span> 2026-07-15 (수) 🌙 22:00 ~ 05:00</p>
+        <p><span className="text-gray-500">장르</span> 원곡, 리믹스</p>
+        <p><span className="text-gray-500">장소</span> 홍대 클럽 FF</p>
       </div>
     </div>
-  </div>
+  </ModalPanel>
 );
