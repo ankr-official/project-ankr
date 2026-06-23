@@ -21,7 +21,7 @@ const sizeClasses = {
 };
 
 /**
- * Primary action button with multiple visual variants.
+ * 여러 시각적 스타일을 지원하는 기본 액션 버튼.
  *
  * @param {{ variant?: ButtonVariant, size?: ButtonSize, disabled?: boolean, loading?: boolean, fullWidth?: boolean, children: import('react').ReactNode, onClick?: () => void, type?: 'button'|'submit'|'reset', className?: string }} props
  */

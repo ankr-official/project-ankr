@@ -1,7 +1,7 @@
 import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 
 /**
- * Dark / light mode toggle switch. Controlled — pass isDark and onToggle.
+ * 다크/라이트 모드 전환 스위치. 제어 컴포넌트 — isDark와 onToggle을 전달하세요.
  *
  * @param {{ isDark: boolean, onToggle: () => void, className?: string }} props
  */

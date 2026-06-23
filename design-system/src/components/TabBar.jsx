@@ -1,6 +1,6 @@
 /**
- * Segmented control tab bar — used in Admin pages.
- * Rounded pill container with white/gray-700 active pill and shadow.
+ * 세그먼트 컨트롤 탭 바 — 관리자 페이지에서 사용.
+ * 활성 탭은 흰색/gray-700 pill에 그림자로 표시.
  *
  * @param {{ tabs: Array<{key: string, label: string, count?: number}>, active: string, onChange: (key: string) => void, className?: string }} props
  */

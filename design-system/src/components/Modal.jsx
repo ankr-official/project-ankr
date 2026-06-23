@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 /**
- * Bottom-sheet modal on mobile, centered overlay on desktop.
- * Mobile: slides up from bottom (h-[80vh], rounded-t-3xl, bg-gray-200).
- * Desktop: centered, rounded-xl, max-w-3xl, scrollable up to 90vh.
- * Closes on backdrop click or Escape key.
+ * 모바일에서는 하단 시트, 데스크탑에서는 중앙 오버레이로 표시되는 모달.
+ * 모바일: 하단에서 슬라이드 업 (h-[80vh], rounded-t-3xl, bg-gray-200).
+ * 데스크탑: 중앙 정렬, rounded-xl, max-w-3xl, 최대 90vh 스크롤.
+ * 배경 클릭 또는 Escape 키로 닫힘.
  *
  * @param {{ isOpen: boolean, onClose: () => void, title?: string, children: import('react').ReactNode, mobileActions?: import('react').ReactNode }} props
  */

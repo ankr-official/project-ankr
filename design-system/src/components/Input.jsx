@@ -1,5 +1,5 @@
 /**
- * Text input field with optional label and error message.
+ * 라벨과 오류 메시지를 지원하는 텍스트 입력 필드.
  *
  * @param {{ label?: string, placeholder?: string, value?: string, defaultValue?: string, onChange?: (e: import('react').ChangeEvent<HTMLInputElement>) => void, error?: string, disabled?: boolean, type?: string, name?: string, id?: string, required?: boolean, className?: string }} props
  */

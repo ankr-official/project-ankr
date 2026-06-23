@@ -1,36 +1,30 @@
 import { ThemeToggle } from 'ankr-design-system';
 import { useState } from 'react';
 
-const Pair = ({ children }: { children: React.ReactNode }) => (
+export const Default = () => (
   <div style={{ display: 'flex' }}>
-    <div style={{ flex: 1, padding: 16, background: '#f9fafb' }}>{children}</div>
-    <div className="dark" style={{ flex: 1, padding: 16, background: '#111827' }}>{children}</div>
+    <div style={{ flex: 1, padding: 16, background: '#f9fafb', display: 'flex', alignItems: 'center', gap: 8 }}>
+      <ThemeToggle isDark={false} onToggle={() => {}} />
+      <span style={{ fontSize: 12, color: '#6b7280' }}>라이트 모드</span>
+    </div>
+    <div className="dark" style={{ flex: 1, padding: 16, background: '#111827', display: 'flex', alignItems: 'center', gap: 8 }}>
+      <ThemeToggle isDark={true} onToggle={() => {}} />
+      <span style={{ fontSize: 12, color: '#9ca3af' }}>다크 모드</span>
+    </div>
   </div>
-);
-
-export const LightTheme = () => (
-  <Pair>
-    <ThemeToggle isDark={false} onToggle={() => {}} />
-  </Pair>
-);
-
-export const DarkTheme = () => (
-  <Pair>
-    <ThemeToggle isDark={true} onToggle={() => {}} />
-  </Pair>
 );
 
 export const Interactive = () => {
   const [isDark, setIsDark] = useState(false);
   return (
     <div style={{ display: 'flex' }}>
-      <div style={{ flex: 1, padding: 16, background: '#f9fafb', display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ flex: 1, padding: 16, background: '#f9fafb', display: 'flex', alignItems: 'center', gap: 8 }}>
         <ThemeToggle isDark={isDark} onToggle={() => setIsDark(!isDark)} />
-        <span className="text-sm text-gray-600">{isDark ? '다크 모드' : '라이트 모드'}</span>
+        <span style={{ fontSize: 12, color: '#6b7280' }}>{isDark ? '다크 모드' : '라이트 모드'}</span>
       </div>
-      <div className="dark" style={{ flex: 1, padding: 16, background: '#111827', display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div className="dark" style={{ flex: 1, padding: 16, background: '#111827', display: 'flex', alignItems: 'center', gap: 8 }}>
         <ThemeToggle isDark={isDark} onToggle={() => setIsDark(!isDark)} />
-        <span className="text-sm text-gray-400">{isDark ? '다크 모드' : '라이트 모드'}</span>
+        <span style={{ fontSize: 12, color: '#9ca3af' }}>{isDark ? '다크 모드' : '라이트 모드'}</span>
       </div>
     </div>
   );

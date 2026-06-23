@@ -16,7 +16,7 @@ const colorClasses = {
 };
 
 /**
- * Animated loading spinner.
+ * 애니메이션 로딩 스피너.
  *
  * @param {{ size?: SpinnerSize, color?: SpinnerColor, className?: string }} props
  */

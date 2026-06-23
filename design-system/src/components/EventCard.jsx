@@ -20,8 +20,8 @@ const formatDate = (schedule, timeStart, timeEnd) => {
 };
 
 /**
- * Card displaying a single ANKR event — horizontal layout matching the app's EventCard.
- * Image on the left (w-24 h-32), text on the right.
+ * 단일 ANKR 이벤트를 표시하는 카드 — 앱의 EventCard와 동일한 가로형 레이아웃.
+ * 왼쪽에 이미지(w-24 h-32), 오른쪽에 텍스트.
  *
  * @param {{ eventName: string, schedule: string, location?: string, genre?: string, imgUrl?: string, timeStart?: string, timeEnd?: string, isPast?: boolean, onClick?: () => void, className?: string }} props
  */

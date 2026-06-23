@@ -1,5 +1,5 @@
 /**
- * Individual tab button for use inside a TabBar or standalone tab navigation.
+ * TabBar 내부 또는 단독 탭 내비게이션에 사용하는 개별 탭 버튼.
  *
  * @param {{ isActive?: boolean, onClick?: () => void, children: import('react').ReactNode, className?: string }} props
  */

@@ -17,7 +17,7 @@ const GENRE_COLORS = {
 };
 
 /**
- * Genre badge for ANKR event genres. Supports multiple comma-separated genres.
+ * ANKR 이벤트 장르 뱃지. 쉼표로 구분된 복수 장르를 지원합니다.
  *
  * @param {{ genre: string, className?: string }} props
  */

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 /**
- * Image with animated skeleton placeholder shown while loading.
+ * 이미지 로드 중 애니메이션 스켈레톤 플레이스홀더를 표시하는 이미지 컴포넌트.
  *
  * @param {{ src: string, alt?: string, wrapperClassName?: string, imgClassName?: string, loading?: 'lazy'|'eager' }} props
  */

@@ -1,5 +1,5 @@
 /**
- * Multi-line text area with optional label and error message.
+ * 라벨과 오류 메시지를 지원하는 여러 줄 텍스트 영역.
  *
  * @param {{ label?: string, placeholder?: string, value?: string, onChange?: (e: import('react').ChangeEvent<HTMLTextAreaElement>) => void, error?: string, disabled?: boolean, rows?: number, name?: string, id?: string, required?: boolean, className?: string }} props
  */

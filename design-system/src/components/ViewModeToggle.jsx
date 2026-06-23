@@ -3,7 +3,7 @@
  */
 
 /**
- * Switcher between calendar and list view modes.
+ * 캘린더와 목록 보기 모드를 전환하는 컴포넌트.
  *
  * @param {{ viewMode: ViewMode, onViewModeChange: (mode: ViewMode) => void, className?: string }} props
  */
