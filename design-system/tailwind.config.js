@@ -2,7 +2,7 @@ import plugin from 'tailwindcss/plugin';
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./src/**/*.{js,jsx}'],
+  content: ['./src/**/*.{js,jsx}', '../.design-sync/previews/**/*.{tsx,jsx,ts,js}'],
   darkMode: 'class',
   theme: {
     extend: {},
