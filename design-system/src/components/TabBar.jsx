@@ -1,25 +1,29 @@
-import { TabButton } from './TabButton';
-
 /**
- * @typedef {{ id: string, label: string }} TabItem
- */
-
-/**
- * Horizontal tab navigation bar. Renders a row of tabs with bottom-border active indicator.
+ * Segmented control tab bar — used in Admin pages.
+ * Rounded pill container with white/gray-700 active pill and shadow.
  *
- * @param {{ tabs: TabItem[], activeTab: string, onTabChange: (id: string) => void, className?: string }} props
+ * @param {{ tabs: Array<{key: string, label: string, count?: number}>, active: string, onChange: (key: string) => void, className?: string }} props
  */
-export function TabBar({ tabs, activeTab, onTabChange, className = '' }) {
+export function TabBar({ tabs, active, onChange, className = '' }) {
   return (
-    <div className={`flex border-b border-gray-200 dark:border-gray-700 overflow-x-auto ${className}`}>
-      {tabs.map((tab) => (
-        <TabButton
-          key={tab.id}
-          isActive={activeTab === tab.id}
-          onClick={() => onTabChange(tab.id)}
+    <div className={`h-10 w-full sm:w-fit flex items-center gap-1 p-1 rounded-xl bg-gray-200/60 dark:bg-gray-800/60 overflow-x-auto [&::-webkit-scrollbar]:hidden ${className}`}>
+      {tabs.map((t) => (
+        <button
+          key={t.key}
+          onClick={() => onChange(t.key)}
+          className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            active === t.key
+              ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 active:text-gray-800 mouse:hover:text-gray-800 dark:active:text-gray-200 dark:mouse:hover:text-gray-200'
+          }`}
         >
-          {tab.label}
-        </TabButton>
+          {t.label}
+          {t.count !== undefined && (
+            <span className={`ml-1.5 text-xs ${active === t.key ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500'}`}>
+              {t.count}
+            </span>
+          )}
+        </button>
       ))}
     </div>
   );
