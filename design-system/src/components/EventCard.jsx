@@ -1,10 +1,29 @@
 import { ImageWithSkeleton } from './ImageWithSkeleton';
 import { GenreBadge } from './GenreBadge';
 
+const toKSTDate = (d) => new Date(new Date(d).getTime() + 9 * 60 * 60 * 1000);
+const pad = (n) => String(n).padStart(2, '0');
+
+const formatDate = (schedule, timeStart, timeEnd) => {
+  if (!schedule) return '';
+  const kst = toKSTDate(schedule);
+  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  const date = `${kst.getUTCFullYear()}-${pad(kst.getUTCMonth() + 1)}-${pad(kst.getUTCDate())} (${days[kst.getUTCDay()]})`;
+  if (!timeStart) return date;
+  const kstS = toKSTDate(timeStart);
+  const hs = kstS.getUTCHours();
+  const icon = hs >= 6 && hs < 17 ? '☀️' : '🌙';
+  const start = `${pad(hs)}:${pad(kstS.getUTCMinutes())}`;
+  if (!timeEnd) return `${date} ${icon} ${start}`;
+  const kstE = toKSTDate(timeEnd);
+  return `${date} ${icon} ${start} ~ ${pad(kstE.getUTCHours())}:${pad(kstE.getUTCMinutes())}`;
+};
+
 /**
- * Card displaying a single ANKR event — image, title, schedule date, location, and genre tags.
+ * Card displaying a single ANKR event — horizontal layout matching the app's EventCard.
+ * Image on the left (w-24 h-32), text on the right.
  *
- * @param {{ eventName: string, schedule: string, location: string, genre?: string, imgUrl?: string, isPast?: boolean, viewCount?: number, onClick?: () => void, className?: string }} props
+ * @param {{ eventName: string, schedule: string, location?: string, genre?: string, imgUrl?: string, timeStart?: string, timeEnd?: string, isPast?: boolean, onClick?: () => void, className?: string }} props
  */
 export function EventCard({
   eventName,
@@ -12,77 +31,49 @@ export function EventCard({
   location,
   genre,
   imgUrl,
+  timeStart,
+  timeEnd,
   isPast = false,
-  viewCount,
   onClick,
-  className = '',
+  className = 'p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow cursor-pointer active:bg-indigo-200 dark:active:bg-indigo-900 transition-colors',
 }) {
-  const dateLabel = schedule
-    ? new Date(schedule).toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-    : '';
-
   return (
     <div
       onClick={onClick}
-      className={[
-        'group relative rounded-xl overflow-hidden bg-white dark:bg-gray-800',
-        'border border-gray-200 dark:border-gray-700 transition-colors',
-        onClick
-          ? 'cursor-pointer active:bg-gray-50 mouse:hover:bg-gray-50 dark:active:bg-gray-750 dark:mouse:hover:bg-gray-750'
-          : '',
-        isPast ? 'opacity-70' : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+      className={`relative ${isPast ? 'opacity-70' : ''} ${className}`}
     >
-      {imgUrl && (
-        <ImageWithSkeleton
-          src={imgUrl}
-          alt={eventName}
-          wrapperClassName="w-full aspect-video"
-          imgClassName="w-full h-full object-cover"
-        />
-      )}
-      <div className="p-4 flex flex-col gap-2">
-        <h3 className="text-base font-bold text-gray-900 dark:text-white leading-snug line-clamp-2">
-          {eventName}
-        </h3>
-        <div className="flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400">
-          {dateLabel && (
-            <span className="flex items-center gap-1">
-              <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <rect x="3" y="4" width="18" height="18" rx="2" />
-                <path d="M16 2v4M8 2v4M3 10h18" strokeWidth="1.5" />
-              </svg>
-              {dateLabel}
-            </span>
-          )}
+      <div className="flex items-center space-x-4 h-full">
+        {imgUrl ? (
+          <ImageWithSkeleton
+            src={imgUrl.replace(/(name=)[^&]*/, '$1small')}
+            alt={eventName}
+            wrapperClassName="flex-shrink-0 w-24 h-32 rounded-lg"
+            imgClassName="object-cover w-full h-full"
+          />
+        ) : (
+          <div className="flex-shrink-0 w-24 h-32 rounded-lg bg-gray-200 dark:bg-gray-700" />
+        )}
+        <div className="flex-1 min-w-0 text-left">
+          <p className="mb-1 text-sm text-gray-600 dark:text-gray-300 transition-colors">
+            {formatDate(schedule, timeStart, timeEnd)}
+          </p>
+          <h3 className="mb-2 text-base font-medium text-gray-900 dark:text-white truncate transition-colors">
+            {eventName}
+          </h3>
+          <div className="mb-2">
+            {genre && <GenreBadge genre={genre} />}
+          </div>
           {location && (
-            <span className="flex items-center gap-1">
-              <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" strokeWidth="1.5" />
-                <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" strokeWidth="1.5" />
-              </svg>
-              {location}
+            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+              📍 {location}
+            </p>
+          )}
+          {isPast && (
+            <span className="inline-block mt-1 text-xs text-gray-400 dark:text-gray-500 bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-full">
+              종료됨
             </span>
           )}
         </div>
-        {genre && <GenreBadge genre={genre} />}
-        {isPast && (
-          <span className="self-start text-xs text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full">
-            종료됨
-          </span>
-        )}
-        {viewCount !== undefined && (
-          <span className="text-xs text-gray-400 dark:text-gray-500">
-            조회 {viewCount.toLocaleString()}회
-          </span>
-        )}
       </div>
     </div>
   );
