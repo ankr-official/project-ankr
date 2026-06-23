@@ -26,3 +26,13 @@ export const MultipleActive = () => (
     </div>
   </div>
 );
+
+export const DarkMode = () => (
+  <div className="dark" style={{ background: '#111827', padding: 16 }}>
+    <div style={{ display: 'flex', borderBottom: '1px solid #374151' }}>
+      <TabButton isActive={true}>예정 행사</TabButton>
+      <TabButton isActive={false}>지난 행사</TabButton>
+      <TabButton isActive={false}>즐겨찾기</TabButton>
+    </div>
+  </div>
+);

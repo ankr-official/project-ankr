@@ -34,3 +34,14 @@ export const AvatarShape = () => (
     </div>
   </div>
 );
+
+export const DarkMode = () => (
+  <div className="dark" style={{ background: '#111827', padding: 16, maxWidth: 360 }}>
+    <ImageWithSkeleton
+      src="https://picsum.photos/360/200"
+      alt="이벤트 배너"
+      wrapperClassName="rounded-lg overflow-hidden"
+      imgClassName="w-full h-48 object-cover"
+    />
+  </div>
+);

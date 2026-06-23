@@ -24,3 +24,11 @@ export const WithError = () => (
     />
   </div>
 );
+
+export const DarkMode = () => (
+  <div className="dark" style={{ background: '#111827', padding: 16, maxWidth: 360, display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <Textarea label="일반" placeholder="내용 입력" rows={3} />
+    <Textarea label="필수 입력" placeholder="내용 입력" required rows={3} />
+    <Textarea label="비활성화" placeholder="편집 불가" disabled rows={3} />
+  </div>
+);

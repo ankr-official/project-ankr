@@ -52,3 +52,23 @@ export const Grid = () => (
     />
   </div>
 );
+
+export const DarkMode = () => (
+  <div className="dark" style={{ background: '#111827', padding: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, maxWidth: 720 }}>
+    <EventCard
+      eventName="CLUB DIMENSION Vol.14"
+      schedule="2026-07-15T00:00:00.000Z"
+      location="홍대 클럽 FF"
+      genre="원곡, 리믹스"
+      imgUrl="https://picsum.photos/360/200"
+    />
+    <EventCard
+      eventName="랜덤플레이댄스 @ 신촌"
+      schedule="2026-03-10T00:00:00.000Z"
+      location="신촌 연세로"
+      genre="랜플댄"
+      isPast={true}
+      viewCount={1243}
+    />
+  </div>
+);

@@ -22,3 +22,14 @@ export const MultipleGenres = () => (
     <GenreBadge genre="보컬로이드, Any Song (복합)" />
   </div>
 );
+
+export const DarkMode = () => (
+  <div className="dark" style={{ background: '#111827', padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <GenreBadge genre="원곡" />
+    <GenreBadge genre="리믹스" />
+    <GenreBadge genre="보컬로이드" />
+    <GenreBadge genre="전자음악" />
+    <GenreBadge genre="원곡, 리믹스" />
+    <GenreBadge genre="전자음악, 동인음악" />
+  </div>
+);

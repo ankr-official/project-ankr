@@ -32,3 +32,12 @@ export const Types = () => (
     <Input label="URL" type="url" placeholder="https://example.com" />
   </div>
 );
+
+export const DarkMode = () => (
+  <div className="dark" style={{ background: '#111827', padding: 16, maxWidth: 320, display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <Input label="이벤트 이름" placeholder="행사 이름을 입력하세요" />
+    <Input label="필수 입력" placeholder="입력하세요" required />
+    <Input label="오류" value="잘못된 값" error="유효한 값을 입력하세요" />
+    <Input label="비활성화" placeholder="편집 불가" disabled />
+  </div>
+);

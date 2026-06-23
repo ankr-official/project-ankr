@@ -31,3 +31,14 @@ export const ContentOnly = () => (
     </Card>
   </div>
 );
+
+export const DarkMode = () => (
+  <div className="dark" style={{ background: '#111827', padding: 16, maxWidth: 360, display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <Card title="이벤트 정보" subtitle="2026년 6월 행사 목록">
+      <p style={{ fontSize: 14, margin: 0 }}>서브컬쳐 DJ 이벤트 상세 정보입니다.</p>
+    </Card>
+    <Card padding="sm" title="컴팩트 카드">
+      <p style={{ fontSize: 13, margin: 0 }}>작은 패딩 예시</p>
+    </Card>
+  </div>
+);

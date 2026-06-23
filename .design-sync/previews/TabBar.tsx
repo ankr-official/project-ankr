@@ -38,3 +38,20 @@ export const AdminTabs = () => {
     </div>
   );
 };
+
+export const DarkMode = () => {
+  const [active, setActive] = useState('upcoming');
+  return (
+    <div className="dark" style={{ background: '#111827', padding: 16 }}>
+      <TabBar
+        tabs={[
+          { id: 'upcoming', label: '예정 행사' },
+          { id: 'past', label: '지난 행사' },
+          { id: 'favorites', label: '즐겨찾기' },
+        ]}
+        activeTab={active}
+        onTabChange={setActive}
+      />
+    </div>
+  );
+};

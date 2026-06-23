@@ -42,3 +42,24 @@ export const InButton = () => (
     </button>
   </div>
 );
+
+export const DarkMode = () => (
+  <div className="dark" style={{ background: '#111827', padding: 24, display: 'flex', gap: 20, alignItems: 'center' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+      <Spinner size="sm" color="indigo" />
+      <span style={{ fontSize: 11, color: '#9ca3af' }}>small</span>
+    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+      <Spinner size="md" color="indigo" />
+      <span style={{ fontSize: 11, color: '#9ca3af' }}>medium</span>
+    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+      <Spinner size="lg" color="indigo" />
+      <span style={{ fontSize: 11, color: '#9ca3af' }}>large</span>
+    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+      <Spinner size="md" color="gray" />
+      <span style={{ fontSize: 11, color: '#9ca3af' }}>gray</span>
+    </div>
+  </div>
+);

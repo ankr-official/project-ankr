@@ -24,3 +24,10 @@ export const Interactive = () => {
     </div>
   );
 };
+
+export const DarkMode = () => (
+  <div className="dark" style={{ background: '#111827', padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <ViewModeToggle viewMode="calendar" onViewModeChange={() => {}} />
+    <ViewModeToggle viewMode="list" onViewModeChange={() => {}} />
+  </div>
+);

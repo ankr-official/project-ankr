@@ -77,3 +77,34 @@ export const LargeModal = () => (
     </div>
   </ModalPanel>
 );
+
+export const DarkMode = () => (
+  <div className="dark" style={{ background: '#0f172a', padding: 16, display: 'flex', justifyContent: 'center' }}>
+    <div style={{
+      width: '100%',
+      maxWidth: 512,
+      background: '#1e293b',
+      borderRadius: 12,
+      boxShadow: '0 20px 25px -5px rgba(0,0,0,0.5)',
+      overflow: 'hidden',
+      border: '1px solid #334155',
+    }}>
+      <div style={{ padding: '16px 0 0', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: 48, height: 6, background: '#475569', borderRadius: 999 }} />
+      </div>
+      <div style={{ padding: '16px 24px 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: '#f1f5f9', margin: 0 }}>이벤트 상세 정보</h2>
+          <div style={{ width: 32, height: 32, borderRadius: 999, background: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', fontSize: 18 }}>×</div>
+        </div>
+        <p style={{ fontSize: 14, color: '#94a3b8', lineHeight: 1.6, margin: '0 0 16px' }}>
+          2026년 7월 15일 홍대 클럽에서 열리는 서브컬쳐 DJ 이벤트입니다.
+        </p>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          <Button variant="secondary" size="sm">닫기</Button>
+          <Button variant="primary" size="sm">Google Calendar에 추가</Button>
+        </div>
+      </div>
+    </div>
+  </div>
+);

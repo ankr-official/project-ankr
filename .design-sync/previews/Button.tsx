@@ -30,3 +30,14 @@ export const FullWidth = () => (
     <Button variant="primary" fullWidth>Google Calendar에 추가</Button>
   </div>
 );
+
+export const DarkMode = () => (
+  <div className="dark" style={{ background: '#111827', padding: 16, display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+    <Button variant="primary">저장하기</Button>
+    <Button variant="secondary">취소</Button>
+    <Button variant="ghost">더 보기</Button>
+    <Button variant="danger">삭제</Button>
+    <Button variant="primary" loading>저장 중...</Button>
+    <Button variant="primary" disabled>비활성화</Button>
+  </div>
+);
