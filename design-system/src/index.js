@@ -3,7 +3,6 @@ export { Input } from './components/Input';
 export { Textarea } from './components/Textarea';
 export { Badge } from './components/Badge';
 export { GenreBadge } from './components/GenreBadge';
-export { Card } from './components/Card';
 export { Modal } from './components/Modal';
 export { TabButton } from './components/TabButton';
 export { TabBar } from './components/TabBar';
