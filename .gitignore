@@ -33,3 +33,9 @@ CLAUDE.md
 .claude/*
 
 /functions/service-account-key.json
+
+# Design Sync (converter scripts and build output — not committed)
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/

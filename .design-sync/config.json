@@ -1,0 +1,10 @@
+{
+  "projectId": "8c5d1f9b-6f68-4c97-9163-d63b57d1788f",
+  "pkg": "ankr-design-system",
+  "globalName": "AnkrDS",
+  "shape": "package",
+  "buildCmd": "cd design-system && npm run build",
+  "cssEntry": "./dist/style.css",
+  "srcDir": "design-system/src",
+  "readmeHeader": ".design-sync/conventions.md"
+}
