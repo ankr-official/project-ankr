@@ -14,7 +14,7 @@ const ModalPanel = ({ title, mobileMode = false, children }: {
     {mobileMode ? (
       <div className="relative w-full py-6">
         <span className="absolute top-3 left-4 text-sm text-indigo-600 dark:text-indigo-300">닫기</span>
-        <div className="w-10 h-1.5 mx-auto bg-gray-400 dark:bg-gray-600 rounded-full" />
+        <div className="w-12 h-1.5 mx-auto bg-gray-400 dark:bg-gray-300 rounded-full" />
         <span className="absolute top-3 right-4 text-sm text-indigo-600 dark:text-indigo-300">수정 요청</span>
       </div>
     ) : (

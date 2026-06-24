@@ -42,7 +42,7 @@ export function Button({
       onClick={onClick}
       disabled={disabled || loading}
       className={[
-        'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus:outline-none',
+        'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2',
         variantClasses[variant],
         sizeClasses[size],
         fullWidth ? 'w-full' : '',

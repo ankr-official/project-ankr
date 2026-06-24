@@ -5,19 +5,19 @@
 컴포넌트는 독립적으로 동작합니다. Provider나 Context 래핑 없이 바로 사용하세요:
 
 ```jsx
-import { Button, Card, EventCard } from 'ankr-design-system';
-// 또는 번들에서: window.AnkrDS.Button, window.AnkrDS.Card 등
+import { Button, EventCard } from 'ankr-design-system';
 
 function MyView() {
   return (
-    <Card title="이벤트 정보">
+    <div className="p-4">
       <EventCard
         eventName="CLUB DIMENSION Vol.14"
         schedule="2026-07-15T00:00:00.000Z"
         location="홍대 클럽 FF"
         genre="원곡, 리믹스"
       />
-    </Card>
+      <Button variant="primary" className="mt-4">자세히 보기</Button>
+    </div>
   );
 }
 ```
