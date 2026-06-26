@@ -63,7 +63,7 @@
     "activitySlugs": {
       "$slug": {
         ".read": true,
-        ".write": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner' || newData.val() == auth.uid || (!newData.exists() && data.val() == auth.uid))"
+        ".write": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'owner' || (!data.exists() && newData.val() == auth.uid) || (!newData.exists() && data.val() == auth.uid))"
       }
     },
     "auditLogs": {
