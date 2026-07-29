@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useEventForm } from "../../hooks/useEventForm";
 import { buildSubmitData, inputClass, isValidUrl, parseTweetData } from "../../utils/eventFormUtils";
 import { ModalShell, ModalCloseButton } from "../form/ModalShell";
@@ -35,6 +35,27 @@ export default function EventEditModal({
     const [isFetching, setIsFetching] = useState(false);
     const [fetchError, setFetchError] = useState("");
     const [imageLinkOnly, setImageLinkOnly] = useState(false);
+    const [isAutoFetchingImage, setIsAutoFetchingImage] = useState(false);
+
+    // 제보 승인 시: SNS 링크(X)는 있지만 이미지가 없으면 이미지만 자동 크롤링
+    useEffect(() => {
+        if (!isNew || !event?.event_url || event?.img_url) return;
+        const m = event.event_url.match(/(?:twitter\.com|x\.com)\/@?(\w+)\/status\/(\d+)/);
+        if (!m) return;
+        let cancelled = false;
+        setIsAutoFetchingImage(true);
+        fetch(`https://api.fxtwitter.com/${m[1]}/status/${m[2]}`)
+            .then(res => res.json())
+            .then(data => {
+                if (cancelled || data.code !== 200 || !data.tweet) return;
+                const parsed = parseTweetData(data.tweet);
+                if (parsed.img_url) setImgUrl(parsed.img_url);
+            })
+            .catch(() => {})
+            .finally(() => { if (!cancelled) setIsAutoFetchingImage(false); });
+        return () => { cancelled = true; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const matchLocation = (parsed, suggestions) => {
         if (!parsed || !suggestions.length) return parsed || "";
@@ -282,8 +303,14 @@ export default function EventEditModal({
                         <FieldError message={errors.event_url} />
                     </div>
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
+                        <label className="flex items-center gap-1.5 text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
                             이미지 URL
+                            {isAutoFetchingImage && (
+                                <span className="flex items-center gap-1 text-xs font-normal text-gray-400 dark:text-gray-500">
+                                    <div className="w-3 h-3 border-2 border-gray-300 dark:border-gray-600 border-t-sky-500 rounded-full animate-spin" />
+                                    자동 가져오는 중...
+                                </span>
+                            )}
                         </label>
                         <div className="relative">
                             <input
@@ -291,6 +318,7 @@ export default function EventEditModal({
                                 value={imgUrl}
                                 onChange={e => { setImgUrl(e.target.value); revalidate(form, e.target.value); }}
                                 placeholder="https://..."
+                                disabled={isAutoFetchingImage}
                                 className={`${inputClass} pr-9${errors.img_url ? " border-red-400 dark:border-red-500" : ""}`}
                             />
                             {isValidUrl(imgUrl) && (
