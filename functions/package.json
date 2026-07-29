@@ -8,5 +8,8 @@
         "firebase-admin": "^14.0.0",
         "firebase-functions": "^7.2.5",
         "nodemailer": "^9.0.1"
+    },
+    "overrides": {
+        "brace-expansion": "^5.0.8"
     }
 }
