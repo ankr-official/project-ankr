@@ -6,6 +6,7 @@ import { database } from "../../config/firebase";
 import * as adminApi from "../../utils/adminApi";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import TabBar from "./TabBar";
+import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 
 function SortHeader({ label, sortKey, sort, onSort }) {
   const active = sort.key === sortKey;
@@ -48,6 +49,40 @@ function SortHeader({ label, sortKey, sort, onSort }) {
   );
 }
 
+function ActivityLinkButton({ slug, className = "" }) {
+  return (
+    <a
+      href={`${window.location.origin}/@${slug}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      title="내 활동 바로가기"
+      onClick={(e) => e.stopPropagation()}
+      className={`shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 active:bg-indigo-200 mouse:hover:bg-indigo-200 dark:active:bg-indigo-900/60 dark:mouse:hover:bg-indigo-900/60 transition-colors ${className}`}
+    >
+      @{slug}
+      <ArrowTopRightOnSquareIcon className="w-3 h-3" />
+    </a>
+  );
+}
+
+function ActivityStatusBadge({ user }) {
+  if (!user.activitySlug) {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">
+        미개설
+      </span>
+    );
+  }
+  if (!user.historyPublic) {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+        비공개
+      </span>
+    );
+  }
+  return <ActivityLinkButton slug={user.activitySlug} />;
+}
+
 const formatCreatedAt = (iso) => {
   if (!iso) return "-";
   const kst = toKSTDate(iso);
@@ -68,6 +103,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
   const [reasonModal, setReasonModal] = useState(null); // { email, reason }
   const [sort, setSort] = useState({ key: "createdAt", dir: "desc" });
   const [tab, setTab] = useState("all");
+  const [activityOnly, setActivityOnly] = useState(false);
   useScrollLock(!!(reasonModal || suspendTarget || deleteTarget));
 
   const handleSort = (key) => {
@@ -101,6 +137,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
       if (tab === "disabled") return u.disabled;
       return true;
     })
+    .filter((u) => !activityOnly || (u.activitySlug && u.historyPublic))
     .sort((a, b) => {
       if (a.uid === currentUid) return -1;
       if (b.uid === currentUid) return 1;
@@ -128,9 +165,26 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
     (async () => {
       try {
         const { users: list } = await adminApi.listUsers();
+        const withActivity = await Promise.all(
+          list.map(async (u) => {
+            try {
+              const [slugSnap, publicSnap] = await Promise.all([
+                get(ref(database, `users/${u.uid}/activitySlug`)),
+                get(ref(database, `users/${u.uid}/historyPublic`)),
+              ]);
+              return {
+                ...u,
+                activitySlug: slugSnap.val() || null,
+                historyPublic: publicSnap.val() === true,
+              };
+            } catch {
+              return u;
+            }
+          }),
+        );
         if (active)
           setUsers(
-            list.sort((a, b) =>
+            withActivity.sort((a, b) =>
               a.uid === currentUid ? -1 : b.uid === currentUid ? 1 : 0,
             ),
           );
@@ -274,6 +328,19 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                   onSort={handleSort}
                 />
               </th>
+              <th className="text-center px-4 py-3 w-32">
+                <button
+                  onClick={() => setActivityOnly((v) => !v)}
+                  title={activityOnly ? "필터 해제" : "개설 + 공개 중인 회원만 보기"}
+                  className={`w-full font-semibold transition-colors ${
+                    activityOnly
+                      ? "text-indigo-600 dark:text-indigo-400"
+                      : "text-gray-600 dark:text-gray-400 active:text-gray-900 mouse:hover:text-gray-900 dark:active:text-white dark:mouse:hover:text-white"
+                  }`}
+                >
+                  활동
+                </button>
+              </th>
               <th className="text-center px-4 py-3">
                 <SortHeader
                   label="이메일"
@@ -301,6 +368,9 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                 >
                   <td className="px-4 py-3 text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">
                     {formatCreatedAt(user.createdAt)}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <ActivityStatusBadge user={user} />
                   </td>
                   <td className="px-4 py-3 text-gray-900 dark:text-white font-medium max-w-0">
                     <div className="flex items-center gap-2 min-w-0">
@@ -502,6 +572,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                         일반
                       </span>
                     )}
+                    <ActivityStatusBadge user={user} />
                   </div>
                 </div>
               </div>

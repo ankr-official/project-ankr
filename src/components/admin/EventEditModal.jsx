@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useEventForm } from "../../hooks/useEventForm";
 import { buildSubmitData, inputClass, isValidUrl, parseTweetData } from "../../utils/eventFormUtils";
 import { ModalShell, ModalCloseButton } from "../form/ModalShell";
@@ -34,6 +34,28 @@ export default function EventEditModal({
     const [tweetUrl, setTweetUrl] = useState("");
     const [isFetching, setIsFetching] = useState(false);
     const [fetchError, setFetchError] = useState("");
+    const [imageLinkOnly, setImageLinkOnly] = useState(false);
+    const [isAutoFetchingImage, setIsAutoFetchingImage] = useState(false);
+
+    // 제보 승인 시: SNS 링크(X)는 있지만 이미지가 없으면 이미지만 자동 크롤링
+    useEffect(() => {
+        if (!isNew || !event?.event_url || event?.img_url) return;
+        const m = event.event_url.match(/(?:twitter\.com|x\.com)\/@?(\w+)\/status\/(\d+)/);
+        if (!m) return;
+        let cancelled = false;
+        setIsAutoFetchingImage(true);
+        fetch(`https://api.fxtwitter.com/${m[1]}/status/${m[2]}`)
+            .then(res => res.json())
+            .then(data => {
+                if (cancelled || data.code !== 200 || !data.tweet) return;
+                const parsed = parseTweetData(data.tweet);
+                if (parsed.img_url) setImgUrl(parsed.img_url);
+            })
+            .catch(() => {})
+            .finally(() => { if (!cancelled) setIsAutoFetchingImage(false); });
+        return () => { cancelled = true; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const matchLocation = (parsed, suggestions) => {
         if (!parsed || !suggestions.length) return parsed || "";
@@ -63,23 +85,25 @@ export default function EventEditModal({
             const data = await res.json();
             if (data.code !== 200 || !data.tweet) throw new Error();
             const parsed = parseTweetData(data.tweet);
-            const todayKST = new Date(new Date().getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
-            set("event_name", parsed.event_name || "");
-            set("schedule", parsed.schedule || todayKST);
-            const rawText = data.tweet.text || "";
-            const resolvedLocation = matchLocation(parsed.location, locationSuggestions)
-                || findLocationInText(rawText, locationSuggestions)
-                || parsed.location || "";
-            handleLocationTbdChange(false);
-            set("location", resolvedLocation);
-            set("genre", []);
-            set("time_start", parsed.time_start || "");
-            set("time_entrance", "");
-            set("time_end", parsed.time_end || "");
-            set("etc", "");
             set("event_url", `https://x.com/${m[1]}/status/${m[2]}`);
             setImgUrl(parsed.img_url || "");
-            setConfirm(false);
+            if (!imageLinkOnly) {
+                const todayKST = new Date(new Date().getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+                set("event_name", parsed.event_name || "");
+                set("schedule", parsed.schedule || todayKST);
+                const rawText = data.tweet.text || "";
+                const resolvedLocation = matchLocation(parsed.location, locationSuggestions)
+                    || findLocationInText(rawText, locationSuggestions)
+                    || parsed.location || "";
+                handleLocationTbdChange(false);
+                set("location", resolvedLocation);
+                set("genre", []);
+                set("time_start", parsed.time_start || "");
+                set("time_entrance", "");
+                set("time_end", parsed.time_end || "");
+                set("etc", "");
+                setConfirm(false);
+            }
             setErrors({});
             setSubmitted(false);
         } catch {
@@ -169,6 +193,15 @@ export default function EventEditModal({
                             </button>
                         </div>
                         {fetchError && <p className="text-xs text-red-500 dark:text-red-400 pl-2">{fetchError}</p>}
+                        <label className="flex items-center gap-1.5 pl-2 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none">
+                            <input
+                                type="checkbox"
+                                checked={imageLinkOnly}
+                                onChange={e => setImageLinkOnly(e.target.checked)}
+                                className="w-3.5 h-3.5 rounded border-gray-300 dark:border-gray-600 text-sky-500 focus:ring-sky-500 dark:bg-gray-800"
+                            />
+                            이미지와 링크만 가져오기
+                        </label>
                     </div>
                 )}
 
@@ -270,8 +303,14 @@ export default function EventEditModal({
                         <FieldError message={errors.event_url} />
                     </div>
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
+                        <label className="flex items-center gap-1.5 text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
                             이미지 URL
+                            {isAutoFetchingImage && (
+                                <span className="flex items-center gap-1 text-xs font-normal text-gray-400 dark:text-gray-500">
+                                    <div className="w-3 h-3 border-2 border-gray-300 dark:border-gray-600 border-t-sky-500 rounded-full animate-spin" />
+                                    자동 가져오는 중...
+                                </span>
+                            )}
                         </label>
                         <div className="relative">
                             <input
@@ -279,6 +318,7 @@ export default function EventEditModal({
                                 value={imgUrl}
                                 onChange={e => { setImgUrl(e.target.value); revalidate(form, e.target.value); }}
                                 placeholder="https://..."
+                                disabled={isAutoFetchingImage}
                                 className={`${inputClass} pr-9${errors.img_url ? " border-red-400 dark:border-red-500" : ""}`}
                             />
                             {isValidUrl(imgUrl) && (
