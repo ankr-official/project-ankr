@@ -23,7 +23,7 @@ export default defineConfig({
                     if (id.includes("firebase")) return "firebase";
                     if (
                         id.includes("react-dom") ||
-                        id.includes("react-router-dom") ||
+                        id.includes("react-router") ||
                         id.includes("/react/")
                     )
                         return "vendor";

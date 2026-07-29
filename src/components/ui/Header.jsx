@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { UserIcon } from "@heroicons/react/24/outline";
 import ThemeToggle from "./ThemeToggle";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { useAuth } from "../../contexts/AuthContext";
 import LoginDropdown from "../LoginDropdown";
 import UserMenuDropdown from "../UserMenuDropdown";

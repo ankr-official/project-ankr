@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 const Section = ({ number, title, children }) => (
   <section className="mb-10">
