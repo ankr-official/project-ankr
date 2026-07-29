@@ -34,6 +34,7 @@ export default function EventEditModal({
     const [tweetUrl, setTweetUrl] = useState("");
     const [isFetching, setIsFetching] = useState(false);
     const [fetchError, setFetchError] = useState("");
+    const [imageLinkOnly, setImageLinkOnly] = useState(false);
 
     const matchLocation = (parsed, suggestions) => {
         if (!parsed || !suggestions.length) return parsed || "";
@@ -63,23 +64,25 @@ export default function EventEditModal({
             const data = await res.json();
             if (data.code !== 200 || !data.tweet) throw new Error();
             const parsed = parseTweetData(data.tweet);
-            const todayKST = new Date(new Date().getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
-            set("event_name", parsed.event_name || "");
-            set("schedule", parsed.schedule || todayKST);
-            const rawText = data.tweet.text || "";
-            const resolvedLocation = matchLocation(parsed.location, locationSuggestions)
-                || findLocationInText(rawText, locationSuggestions)
-                || parsed.location || "";
-            handleLocationTbdChange(false);
-            set("location", resolvedLocation);
-            set("genre", []);
-            set("time_start", parsed.time_start || "");
-            set("time_entrance", "");
-            set("time_end", parsed.time_end || "");
-            set("etc", "");
             set("event_url", `https://x.com/${m[1]}/status/${m[2]}`);
             setImgUrl(parsed.img_url || "");
-            setConfirm(false);
+            if (!imageLinkOnly) {
+                const todayKST = new Date(new Date().getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+                set("event_name", parsed.event_name || "");
+                set("schedule", parsed.schedule || todayKST);
+                const rawText = data.tweet.text || "";
+                const resolvedLocation = matchLocation(parsed.location, locationSuggestions)
+                    || findLocationInText(rawText, locationSuggestions)
+                    || parsed.location || "";
+                handleLocationTbdChange(false);
+                set("location", resolvedLocation);
+                set("genre", []);
+                set("time_start", parsed.time_start || "");
+                set("time_entrance", "");
+                set("time_end", parsed.time_end || "");
+                set("etc", "");
+                setConfirm(false);
+            }
             setErrors({});
             setSubmitted(false);
         } catch {
@@ -169,6 +172,15 @@ export default function EventEditModal({
                             </button>
                         </div>
                         {fetchError && <p className="text-xs text-red-500 dark:text-red-400 pl-2">{fetchError}</p>}
+                        <label className="flex items-center gap-1.5 pl-2 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none">
+                            <input
+                                type="checkbox"
+                                checked={imageLinkOnly}
+                                onChange={e => setImageLinkOnly(e.target.checked)}
+                                className="w-3.5 h-3.5 rounded border-gray-300 dark:border-gray-600 text-sky-500 focus:ring-sky-500 dark:bg-gray-800"
+                            />
+                            이미지와 링크만 가져오기
+                        </label>
                     </div>
                 )}
 
