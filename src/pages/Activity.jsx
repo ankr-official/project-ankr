@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { ref, onValue, set, get, update } from "firebase/database";
 import {
   ArrowLeftIcon,

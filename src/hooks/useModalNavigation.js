@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router";
 
 export const useModalNavigation = (data, { loadYear, knownYears = [], loadedYears, metaLoaded } = {}) => {
     const [selectedItem, setSelectedItem] = useState(null);

@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { ref, get, update } from "firebase/database";
 import { XMarkIcon, AtSymbolIcon } from "@heroicons/react/24/outline";
 import { database } from "../config/firebase";

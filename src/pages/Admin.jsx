@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 import { ref, remove, update, set, get } from "firebase/database";
 import { toast } from "react-toastify";
 import { database } from "../config/firebase";
