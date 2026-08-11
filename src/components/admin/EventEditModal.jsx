@@ -34,7 +34,7 @@ export default function EventEditModal({
     const [tweetUrl, setTweetUrl] = useState("");
     const [isFetching, setIsFetching] = useState(false);
     const [fetchError, setFetchError] = useState("");
-    const [imageLinkOnly, setImageLinkOnly] = useState(false);
+    const [imageLinkOnly, setImageLinkOnly] = useState(!isNew);
     const [isAutoFetchingImage, setIsAutoFetchingImage] = useState(false);
 
     // 제보 승인 시: SNS 링크(X)는 있지만 이미지가 없으면 이미지만 자동 크롤링
@@ -163,47 +163,50 @@ export default function EventEditModal({
 
             {/* Form */}
             <form id="event-edit-form" onSubmit={handleSubmit} className="px-6 py-5 space-y-5 overflow-y-auto flex-1">
-                {/* 트윗에서 가져오기 - 신규 등록 시만 */}
-                {isNew && (
-                    <div className="space-y-1.5">
-                        <label className="block text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
-                            X URL로 가져오기 (Beta)
-                        </label>
-                        <div className="flex gap-2">
-                            <input
-                                type="text"
-                                value={tweetUrl}
-                                onChange={e => { setTweetUrl(e.target.value); setFetchError(""); }}
-                                onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleFetchTweet(); } }}
-                                placeholder="https://x.com/..."
-                                className={`${inputClass} flex-1 min-w-0`}
-                                disabled={isFetching}
-                            />
-                            <button
-                                type="button"
-                                onClick={handleFetchTweet}
-                                disabled={isFetching || !tweetUrl.trim()}
-                                className="shrink-0 px-3 py-2 rounded-lg text-sm bg-sky-500 mouse:hover:bg-sky-600 active:bg-sky-600 text-white font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
-                            >
-                                {isFetching
-                                    ? <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    : <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                                }
-                                가져오기
-                            </button>
-                        </div>
-                        {fetchError && <p className="text-xs text-red-500 dark:text-red-400 pl-2">{fetchError}</p>}
-                        <label className="flex items-center gap-1.5 pl-2 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none">
-                            <input
-                                type="checkbox"
-                                checked={imageLinkOnly}
-                                onChange={e => setImageLinkOnly(e.target.checked)}
-                                className="w-3.5 h-3.5 rounded border-gray-300 dark:border-gray-600 text-sky-500 focus:ring-sky-500 dark:bg-gray-800"
-                            />
-                            이미지와 링크만 가져오기
-                        </label>
+                {/* X URL로 가져오기 */}
+                <div className="space-y-1.5">
+                    <label className="block text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
+                        X URL로 가져오기 (Beta)
+                    </label>
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            value={tweetUrl}
+                            onChange={e => { setTweetUrl(e.target.value); setFetchError(""); }}
+                            onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleFetchTweet(); } }}
+                            placeholder="https://x.com/..."
+                            className={`${inputClass} flex-1 min-w-0`}
+                            disabled={isFetching}
+                        />
+                        <button
+                            type="button"
+                            onClick={handleFetchTweet}
+                            disabled={isFetching || !tweetUrl.trim()}
+                            className="shrink-0 px-3 py-2 rounded-lg text-sm bg-sky-500 mouse:hover:bg-sky-600 active:bg-sky-600 text-white font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+                        >
+                            {isFetching
+                                ? <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                : <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                            }
+                            가져오기
+                        </button>
                     </div>
-                )}
+                    {fetchError && <p className="text-xs text-red-500 dark:text-red-400 pl-2">{fetchError}</p>}
+                    <label className="flex items-center gap-1.5 pl-2 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none">
+                        <input
+                            type="checkbox"
+                            checked={imageLinkOnly}
+                            onChange={e => setImageLinkOnly(e.target.checked)}
+                            className="w-3.5 h-3.5 rounded border-gray-300 dark:border-gray-600 text-sky-500 focus:ring-sky-500 dark:bg-gray-800"
+                        />
+                        이미지와 링크만 가져오기
+                    </label>
+                    {!isNew && !imageLinkOnly && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 pl-2">
+                            체크 해제 시 이벤트명·날짜·장소·장르·시간·기타 정보가 트윗 내용으로 덮어써집니다.
+                        </p>
+                    )}
+                </div>
 
                 {/* 이벤트명 */}
                 <div className="space-y-1.5">
