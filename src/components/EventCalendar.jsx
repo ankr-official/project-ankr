@@ -33,6 +33,7 @@ const EventCalendar = ({
   const [selectedYear, setSelectedYear] = useState(toKSTDate(new Date()).getUTCFullYear());
   const [showAllYears, setShowAllYears] = useState(false);
   const datePickerRef = useRef(null);
+  const initialSelectedDateRef = useRef(selectedDate);
   const todayKST = kstDateStr(new Date());
 
   // 달력의 시작일과 종료일 계산 (이전 달의 날짜들도 포함)
@@ -86,6 +87,29 @@ const EventCalendar = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showDatePicker]);
+
+  // 선택된 날짜가 바뀌어 이벤트 리스트가 리렌더링된 후 스크롤 이동
+  // (리렌더링 전에 측정하면 이전 이벤트 개수 기준 높이로 판단하게 됨)
+  useEffect(() => {
+    // 마운트 시 초기값과 동일한 selectedDate면 스킵 (최초 진입 시 today로 자동 스크롤 방지)
+    // StrictMode dev 이중 실행 시에도 selectedDate 참조가 그대로 유지되므로 안전
+    if (selectedDate === initialSelectedDateRef.current) return;
+
+    const eventListElement = document.getElementById("event-list");
+    if (eventListElement) {
+      const rect = eventListElement.getBoundingClientRect();
+      const isOverlapping = rect.top < window.innerHeight && rect.bottom > 0;
+
+      if (!isOverlapping) {
+        // 화면 밖 -> 최소한의 스크롤로 리스트가 보이도록 이동 (footer까지 밀려나지 않도록)
+        eventListElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      } else if (rect.bottom > window.innerHeight) {
+        // 일부만 보이고 하단이 잘려있음 -> 하단까지 보이도록 이동
+        eventListElement.scrollIntoView({ behavior: "smooth", block: "end" });
+      }
+      // 이미 전체가 화면에 보이면 아무 것도 하지 않음
+    }
+  }, [selectedDate]);
 
   // 공휴일 확인 함수
   const getHoliday = (date) => {
@@ -148,11 +172,6 @@ const EventCalendar = ({
 
   const handleDateClick = (day) => {
     setSelectedDate(day);
-    // 스크롤을 이벤트 리스트로 이동
-    const eventListElement = document.getElementById("event-list");
-    if (eventListElement) {
-      eventListElement.scrollIntoView({ behavior: "smooth" });
-    }
   };
 
   const isPastDate = (date) => kstDateStr(date) < todayKST;
