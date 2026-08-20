@@ -1,5 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  signOut as firebaseSignOut,
+  GoogleAuthProvider,
+  signInWithCredential,
+} from "firebase/auth";
 import { toast } from "react-toastify";
 import { auth } from "../config/firebase";
 
@@ -9,6 +14,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [claims, setClaims] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authenticating, setAuthenticating] = useState(false);
   const isInitial = useRef(true);
   const silentSignOut = useRef(false);
 
@@ -25,6 +31,10 @@ export function AuthProvider({ children }) {
       }
 
       setUser(nextUser);
+      // signInWithGoogle 진행 중 상태를 여기서 해제 — 로그인 팝업이 닫힌 시점이 아니라
+      // onAuthStateChanged가 실제로 새 유저를 확정한 시점에 맞춰야 헤더 버튼이
+      // "로그인"으로 잠깐 되돌아가는 깜빡임 없이 "내 메뉴"로 바로 전환됨
+      setAuthenticating(false);
 
       if (!nextUser) {
         setClaims(null);
@@ -50,16 +60,29 @@ export function AuthProvider({ children }) {
     await firebaseSignOut(auth);
   };
 
+  const signInWithGoogle = async (idToken) => {
+    setAuthenticating(true);
+    try {
+      const credential = GoogleAuthProvider.credential(idToken);
+      await signInWithCredential(auth, credential);
+    } catch (err) {
+      setAuthenticating(false);
+      throw err;
+    }
+  };
+
   const value = useMemo(
     () => ({
       user,
       claims,
       loading,
+      authenticating,
       isLoggedIn: Boolean(user),
       role: claims?.role ?? null,
       signOut,
+      signInWithGoogle,
     }),
-    [user, claims, loading]
+    [user, claims, loading, authenticating]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
