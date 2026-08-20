@@ -9,7 +9,8 @@ import SettingsModal from "../SettingsModal";
 import ActivitySetupModal from "../ActivitySetupModal";
 
 export const Header = ({ onSearchOpen }) => {
-  const { isLoggedIn, role } = useAuth();
+  const { isLoggedIn, role, loading, authenticating } = useAuth();
+  const authBusy = loading || authenticating;
   const [showLogin, setShowLogin] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -43,9 +44,19 @@ export const Header = ({ onSearchOpen }) => {
     <button
       type="button"
       onClick={handleAuthClick}
-      className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm bg-white/70 dark:bg-white/10 text-gray-900 dark:text-gray-100 border border-gray-300/70 dark:border-gray-700/70 shadow-sm active:bg-white mouse:hover:bg-white dark:active:bg-white/15 dark:mouse:hover:bg-white/15 transition-colors"
+      disabled={authBusy}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm bg-white/70 dark:bg-white/10 text-gray-900 dark:text-gray-100 border border-gray-300/70 dark:border-gray-700/70 shadow-sm transition-colors ${
+        authBusy
+          ? "opacity-60 cursor-not-allowed"
+          : "active:bg-white mouse:hover:bg-white dark:active:bg-white/15 dark:mouse:hover:bg-white/15"
+      }`}
     >
-      {isLoggedIn ? (
+      {authBusy ? (
+        <>
+          <div className="w-4 h-4 border-b-2 border-gray-500 dark:border-gray-300 rounded-full animate-spin shrink-0" />
+          <span>확인 중</span>
+        </>
+      ) : isLoggedIn ? (
         <>
           <UserIcon className="w-4 h-4 shrink-0" />
           <span>내 메뉴</span>

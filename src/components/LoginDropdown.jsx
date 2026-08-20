@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { GoogleLogin } from "@react-oauth/google";
-import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
-import { auth } from "../config/firebase";
+import { useAuth } from "../contexts/AuthContext";
 import SuspendedModal from "./SuspendedModal";
 
 export default function LoginDropdown({
@@ -10,6 +9,7 @@ export default function LoginDropdown({
   position = "bottom",
   align = "right",
 }) {
+  const { signInWithGoogle } = useAuth();
   const [suspended, setSuspended] = useState(null);
   const clientIdPresent = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
@@ -24,8 +24,7 @@ export default function LoginDropdown({
     if (!idToken) return;
 
     try {
-      const credential = GoogleAuthProvider.credential(idToken);
-      await signInWithCredential(auth, credential);
+      await signInWithGoogle(idToken);
       onClose();
     } catch (err) {
       if (err.code === "auth/user-disabled") {
