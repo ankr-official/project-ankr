@@ -1,3 +1,5 @@
+import { kstDateStr } from "./dateUtils";
+
 /**
  * Safari 브라우저인지 확인하는 함수
  * @returns {boolean}
@@ -25,7 +27,7 @@ export const addToGoogleCalendar = event => {
     const startDate = formatDateForGoogle(event.schedule);
 
     // 종료 날짜는 다음 날로 설정 (Google Calendar의 종일 이벤트 규칙)
-    const scheduleKST = new Date(String(event.schedule).slice(0, 10) + "T00:00:00+09:00");
+    const scheduleKST = new Date(kstDateStr(event.schedule) + "T00:00:00+09:00");
     const nextDay = new Date(scheduleKST.getTime() + 24 * 60 * 60 * 1000);
     const endDate = formatDateForGoogle(nextDay);
 

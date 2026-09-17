@@ -75,7 +75,7 @@ export const getThisWeeksEvents = (data, showConfirmed = true) => {
 
     return data
         .filter(item => {
-            const eventDate = new Date(String(item.schedule).slice(0, 10) + "T00:00:00+09:00");
+            const eventDate = new Date(kstDateStr(item.schedule) + "T00:00:00+09:00");
             if (eventDate < todayKST || eventDate >= nextWeekKST) return false;
             if (item.confirm !== showConfirmed) return false;
             const cutoff = item.time_entrance || item.time_start;

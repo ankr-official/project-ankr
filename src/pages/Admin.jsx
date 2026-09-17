@@ -6,7 +6,7 @@ import { database } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { useYearEventData } from "../hooks/useYearEventData";
 import { toArray, GENRES } from "../utils/eventFormUtils";
-import { toKSTDate } from "../utils/dateUtils";
+import { toKSTDate, kstDateStr } from "../utils/dateUtils";
 import EventEditModal from "../components/admin/EventEditModal";
 import AdminHeader from "../components/admin/AdminHeader";
 import AdminReportsTab from "../components/admin/AdminReportsTab";
@@ -53,12 +53,12 @@ export default function Admin() {
   const getEventTime = (e) =>
     e.time_start
       ? new Date(e.time_start)
-      : new Date(e.schedule.slice(0, 10) + "T00:00:00+09:00");
+      : new Date(kstDateStr(e.schedule) + "T00:00:00+09:00");
 
   const isEventPast = (e) => {
     if (e.time_start) return new Date(e.time_start) < new Date();
     const todayKST = toKSTDate(new Date()).toISOString().slice(0, 10);
-    return e.schedule.slice(0, 10) < todayKST;
+    return kstDateStr(e.schedule) < todayKST;
   };
 
   const stats = useMemo(() => {

@@ -150,7 +150,7 @@ const EventCalendar = ({
 
   const getEventsForDay = (day) => {
     const dayEvents = events.filter((event) =>
-      event.schedule.slice(0, 10) === kstDateStr(day),
+      kstDateStr(event.schedule) === kstDateStr(day),
     );
     const filteredEvents = getFilteredEvents(dayEvents);
 
