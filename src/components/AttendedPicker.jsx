@@ -35,7 +35,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [
   const pastEvents = useMemo(
     () =>
       (allEvents || [])
-        .filter((e) => e.schedule.slice(0, 10) < todayKST)
+        .filter((e) => kstDateStr(e.schedule) < todayKST)
         .sort((a, b) => sortByDateTime(a, b, true)),
     [allEvents, todayKST],
   );

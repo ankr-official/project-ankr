@@ -20,7 +20,7 @@ import {
   TicketIcon,
 } from "@heroicons/react/24/outline";
 import { database } from "../config/firebase";
-import { sortByDateTime, toKSTDate } from "../utils/dateUtils";
+import { sortByDateTime, toKSTDate, kstDateStr } from "../utils/dateUtils";
 import { RESERVED_SLUGS, RESERVED_NICKNAMES } from "../constants";
 import { useAuth } from "../contexts/AuthContext";
 import { useYearEventData } from "../hooks/useYearEventData";
@@ -70,7 +70,7 @@ const getQuarter = (dateStr) => {
 const isPast = (event) => {
   if (event.time_start) return new Date(event.time_start) < new Date();
   const todayKST = toKSTDate(new Date()).toISOString().slice(0, 10);
-  return event.schedule.slice(0, 10) < todayKST;
+  return kstDateStr(event.schedule) < todayKST;
 };
 
 function useSlugCheck(currentOwnerUid, role) {
