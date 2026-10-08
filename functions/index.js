@@ -1,5 +1,8 @@
 require("dotenv").config();
-const admin = require("firebase-admin");
+const { initializeApp } = require("firebase-admin/app");
+const { getAuth } = require("firebase-admin/auth");
+const { getDatabase } = require("firebase-admin/database");
+const { getStorage } = require("firebase-admin/storage");
 const nodemailer = require("nodemailer");
 
 const { onRequest, onCall } = require("firebase-functions/v2/https");
@@ -7,7 +10,7 @@ const { onValueCreated } = require("firebase-functions/v2/database");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const crypto = require("crypto");
 
-admin.initializeApp({
+initializeApp({
   databaseURL: "https://ankr-db-default-rtdb.asia-southeast1.firebasedatabase.app",
   storageBucket: "ankr-db.firebasestorage.app",
 });
@@ -183,7 +186,7 @@ exports.onEditRequestCreated = onValueCreated(
       let original = request._snap ?? null;
       if (!original) {
         const evtPath = `data_v3/${request.eventYear}/${request.eventId}`;
-        const originalSnap = await admin.database().ref(evtPath).once("value");
+        const originalSnap = await getDatabase().ref(evtPath).once("value");
         original = originalSnap.val();
       }
 
@@ -278,7 +281,7 @@ exports.weeklyBackup = onSchedule(
     region: "asia-southeast1",
   },
   async () => {
-    const snapshot = await admin.database().ref("data_v3").get();
+    const snapshot = await getDatabase().ref("data_v3").get();
     const json = JSON.stringify(snapshot.val(), null, 2);
 
     // 서울 시간 기준 파일명 생성
@@ -295,7 +298,7 @@ exports.weeklyBackup = onSchedule(
     ].join("");
     const fileName = `backups/data_v3_${timestamp}.json`;
 
-    await admin.storage().bucket().file(fileName).save(json, {
+    await getStorage().bucket().file(fileName).save(json, {
       contentType: "application/json",
     });
 
@@ -331,8 +334,9 @@ const verifyToken = async (req, res, allowedRoles) => {
   }
   let decoded;
   try {
-    decoded = await admin.auth().verifyIdToken(idToken);
-  } catch {
+    decoded = await getAuth().verifyIdToken(idToken);
+  } catch (error) {
+    console.error("❌ verifyIdToken failed:", error);
     res.status(403).send("Forbidden: invalid token");
     return null;
   }
@@ -363,12 +367,12 @@ exports.setUserRole = onRequest(
       if (!role || typeof role !== "string") return res.status(400).send("Invalid role");
       if (role === "owner") return res.status(400).send("Cannot assign owner role");
 
-      const targetUser = await admin.auth().getUser(uid);
+      const targetUser = await getAuth().getUser(uid);
       if (targetUser.customClaims?.role === "owner") return res.status(403).send("Forbidden: cannot change owner's role");
 
-      await admin.auth().setCustomUserClaims(uid, { role });
+      await getAuth().setCustomUserClaims(uid, { role });
 
-      const db = admin.database();
+      const db = getDatabase();
       await db.ref("auditLogs").push({
         action: "setRole",
         targetUid: uid,
@@ -399,7 +403,7 @@ exports.listUsers = onRequest(
     if (!(await verifyAdminOrOwnerToken(req, res))) return;
 
     try {
-      const listResult = await admin.auth().listUsers(1000);
+      const listResult = await getAuth().listUsers(1000);
       const users = listResult.users.map((u) => ({
         uid: u.uid,
         email: u.email || "",
@@ -431,12 +435,12 @@ exports.setUserDisabled = onRequest(
       if (!uid || typeof uid !== "string") return res.status(400).send("Invalid uid");
       if (typeof disabled !== "boolean") return res.status(400).send("Invalid disabled");
 
-      const targetUser = await admin.auth().getUser(uid);
+      const targetUser = await getAuth().getUser(uid);
       if (targetUser.customClaims?.role === "owner") return res.status(403).send("Forbidden: cannot disable owner");
 
-      await admin.auth().updateUser(uid, { disabled });
+      await getAuth().updateUser(uid, { disabled });
 
-      const db = admin.database();
+      const db = getDatabase();
       if (disabled) {
         await db.ref(`suspensions/${uid}`).set({
           reason: reason || "",
@@ -485,9 +489,9 @@ exports.submitReport = onCall(
     if (!event_name || !schedule || !location || !genre || !event_url)
       throw new Error("missing-required-fields");
 
-    const db = admin.database();
+    const db = getDatabase();
     const uid = request.auth.uid;
-    const token = await admin.auth().getUser(uid);
+    const token = await getAuth().getUser(uid);
     const role = token.customClaims?.role;
 
     if (role !== "admin" && role !== "owner") {
@@ -518,9 +522,9 @@ exports.submitEditRequest = onCall(
     if (!eventId || !eventYear || !eventName || !reason || !formData)
       throw new Error("missing-required-fields");
 
-    const db = admin.database();
+    const db = getDatabase();
     const uid = request.auth.uid;
-    const token = await admin.auth().getUser(uid);
+    const token = await getAuth().getUser(uid);
     const role = token.customClaims?.role;
 
     if (role !== "admin" && role !== "owner") {
@@ -553,7 +557,7 @@ exports.recordView = onCall(
     if (!eventId || !/^row\d+$/.test(eventId)) throw new Error("Invalid eventId");
     if (!Number.isInteger(eventYear) || eventYear < 2020 || eventYear > 2100) throw new Error("Invalid eventYear");
 
-    const db = admin.database();
+    const db = getDatabase();
     const eventSnap = await db.ref(`data_v3/${eventYear}/${eventId}`).once("value");
     if (!eventSnap.exists()) return { counted: false };
 
@@ -601,20 +605,21 @@ exports.deleteSelf = onRequest(
 
     let decoded;
     try {
-      decoded = await admin.auth().verifyIdToken(idToken);
-    } catch {
+      decoded = await getAuth().verifyIdToken(idToken);
+    } catch (error) {
+      console.error("❌ verifyIdToken failed:", error);
       return res.status(403).send("Forbidden: invalid token");
     }
 
     const uid = decoded.uid;
     try {
-      await admin.auth().deleteUser(uid);
+      await getAuth().deleteUser(uid);
     } catch (error) {
       console.error("❌ Error deleting auth user in deleteSelf:", error);
       return res.status(500).send("Internal Server Error");
     }
 
-    const db = admin.database();
+    const db = getDatabase();
     try {
       await Promise.all([
         db.ref(`reportLimits/${uid}`).remove(),
@@ -662,10 +667,10 @@ exports.deleteUser = onRequest(
       const { uid } = req.body || {};
       if (!uid || typeof uid !== "string") return res.status(400).send("Invalid uid");
 
-      const targetUser = await admin.auth().getUser(uid);
+      const targetUser = await getAuth().getUser(uid);
       if (targetUser.customClaims?.role === "owner") return res.status(403).send("Forbidden: cannot delete owner");
 
-      const db = admin.database();
+      const db = getDatabase();
       await db.ref(`auditLogs`).push({
         action: "delete",
         targetUid: uid,
@@ -675,7 +680,7 @@ exports.deleteUser = onRequest(
         timestamp: new Date().toISOString(),
       });
 
-      await admin.auth().deleteUser(uid);
+      await getAuth().deleteUser(uid);
 
       await Promise.all([
         db.ref(`reportLimits/${uid}`).remove(),

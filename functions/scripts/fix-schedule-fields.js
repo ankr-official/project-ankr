@@ -10,13 +10,14 @@
 //   node functions/scripts/fix-schedule-fields.js --apply    (실제로 DB에 반영)
 const fs = require("fs");
 const path = require("path");
-const admin = require("firebase-admin");
+const { initializeApp, cert } = require("firebase-admin/app");
+const { getDatabase } = require("firebase-admin/database");
 const serviceAccount = require("../service-account-key.json");
 
 const APPLY = process.argv.includes("--apply");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+initializeApp({
+  credential: cert(serviceAccount),
   databaseURL: "https://ankr-db-default-rtdb.asia-southeast1.firebasedatabase.app",
 });
 
@@ -25,7 +26,7 @@ const kstDateStr = (d) => toKSTDate(d).toISOString().slice(0, 10);
 const isLiteralUtcMidnight = (s) => /T00:00:00\.000Z$/.test(String(s));
 
 async function main() {
-  const db = admin.database();
+  const db = getDatabase();
 
   const yearsSnap = await db.ref("data_v3/meta/years").get();
   const years = yearsSnap.exists() ? yearsSnap.val() : [];
