@@ -1,11 +1,12 @@
 // 읽기 전용 감사 스크립트: data_v3/{year}/{eventId}의 schedule 필드가
 // 리터럴 UTC 자정("...T00:00:00.000Z")이 아닌 레코드를 찾아 보고한다.
 // DB에는 아무것도 쓰지 않는다. 실행: node functions/scripts/audit-schedule-fields.js
-const admin = require("firebase-admin");
+const { initializeApp, cert } = require("firebase-admin/app");
+const { getDatabase } = require("firebase-admin/database");
 const serviceAccount = require("../service-account-key.json");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+initializeApp({
+  credential: cert(serviceAccount),
   databaseURL: "https://ankr-db-default-rtdb.asia-southeast1.firebasedatabase.app",
 });
 
@@ -14,7 +15,7 @@ const kstDateStr = (d) => toKSTDate(d).toISOString().slice(0, 10);
 const isLiteralUtcMidnight = (s) => /T00:00:00\.000Z$/.test(String(s));
 
 async function main() {
-  const db = admin.database();
+  const db = getDatabase();
 
   const yearsSnap = await db.ref("data_v3/meta/years").get();
   const years = yearsSnap.exists() ? yearsSnap.val() : [];
