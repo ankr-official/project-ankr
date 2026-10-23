@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <title>ANKR.KR</title>
+        <script>
+            // GitHub Pages BrowserRouter 라우팅 처리
+            // 404 페이지에 도달한 경우 경로를 sessionStorage에 저장 후 루트로 리다이렉트
+            sessionStorage.setItem("redirect", location.href);
+            location.replace("/");
+        </script>
+    </head>
+    <body></body>
+</html>
