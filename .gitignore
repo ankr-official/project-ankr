@@ -34,9 +34,3 @@ CLAUDE.md
 
 /functions/service-account-key.json
 /functions/backups/
-
-# Design Sync (converter scripts and build output — not committed)
-.ds-sync/
-ds-bundle/
-.design-sync/.cache/
-.design-sync/learnings/
