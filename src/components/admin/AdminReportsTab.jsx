@@ -47,7 +47,7 @@ export default function AdminReportsTab({ onApprove, onCountChange }) {
         .map((report) => (
           <div
             key={report.id}
-            className="rounded-2xl border border-gray-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm space-y-3"
+            className="rounded-2xl border border-gray-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-xs space-y-3"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">

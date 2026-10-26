@@ -197,7 +197,7 @@ export default function EventEditModal({
                             type="checkbox"
                             checked={imageLinkOnly}
                             onChange={e => setImageLinkOnly(e.target.checked)}
-                            className="w-3.5 h-3.5 rounded border-gray-300 dark:border-gray-600 text-sky-500 focus:ring-sky-500 dark:bg-gray-800"
+                            className="w-3.5 h-3.5 rounded-sm border-gray-300 dark:border-gray-600 text-sky-500 focus:ring-sky-500 dark:bg-gray-800"
                         />
                         이미지와 링크만 가져오기
                     </label>

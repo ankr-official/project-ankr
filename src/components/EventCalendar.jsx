@@ -301,7 +301,7 @@ const EventCalendar = ({
                 </h3>
                 <button
                   onClick={() => setShowDatePicker(false)}
-                  className="p-1 text-gray-600 dark:text-gray-400 transition-colors rounded active:text-gray-900 mouse:hover:text-gray-900 dark:active:text-white dark:mouse:hover:text-white active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800"
+                  className="p-1 text-gray-600 dark:text-gray-400 transition-colors rounded-sm active:text-gray-900 mouse:hover:text-gray-900 dark:active:text-white dark:mouse:hover:text-white active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800"
                 >
                   <svg
                     className="w-5 h-5"
@@ -441,10 +441,10 @@ const EventCalendar = ({
                 onClick={() => handleDateClick(day)}
                 className={`min-h-[80px] lg:min-h-[100px] p-0.5 lg:p-1 rounded cursor-pointer transition-colors ${
                   !isCurrentMonth
-                    ? "bg-gray-200 dark:bg-gray-700 bg-opacity-10 dark:bg-opacity-10"
+                    ? "bg-gray-200/10 dark:bg-gray-700/10"
                     : isPast
-                      ? "bg-gray-200 dark:bg-gray-700 bg-opacity-40 dark:bg-opacity-40"
-                      : "bg-gray-300/50 dark:bg-gray-700 bg-opacity-80 dark:bg-opacity-80"
+                      ? "bg-gray-200/40 dark:bg-gray-700/40"
+                      : "bg-gray-300/50 dark:bg-gray-700/80"
                 } ${kstDateStr(day) === todayKST ? "ring-2 ring-indigo-500 dark:ring-indigo-500" : ""} ${
                   selectedDate && isSameDay(day, selectedDate)
                     ? "ring-2 ring-indigo-400 dark:ring-indigo-300"
@@ -489,7 +489,7 @@ const EventCalendar = ({
                     return (
                       <div
                         key={event.id}
-                        className={`p-0.5 pt-1 lg:p-1 text-[10px] lg:text-xs truncate rounded ${genreColor} transition-colors`}
+                        className={`p-0.5 pt-1 lg:p-1 text-[10px] lg:text-xs truncate rounded-sm ${genreColor} transition-colors`}
                       >
                         <div className="font-medium truncate">
                           {event.event_name}
@@ -517,7 +517,7 @@ const EventCalendar = ({
                   event={event}
                   onEventSelect={onEventSelect}
                   showDate={false}
-                  className="p-4 transition-colors bg-gray-300/50 dark:bg-gray-700 rounded-lg shadow cursor-pointer mouse:hover:bg-gray-300 dark:mouse:hover:bg-gray-600 active:bg-indigo-200 dark:active:bg-indigo-900"
+                  className="p-4 transition-colors bg-gray-300/50 dark:bg-gray-700 rounded-lg shadow-sm cursor-pointer mouse:hover:bg-gray-300 dark:mouse:hover:bg-gray-600 active:bg-indigo-200 dark:active:bg-indigo-900"
                 />
               ))}
               {getEventsForDay(selectedDate).length === 0 && (

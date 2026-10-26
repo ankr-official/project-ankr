@@ -37,7 +37,7 @@ export default function UserMenuDropdown({
   };
 
   return (
-    <div className="absolute right-0 top-full mt-2 z-50 w-44 rounded bg-white dark:bg-gray-900 border border-gray-200/70 dark:border-gray-800 shadow-xl overflow-hidden">
+    <div className="absolute right-0 top-full mt-2 z-50 w-44 rounded-sm bg-white dark:bg-gray-900 border border-gray-200/70 dark:border-gray-800 shadow-xl overflow-hidden">
       {(role === "admin" || role === "owner") && (
         <button
           onClick={handleAdmin}

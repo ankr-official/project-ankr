@@ -9,7 +9,7 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="inline-flex items-center gap-2 rounded-full px-3 py-2 bg-transparent active:bg-black/5 mouse:hover:bg-black/5 dark:active:bg-white/5 dark:mouse:hover:bg-white/5 transition-colors focus:outline-none"
+      className="inline-flex items-center gap-2 rounded-full px-3 py-2 bg-transparent active:bg-black/5 mouse:hover:bg-black/5 dark:active:bg-white/5 dark:mouse:hover:bg-white/5 transition-colors focus:outline-hidden"
       aria-label="Toggle theme"
       title={isDark ? "라이트 모드로 전환" : "다크 모드로 전환"}
       type="button"
@@ -24,7 +24,7 @@ const ThemeToggle = () => {
         }`}
       >
         <span
-          className={`inline-flex h-4 w-4 lg:h-6 lg:w-6 rounded-full bg-white shadow-sm transform transition-transform duration-200 ease-out ${
+          className={`inline-flex h-4 w-4 lg:h-6 lg:w-6 rounded-full bg-white shadow-xs transform transition-transform duration-200 ease-out ${
             isDark ? "translate-x-4 lg:translate-x-5" : "translate-x-1"
           }`}
         />

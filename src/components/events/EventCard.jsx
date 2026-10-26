@@ -23,7 +23,7 @@ export const EventCard = ({
   onEventSelect,
   showDate = true,
   showHeart = true,
-  className = "p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow cursor-pointer active:bg-indigo-200 dark:active:bg-indigo-900 transition-colors",
+  className = "p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm cursor-pointer active:bg-indigo-200 dark:active:bg-indigo-900 transition-colors",
 }) => {
   return (
     <div
@@ -36,7 +36,7 @@ export const EventCard = ({
           <ImageWithSkeleton
             src={event.img_url.replace(/(name=)[^&]*/, "$1small")}
             alt={event.event_name}
-            wrapperClassName="flex-shrink-0 w-24 h-32 rounded-lg"
+            wrapperClassName="shrink-0 w-24 h-32 rounded-lg"
             imgClassName="object-cover w-full h-full"
           />
         ) : (
@@ -44,7 +44,7 @@ export const EventCard = ({
             src="./dummy.svg"
             alt="Dummy"
             loading="lazy"
-            className="object-cover flex-shrink-0 w-24 h-32 rounded-lg"
+            className="object-cover shrink-0 w-24 h-32 rounded-lg"
           />
         )}
         <div className="flex-1 min-w-0 text-left pr-8">

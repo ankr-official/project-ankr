@@ -195,11 +195,11 @@ export default function ActivityGuest() {
         <h1 className="text-xl font-bold text-gray-900 dark:text-white flex-1 text-center">
           {displayName}님의 활동
         </h1>
-        <div className="w-9 h-9 flex-shrink-0" />
+        <div className="w-9 h-9 shrink-0" />
       </div>
 
       {/* 프로필 카드 */}
-      <div className="mb-6 p-4 rounded-xl bg-white dark:bg-gray-800/60 shadow-sm">
+      <div className="mb-6 p-4 rounded-xl bg-white dark:bg-gray-800/60 shadow-xs">
         <div className="flex items-center gap-3 text-left">
           <div className="min-w-0">
             <p className="text-lg font-bold text-gray-900 dark:text-white truncate">
@@ -247,7 +247,7 @@ export default function ActivityGuest() {
                             event={event}
                             onEventSelect={() => navigate(`/event/${event.id}`)}
                             showHeart={false}
-                            className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow transition-colors cursor-pointer active:bg-indigo-100 dark:active:bg-indigo-900/40"
+                            className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm transition-colors cursor-pointer active:bg-indigo-100 dark:active:bg-indigo-900/40"
                           />
                         ))}
                     </div>
@@ -267,7 +267,7 @@ export default function ActivityGuest() {
                             event={event}
                             onEventSelect={() => navigate(`/event/${event.id}`)}
                             showHeart={false}
-                            className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow transition-colors cursor-pointer active:bg-indigo-100 dark:active:bg-indigo-900/40"
+                            className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm transition-colors cursor-pointer active:bg-indigo-100 dark:active:bg-indigo-900/40"
                           />
                         ))}
                     </div>

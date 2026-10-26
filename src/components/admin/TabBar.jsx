@@ -7,7 +7,7 @@ export default function TabBar({ tabs, active, onChange }) {
           onClick={() => onChange(t.key)}
           className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
             active === t.key
-              ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+              ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-xs"
               : "text-gray-600 dark:text-gray-400 active:text-gray-800 mouse:hover:text-gray-800 dark:active:text-gray-200 dark:mouse:hover:text-gray-200"
           }`}
         >

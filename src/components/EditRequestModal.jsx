@@ -264,7 +264,7 @@ export default function EditRequestModal({
             type="checkbox"
             checked={deleteRequest}
             onChange={(e) => setDeleteRequest(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-red-500 accent-red-500 cursor-pointer shrink-0"
+            className="mt-0.5 w-4 h-4 rounded-sm border-gray-300 dark:border-gray-600 text-red-500 accent-red-500 cursor-pointer shrink-0"
           />
           <div className="text-left">
             <span className="text-sm font-medium text-red-600 dark:text-red-200">

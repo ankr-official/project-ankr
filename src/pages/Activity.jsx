@@ -662,9 +662,9 @@ export default function Activity() {
 
       {/* 프로필 카드 / 활동 주소 설정 */}
       {!hasSlug ? (
-        <div className="mb-6 p-4 rounded-xl bg-white dark:bg-gray-800/60 shadow-sm">
+        <div className="mb-6 p-4 rounded-xl bg-white dark:bg-gray-800/60 shadow-xs">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
               <AtSymbolIcon className="w-4 h-4" />
             </div>
             <div className="text-left">
@@ -677,7 +677,7 @@ export default function Activity() {
             </div>
           </div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm text-gray-500 dark:text-gray-400 flex-shrink-0 whitespace-nowrap">
+            <span className="text-sm text-gray-500 dark:text-gray-400 shrink-0 whitespace-nowrap">
               ankr.kr/@
             </span>
             <input
@@ -688,12 +688,12 @@ export default function Activity() {
               }}
               maxLength={20}
               placeholder="my-activity"
-              className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-sm border border-gray-200 dark:border-gray-700 focus:outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
+              className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-sm border border-gray-200 dark:border-gray-700 focus:outline-hidden focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
             />
             <button
               onClick={handleClaim}
               disabled={claimSlug.status !== "available" || claiming}
-              className="flex-shrink-0 px-3 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white active:bg-indigo-700 mouse:hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="shrink-0 px-3 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white active:bg-indigo-700 mouse:hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               {claiming ? "…" : "설정"}
             </button>
@@ -706,7 +706,7 @@ export default function Activity() {
           })()}
         </div>
       ) : (
-        <div className="mb-6 p-4 rounded-xl bg-white dark:bg-gray-800/60 shadow-sm">
+        <div className="mb-6 p-4 rounded-xl bg-white dark:bg-gray-800/60 shadow-xs">
           <div className="flex items-center gap-3">
             <div className="flex-1 min-w-0">
               {editingNickname ? (
@@ -720,7 +720,7 @@ export default function Activity() {
                       if (e.key === "Escape") setEditingNickname(false);
                     }}
                     maxLength={20}
-                    className="flex-1 min-w-0 text-lg font-bold text-gray-900 dark:text-white bg-transparent border-b-2 border-indigo-400 focus:outline-none"
+                    className="flex-1 min-w-0 text-lg font-bold text-gray-900 dark:text-white bg-transparent border-b-2 border-indigo-400 focus:outline-hidden"
                     placeholder="닉네임 입력 (최대 20자)"
                   />
                   <button
@@ -747,7 +747,7 @@ export default function Activity() {
                       setNicknameInput(profile?.nickname || "");
                       setEditingNickname(true);
                     }}
-                    className="p-1 rounded flex-shrink-0 text-gray-400 active:text-gray-600 mouse:hover:text-gray-600 dark:active:text-gray-200 dark:mouse:hover:text-gray-200 transition-colors"
+                    className="p-1 rounded-sm shrink-0 text-gray-400 active:text-gray-600 mouse:hover:text-gray-600 dark:active:text-gray-200 dark:mouse:hover:text-gray-200 transition-colors"
                   >
                     <PencilIcon className="w-3.5 h-3.5" />
                   </button>
@@ -759,7 +759,7 @@ export default function Activity() {
                   {editingSlug ? (
                     <>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0 whitespace-nowrap">
+                        <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0 whitespace-nowrap">
                           ankr.kr/@
                         </span>
                         <input
@@ -774,7 +774,7 @@ export default function Activity() {
                             }
                           }}
                           maxLength={20}
-                          className="w-28 text-xs text-gray-700 dark:text-gray-300 bg-transparent border-b border-indigo-400 focus:outline-none"
+                          className="w-28 text-xs text-gray-700 dark:text-gray-300 bg-transparent border-b border-indigo-400 focus:outline-hidden"
                         />
                         <button
                           onClick={saveSlugEdit}
@@ -820,7 +820,7 @@ export default function Activity() {
                           editSlug.reset(profile?.activitySlug || "");
                           setEditingSlug(true);
                         }}
-                        className="p-0.5 rounded flex-shrink-0 text-gray-300 dark:text-gray-600 active:text-gray-500 mouse:hover:text-gray-500 dark:active:text-gray-400 dark:mouse:hover:text-gray-400 transition-colors"
+                        className="p-0.5 rounded-sm shrink-0 text-gray-300 dark:text-gray-600 active:text-gray-500 mouse:hover:text-gray-500 dark:active:text-gray-400 dark:mouse:hover:text-gray-400 transition-colors"
                       >
                         <PencilIcon className="w-3 h-3" />
                       </button>
@@ -834,7 +834,7 @@ export default function Activity() {
             {profile && !editingNickname && !editingSlug && (
               <button
                 onClick={toggleHistoryPublic}
-                className="inline-flex items-center gap-2 rounded-full px-2 py-1.5 flex-shrink-0 active:bg-gray-100 mouse:hover:bg-gray-100 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800 transition-colors focus:outline-none"
+                className="inline-flex items-center gap-2 rounded-full px-2 py-1.5 shrink-0 active:bg-gray-100 mouse:hover:bg-gray-100 dark:active:bg-gray-800 dark:mouse:hover:bg-gray-800 transition-colors focus:outline-hidden"
               >
                 {profile.historyPublic ? (
                   <GlobeAltIcon className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
@@ -849,7 +849,7 @@ export default function Activity() {
                   }`}
                 >
                   <span
-                    className={`inline-flex h-3.5 w-3.5 rounded-full bg-white shadow-sm transform transition-transform duration-200 ease-out ${
+                    className={`inline-flex h-3.5 w-3.5 rounded-full bg-white shadow-xs transform transition-transform duration-200 ease-out ${
                       profile.historyPublic
                         ? "translate-x-4"
                         : "translate-x-0.5"
@@ -885,7 +885,7 @@ export default function Activity() {
                 onClick={() => setActiveTab(key)}
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm rounded-none font-medium border-b-2 -mb-px transition-colors duration-200 ${
                   activeTab === key
-                    ? "text-indigo-600 dark:text-indigo-400 border-b-indigo-600 dark:border-b-indigo-400 focus:outline-none"
+                    ? "text-indigo-600 dark:text-indigo-400 border-b-indigo-600 dark:border-b-indigo-400 focus:outline-hidden"
                     : "text-gray-500 dark:text-gray-400 border-transparent active:text-gray-700 mouse:hover:text-gray-700 dark:active:text-gray-300 dark:mouse:hover:text-gray-300"
                 }`}
               >
@@ -922,13 +922,13 @@ export default function Activity() {
 
       {/* 다녀온 탭: 연도/분기 필터 */}
       {activeTab === "attended" && availableYears.length > 0 && (
-        <div className="flex flex-col gap-2 mb-2 p-3 rounded-lg bg-gray-300/50 dark:bg-gray-900 shadow-sm">
-          <div className="flex items-center gap-1.5 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+        <div className="flex flex-col gap-2 mb-2 p-3 rounded-lg bg-gray-300/50 dark:bg-gray-900 shadow-xs">
+          <div className="flex items-center gap-1.5 overflow-x-auto [&::-webkit-scrollbar]:hidden scrollbar-none">
             {availableYears.map((year) => (
               <button
                 key={year}
                 onClick={() => handleYearChange(year)}
-                className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   effectiveYear === year
                     ? "bg-indigo-600 text-white"
                     : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700"
@@ -946,7 +946,7 @@ export default function Activity() {
                   key={key}
                   onClick={() => !disabled && setSelectedQuarter(key)}
                   disabled={disabled}
-                  className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     disabled
                       ? "bg-gray-100 dark:bg-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed"
                       : selectedQuarter === key

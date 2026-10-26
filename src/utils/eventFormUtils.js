@@ -4,7 +4,7 @@ import { toKSTDate } from "./dateUtils";
 export const GENRES = Object.keys(GENRE_COLORS).filter(g => g !== "default");
 
 export const inputClass =
-    "w-full px-3 py-2 rounded-lg text-sm bg-white dark:bg-gray-800 border border-gray-300/70 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors appearance-none";
+    "w-full px-3 py-2 rounded-lg text-sm bg-white dark:bg-gray-800 border border-gray-300/70 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors appearance-none";
 
 export const isoToTime = iso => {
     if (!iso) return "";

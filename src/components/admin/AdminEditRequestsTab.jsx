@@ -84,7 +84,7 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
         .map((request) => (
           <div
             key={request.id}
-            className={`rounded-2xl border bg-white dark:bg-gray-900 p-4 shadow-sm space-y-3 ${
+            className={`rounded-2xl border bg-white dark:bg-gray-900 p-4 shadow-xs space-y-3 ${
               request.deleteRequest
                 ? "border-red-200/70 dark:border-red-800/40"
                 : "border-amber-200/70 dark:border-amber-800/40"
@@ -177,7 +177,7 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
                                 {from.map((g) => (
                                   <span
                                     key={g}
-                                    className={`inline-block px-1.5 py-0.5 rounded text-xs ${GENRE_COLORS[g] || GENRE_COLORS.default}`}
+                                    className={`inline-block px-1.5 py-0.5 rounded-sm text-xs ${GENRE_COLORS[g] || GENRE_COLORS.default}`}
                                   >
                                     {g}
                                   </span>
@@ -188,7 +188,7 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
                                 {to.map((g) => (
                                   <span
                                     key={g}
-                                    className={`inline-block px-1.5 py-0.5 rounded text-xs ${GENRE_COLORS[g] || GENRE_COLORS.default}`}
+                                    className={`inline-block px-1.5 py-0.5 rounded-sm text-xs ${GENRE_COLORS[g] || GENRE_COLORS.default}`}
                                   >
                                     {g}
                                   </span>

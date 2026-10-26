@@ -259,7 +259,7 @@ export default function Admin() {
             onClick={() => setSection("events")}
             className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               section === "events"
-                ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+                ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-xs"
                 : "text-gray-600 dark:text-gray-400 active:text-gray-800 mouse:hover:text-gray-800 dark:active:text-gray-200 dark:mouse:hover:text-gray-200"
             }`}
           >
@@ -282,7 +282,7 @@ export default function Admin() {
             onClick={() => setSection("users")}
             className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               section === "users"
-                ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+                ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-xs"
                 : "text-gray-600 dark:text-gray-400 active:text-gray-800 mouse:hover:text-gray-800 dark:active:text-gray-200 dark:mouse:hover:text-gray-200"
             }`}
           >
@@ -333,7 +333,7 @@ export default function Admin() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="이벤트명, 장소, 장르 검색..."
-                  className="w-full h-full pl-9 pr-9 rounded-xl bg-white dark:bg-gray-800 border border-gray-300/70 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors"
+                  className="w-full h-full pl-9 pr-9 rounded-xl bg-white dark:bg-gray-800 border border-gray-300/70 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors"
                 />
                 {search && (
                   <button
@@ -359,7 +359,7 @@ export default function Admin() {
 
               <button
                 onClick={() => setEditingEvent({})}
-                className="shrink-0 h-10 inline-flex items-center gap-1.5 px-3 sm:px-4 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-medium transition-colors shadow-sm"
+                className="shrink-0 h-10 inline-flex items-center gap-1.5 px-3 sm:px-4 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-medium transition-colors shadow-xs"
               >
                 <svg
                   className="w-4 h-4 shrink-0"

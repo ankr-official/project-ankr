@@ -29,7 +29,7 @@ export function LocationField({
           type="checkbox"
           checked={locationTbd}
           onChange={(e) => onTbdChange(e.target.checked)}
-          className="w-3.5 h-3.5 rounded accent-indigo-600"
+          className="w-3.5 h-3.5 rounded-sm accent-indigo-600"
         />
         <span className="text-xs text-gray-500 dark:text-gray-400">
           장소 미정

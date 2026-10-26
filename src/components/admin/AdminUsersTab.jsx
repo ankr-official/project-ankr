@@ -316,7 +316,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
       <TabBar tabs={userTabs} active={tab} onChange={setTab} />
 
       {/* ── Desktop Table (lg+) ── */}
-      <div className="hidden lg:block rounded-2xl border border-gray-200/70 dark:border-gray-900/50 overflow-hidden bg-white dark:bg-gray-800 shadow-sm">
+      <div className="hidden lg:block rounded-2xl border border-gray-200/70 dark:border-gray-900/50 overflow-hidden bg-white dark:bg-gray-800 shadow-xs">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200/70 dark:border-gray-800 bg-gray-50/80 dark:bg-gray-900">
@@ -534,7 +534,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
           return (
             <div
               key={user.uid}
-              className="rounded-2xl border border-gray-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 space-y-3 shadow-sm"
+              className="rounded-2xl border border-gray-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 space-y-3 shadow-xs"
             >
               <div className="flex items-start justify-center gap-3">
                 <div className="min-w-0 flex-1">
@@ -654,10 +654,10 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
 
       {/* ── 차단 사유 확인 모달 ── */}
       {reasonModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
           <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/70 dark:border-gray-800 shadow-2xl p-6 space-y-4">
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center">
+              <div className="shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center">
                 <svg
                   className="w-5 h-5 text-amber-600 dark:text-amber-400"
                   fill="none"
@@ -708,10 +708,10 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
 
       {/* ── 차단 사유 입력 모달 ── */}
       {suspendTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
           <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/70 dark:border-gray-800 shadow-2xl p-6 space-y-5">
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center">
+              <div className="shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center">
                 <svg
                   className="w-5 h-5 text-amber-600 dark:text-amber-400"
                   fill="none"
@@ -746,7 +746,7 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
                 onChange={(e) => setSuspendReason(e.target.value)}
                 placeholder="차단 사유를 입력하세요 (선택)"
                 rows={3}
-                className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 px-3 py-2 resize-none focus:outline-hidden focus:ring-2 focus:ring-amber-500/40"
               />
             </div>
             <div className="flex gap-2">
@@ -776,10 +776,10 @@ export default function AdminUsersTab({ currentUid, currentRole }) {
 
       {/* ── 삭제 확인 모달 ── */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
           <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/70 dark:border-gray-800 shadow-2xl p-6 space-y-5">
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-950/50 flex items-center justify-center">
+              <div className="shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-950/50 flex items-center justify-center">
                 <svg
                   className="w-5 h-5 text-red-600 dark:text-red-400"
                   fill="none"

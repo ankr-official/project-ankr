@@ -40,7 +40,7 @@ export default function AdminEventsTab({
   return (
     <>
       {/* ── Desktop Table (lg+) ── */}
-      <div className="hidden lg:block rounded-2xl border border-gray-200/70 dark:border-gray-900/50 overflow-hidden bg-white dark:bg-gray-800 shadow-sm">
+      <div className="hidden lg:block rounded-2xl border border-gray-200/70 dark:border-gray-900/50 overflow-hidden bg-white dark:bg-gray-800 shadow-xs">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200/70 dark:border-gray-800 bg-gray-50/80 dark:bg-gray-900">
@@ -93,7 +93,7 @@ export default function AdminEventsTab({
                       .map((g) => (
                         <span
                           key={g}
-                          className={`inline-block px-1.5 py-0.5 rounded text-xs ${GENRE_COLORS[g] || GENRE_COLORS.default}`}
+                          className={`inline-block px-1.5 py-0.5 rounded-sm text-xs ${GENRE_COLORS[g] || GENRE_COLORS.default}`}
                         >
                           {g}
                         </span>
@@ -109,7 +109,7 @@ export default function AdminEventsTab({
                   <div className="flex justify-center">
                     <button
                       onClick={(e) => onToggleConfirm(event, e)}
-                      className={`relative w-10 h-5 rounded-full transition-colors duration-200 focus:outline-none ${
+                      className={`relative w-10 h-5 rounded-full transition-colors duration-200 focus:outline-hidden ${
                         event.confirm ? "bg-indigo-600" : "bg-gray-300 dark:bg-gray-600"
                       }`}
                       title={event.confirm ? "표출 중 (클릭하여 미표출)" : "미표출 (클릭하여 표출)"}
@@ -172,7 +172,7 @@ export default function AdminEventsTab({
           <div
             key={event.id}
             onClick={() => onEdit(event)}
-            className="rounded-2xl border border-gray-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 space-y-3 shadow-sm cursor-pointer active:bg-gray-50 dark:active:bg-gray-800/60 transition-colors"
+            className="rounded-2xl border border-gray-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 space-y-3 shadow-xs cursor-pointer active:bg-gray-50 dark:active:bg-gray-800/60 transition-colors"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">

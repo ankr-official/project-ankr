@@ -141,8 +141,8 @@ export default function PrivacyPolicy() {
             <li>
               <span className="font-medium">Google Analytics 자동 수집:</span>{" "}
               서비스는 이용 현황 파악을 위해 Google Analytics를 사용합니다.
-              Google Analytics는 쿠키(<code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">_ga</code>,{" "}
-              <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">_gid</code> 등)를 통해
+              Google Analytics는 쿠키(<code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded-sm">_ga</code>,{" "}
+              <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded-sm">_gid</code> 등)를 통해
               방문 페이지, 체류 시간, 유입 경로, 브라우저·기기 정보를 자동으로
               수집합니다. IP 주소는 수집 시 익명화 처리되며, 광고 타겟팅 및
               Google Signals에는 사용되지 않습니다.
