@@ -100,7 +100,7 @@ export default function SettingsModal({ onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs"
       onClick={onClose}
     >
       <div
@@ -140,7 +140,7 @@ export default function SettingsModal({ onClose }) {
                   )}
                 </p>
               </div>
-              <div className="relative flex-shrink-0 ml-4 group">
+              <div className="relative shrink-0 ml-4 group">
                 <button
                   onClick={() => setConfirm(confirm === "nickname" ? null : "nickname")}
                   disabled={!nickname}
@@ -188,7 +188,7 @@ export default function SettingsModal({ onClose }) {
                   주소·공개 설정이 삭제됩니다. 행사 기록은 유지됩니다.
                 </p>
               </div>
-              <div className="relative flex-shrink-0 ml-4 group">
+              <div className="relative shrink-0 ml-4 group">
                 <button
                   onClick={() =>
                     setConfirm(confirm === "activity" ? null : "activity")
@@ -240,7 +240,7 @@ export default function SettingsModal({ onClose }) {
                   관심 행사 및 다녀온 행사 기록이 모두 삭제됩니다.
                 </p>
               </div>
-              <div className="relative flex-shrink-0 ml-4 group">
+              <div className="relative shrink-0 ml-4 group">
                 <button
                   onClick={() => setConfirm(confirm === "likes" ? null : "likes")}
                   disabled={!hasLikes}
@@ -301,7 +301,7 @@ export default function SettingsModal({ onClose }) {
                 onClick={() =>
                   setConfirm(confirm === "withdraw" ? null : "withdraw")
                 }
-                className="flex-shrink-0 ml-4 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 rounded-lg active:bg-red-50 mouse:hover:bg-red-50 dark:active:bg-red-900/20 dark:mouse:hover:bg-red-900/20 transition-colors"
+                className="shrink-0 ml-4 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 rounded-lg active:bg-red-50 mouse:hover:bg-red-50 dark:active:bg-red-900/20 dark:mouse:hover:bg-red-900/20 transition-colors"
               >
                 탈퇴
               </button>

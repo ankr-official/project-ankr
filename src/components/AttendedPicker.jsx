@@ -94,7 +94,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-xs"
       onClick={onClose}
     >
       <div
@@ -124,7 +124,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [
               onChange={(e) => setKeyword(e.target.value)}
               placeholder="행사명, 장소 검색..."
               autoFocus
-              className="w-full pl-9 pr-4 py-2 text-sm bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+              className="w-full pl-9 pr-4 py-2 text-sm bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:outline-hidden focus:ring-2 focus:ring-indigo-500 transition-colors"
             />
           </div>
         </div>
@@ -133,7 +133,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [
         {!isSearching && (
           <div className="px-4 pt-3 pb-2 space-y-2 border-b border-gray-100 dark:border-gray-800">
             {/* Year */}
-            <div className="flex gap-1.5 overflow-x-auto pb-0.5 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+            <div className="flex gap-1.5 overflow-x-auto pb-0.5 [&::-webkit-scrollbar]:hidden scrollbar-none">
               {knownYears.map((year) => (
                 <button
                   key={year}
@@ -142,7 +142,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [
                     setSelectedQuarter("all");
                     if (!loadedYears.has(year)) onYearLoad?.(year);
                   }}
-                  className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     selectedYear === year
                       ? "bg-indigo-600 text-white"
                       : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700"
@@ -161,7 +161,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [
                     key={key}
                     onClick={() => !disabled && setSelectedQuarter(key)}
                     disabled={disabled}
-                    className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                       disabled
                         ? "bg-gray-100 dark:bg-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed"
                         : selectedQuarter === key
@@ -195,14 +195,14 @@ export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [
                   <ImageWithSkeleton
                     src={event.img_url.replace(/(name=)[^&]*/, "$1small")}
                     alt={event.event_name}
-                    wrapperClassName="w-10 h-10 rounded-full flex-shrink-0"
+                    wrapperClassName="w-10 h-10 rounded-full shrink-0"
                     imgClassName="object-cover w-full h-full"
                   />
                 ) : (
                   <img
                     src="./dummy.svg"
                     alt={event.event_name}
-                    className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                    className="w-10 h-10 rounded-full object-cover shrink-0"
                   />
                 )}
                 <div className="flex-1 min-w-0">
@@ -215,7 +215,7 @@ export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [
                   <GenreTag genre={event.genre} />
                 </div>
                 <div
-                  className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
+                  className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
                     isAttended
                       ? "bg-indigo-600"
                       : "border-2 border-gray-300 dark:border-gray-600"

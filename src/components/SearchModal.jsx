@@ -96,7 +96,7 @@ export const SearchModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-start overflow-hidden bg-black/50 backdrop-blur-sm lg:justify-center lg:pt-16">
+    <div className="fixed inset-0 z-50 flex items-start justify-start overflow-hidden bg-black/50 backdrop-blur-xs lg:justify-center lg:pt-16">
       <div
         ref={modalRef}
         className="w-full lg:max-w-3xl h-full lg:h-auto lg:max-h-[85vh] bg-gray-100 dark:bg-gray-800 lg:rounded-lg shadow-xl lg:mx-4 lg:mt-16 flex flex-col transition-colors"
@@ -110,7 +110,7 @@ export const SearchModal = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="이벤트명, 장소, 장르로 검색..."
-                className="w-full px-4 py-2.5 pl-10 pr-10 text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 lg:rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base transition-colors"
+                className="w-full px-4 py-2.5 pl-10 pr-10 text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 lg:rounded-lg focus:outline-hidden focus:ring-2 focus:ring-indigo-500 text-base transition-colors"
                 enterKeyHint="search"
               />
               <svg
@@ -180,7 +180,7 @@ export const SearchModal = ({
                     onEventSelect(event);
                     onClose();
                   }}
-                  className="p-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow cursor-pointer active:bg-indigo-200 dark:active:bg-indigo-900 transition-colors"
+                  className="p-4 bg-gray-200 dark:bg-gray-700 rounded-lg shadow-sm cursor-pointer active:bg-indigo-200 dark:active:bg-indigo-900 transition-colors"
                 />
               ))
             ) : searchQuery ? (

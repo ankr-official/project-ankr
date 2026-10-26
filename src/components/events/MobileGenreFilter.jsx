@@ -2,7 +2,7 @@ import { GENRE_COLORS } from "../../constants";
 
 export const MobileGenreFilter = ({ selectedGenres, onGenreChange }) => {
   return (
-    <div className="sticky top-0 z-10 p-2 bg-gray-300 dark:bg-gray-900 bg-opacity-50 rounded-lg shadow-md backdrop-blur-sm">
+    <div className="sticky top-0 z-10 p-2 bg-gray-300/50 dark:bg-gray-900/50 rounded-lg shadow-md backdrop-blur-xs">
       <div className="flex flex-wrap gap-2">
         {[
           "all",

@@ -32,7 +32,7 @@ export const ActionButtons = ({ onSearchOpen, isLoggedIn, onReportClick }) => {
         <div className="relative w-full md:w-fit" ref={loginRef}>
           <button
             onClick={handleReportClick}
-            className="px-4 py-2 w-full text-white bg-indigo-600 rounded md:w-fit mouse:hover:text-indigo-900 active:bg-white active:text-indigo-900 mouse:hover:bg-white"
+            className="px-4 py-2 w-full text-white bg-indigo-600 rounded-sm md:w-fit mouse:hover:text-indigo-900 active:bg-white active:text-indigo-900 mouse:hover:bg-white"
           >
             행사 제보하기
           </button>

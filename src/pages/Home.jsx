@@ -123,7 +123,7 @@ function Home() {
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen">
-        <div className="container flex-grow px-2 py-6 mx-auto lg:px-4">
+        <div className="container grow px-2 py-6 mx-auto lg:px-4">
           <Header onSearchOpen={() => {}} />
           <div className="flex justify-center items-center h-64">
             <div className="w-12 h-12 rounded-full border-b-2 border-indigo-700 animate-spin"></div>
@@ -192,7 +192,7 @@ function Home() {
         />
       </Suspense>
 
-      <div className="container flex-grow px-2 py-6 mx-auto lg:px-4">
+      <div className="container grow px-2 py-6 mx-auto lg:px-4">
         {/* Header */}
         <Header onSearchOpen={() => setIsSearchOpen(true)} />
 
@@ -270,7 +270,7 @@ function Home() {
                     <button
                       onClick={() => addPastYear(nextPastYear)}
                       disabled={loadingYears.has(nextPastYear)}
-                      className="px-4 py-2 mt-4 w-full text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-900 rounded border border-gray-300 dark:border-gray-700 active:bg-gray-300 mouse:hover:bg-gray-300 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 disabled:opacity-50 transition-colors"
+                      className="px-4 py-2 mt-4 w-full text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-900 rounded-sm border border-gray-300 dark:border-gray-700 active:bg-gray-300 mouse:hover:bg-gray-300 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 disabled:opacity-50 transition-colors"
                     >
                       {loadingYears.has(nextPastYear)
                         ? `${nextPastYear}년 불러오는 중...`

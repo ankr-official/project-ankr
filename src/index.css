@@ -1,67 +1,89 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-:root {
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
+@custom-variant dark (&:where(.dark, .dark *));
 
-    color-scheme: light dark;
+/* 마우스/트랙패드 등 정밀 포인터 장치에서만 hover 적용 */
+@custom-variant mouse (@media (hover: hover) and (pointer: fine));
 
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+/* v3 기본값 유지: border 기본색 gray-200, placeholder 기본색 gray-400 */
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentcolor);
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: var(--color-gray-400);
+    }
 }
 
-/* Light mode styles */
-:root {
-    color: rgba(0, 0, 0, 0.87);
-    background-color: #f5f5f5;
-}
+/* 유틸리티 클래스가 항상 우선하도록 base 레이어에 둠 (레이어 밖 스타일은 유틸리티를 덮어씀) */
+@layer base {
+    :root {
+        font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+        line-height: 1.5;
+        font-weight: 400;
 
-/* Dark mode styles */
-:root.dark {
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
-}
+        color-scheme: light dark;
 
-a {
-    font-weight: 500;
-    color: #646cff;
-    text-decoration: inherit;
-}
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
 
-body {
-    margin: 0;
-    display: flex;
-    place-items: center;
-    min-width: 320px;
-    min-height: 100vh;
-}
+    /* Light mode styles */
+    :root {
+        color: rgba(0, 0, 0, 0.87);
+        background-color: #f5f5f5;
+    }
 
-body.modal-open {
-    overflow: hidden;
-    padding-right: var(--scrollbar-width);
-}
+    /* Dark mode styles */
+    :root.dark {
+        color: rgba(255, 255, 255, 0.87);
+        background-color: #242424;
+    }
 
-h1 {
-    font-size: 3.2em;
-    line-height: 1.1;
-}
+    a {
+        font-weight: 500;
+        color: #646cff;
+        text-decoration: inherit;
+    }
 
-button {
-    border-radius: 8px;
-    border: 1px solid transparent;
-    padding: 0.6em 1.2em;
-    font-size: 1em;
-    font-weight: 500;
-    font-family: inherit;
-    cursor: pointer;
-    transition: border-color 0.25s;
-}
-button:focus,
-button:focus-visible {
-    outline: 4px auto #646cff;
+    body {
+        margin: 0;
+        display: flex;
+        place-items: center;
+        min-width: 320px;
+        min-height: 100vh;
+    }
+
+    body.modal-open {
+        overflow: hidden;
+        padding-right: var(--scrollbar-width);
+    }
+
+    h1 {
+        font-size: 3.2em;
+        line-height: 1.1;
+    }
+
+    button {
+        border-radius: 8px;
+        border: 1px solid transparent;
+        padding: 0.6em 1.2em;
+        font-size: 1em;
+        font-weight: 500;
+        font-family: inherit;
+        cursor: pointer;
+        transition: border-color 0.25s;
+    }
+    button:focus,
+    button:focus-visible {
+        outline: 4px auto #646cff;
+    }
 }

@@ -74,7 +74,7 @@ export function YearEndReceiptView({
       <div
         ref={receiptRef}
         id="year-end-receipt-target"
-        className="min-w-[600px] max-w-[600px] bg-[radial-gradient(circle_at_top,_#f7f4e8_0,_#e5dcc7_50%,_#d2c6aa_100%)] text-black px-4 py-4 sm:px-6 sm:py-6 shadow-2xl border border-gray-400"
+        className="min-w-[600px] max-w-[600px] bg-[radial-gradient(circle_at_top,#f7f4e8_0,#e5dcc7_50%,#d2c6aa_100%)] text-black px-4 py-4 sm:px-6 sm:py-6 shadow-2xl border border-gray-400"
         style={{
           fontFamily:
             '"DM Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
@@ -102,7 +102,7 @@ export function YearEndReceiptView({
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="bg-transparent  text-[11px] px-1 pb-[1px] outline-none text-right"
+              className="bg-transparent  text-[11px] px-1 pb-px outline-hidden text-right"
               style={{
                 WebkitAppearance: "none",
                 appearance: "none",
@@ -137,7 +137,7 @@ export function YearEndReceiptView({
               value={userName}
               onChange={(e) => onUserNameChange?.(e.target.value)}
               placeholder="YOUR NAME"
-              className="bg-transparent border-b border-gray-500 text-[11px] px-1 pb-[1px] outline-none placeholder:text-gray-400"
+              className="bg-transparent border-b border-gray-500 text-[11px] px-1 pb-px outline-hidden placeholder:text-gray-400"
             />
           </div>
         </div>

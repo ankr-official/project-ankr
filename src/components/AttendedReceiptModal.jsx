@@ -90,7 +90,7 @@ export function AttendedReceiptModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm overflow-y-auto py-8 px-4"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-xs overflow-y-auto py-8 px-4"
       onClick={onClose}
     >
       <div className="w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
@@ -125,7 +125,7 @@ export function AttendedReceiptModal({
 
         <div className="relative">
           {isExporting && (
-            <div className="absolute inset-0 z-10 rounded bg-black/80 flex flex-col items-center justify-center gap-3">
+            <div className="absolute inset-0 z-10 rounded-sm bg-black/80 flex flex-col items-center justify-center gap-3">
               <div className="w-12 h-12 rounded-full border-b-2 border-indigo-700 animate-spin" />
               <span className="text-white text-sm">저장 중...</span>
             </div>

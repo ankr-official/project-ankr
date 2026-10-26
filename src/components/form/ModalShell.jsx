@@ -10,7 +10,7 @@ export function ModalShell({
     return (
         <div
             style={{ zIndex }}
-            className="fixed inset-0 flex items-start justify-center p-4 sm:p-6 sm:items-center bg-black/50 backdrop-blur-sm overflow-y-auto"
+            className="fixed inset-0 flex items-start justify-center p-4 sm:p-6 sm:items-center bg-black/50 backdrop-blur-xs overflow-y-auto"
             onClick={onClose}
         >
             <div

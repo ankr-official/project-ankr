@@ -15,7 +15,7 @@ export const EventTable = ({
   onGenreChange,
 }) => {
   return (
-    <div className={`relative rounded-lg shadow-none lg:shadow ${className}`}>
+    <div className={`relative rounded-lg shadow-none lg:shadow-sm ${className}`}>
       {/* Desktop Table View */}
       <div className="hidden overflow-x-auto w-full lg:block">
         <table className="min-w-full table-auto min-h-fit">
@@ -30,7 +30,7 @@ export const EventTable = ({
                 />
               </th>
               <th className="w-[20%]">장소</th>
-              <th className="hidden xl:table-cell w-20 min-w-[4rem] whitespace-nowrap">관심</th>
+              <th className="hidden xl:table-cell w-20 min-w-16 whitespace-nowrap">관심</th>
             </tr>
           </thead>
           <tbody className="bg-gray-100 dark:bg-gray-800 divide-y divide-gray-300 dark:divide-gray-700 transition-colors">

@@ -20,7 +20,7 @@ export const DesktopGenreFilter = ({ selectedGenres, onGenreChange }) => {
     <div className="relative h-full" ref={dropdownRef}>
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex gap-2 justify-start items-center px-2 py-1 text-sm text-black dark:text-white bg-gray-300 dark:bg-gray-800 rounded-lg border border-gray-700 dark:border-gray-700 active:bg-gray-400 mouse:hover:bg-gray-400 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="flex gap-2 justify-start items-center px-2 py-1 text-sm text-black dark:text-white bg-gray-300 dark:bg-gray-800 rounded-lg border border-gray-700 dark:border-gray-700 active:bg-gray-400 mouse:hover:bg-gray-400 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
       >
         <span>장르</span>
         <svg
@@ -50,13 +50,13 @@ export const DesktopGenreFilter = ({ selectedGenres, onGenreChange }) => {
             ].map((genre) => (
               <label
                 key={genre}
-                className="flex items-center px-2 py-1 text-sm text-black dark:text-white rounded cursor-pointer active:bg-gray-400 mouse:hover:bg-gray-400 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700"
+                className="flex items-center px-2 py-1 text-sm text-black dark:text-white rounded-sm cursor-pointer active:bg-gray-400 mouse:hover:bg-gray-400 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700"
               >
                 <input
                   type="checkbox"
                   checked={selectedGenres.includes(genre)}
                   onChange={() => onGenreChange(genre)}
-                  className="mr-2 text-indigo-600 dark:text-indigo-600 rounded border-gray-600 dark:border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-500"
+                  className="mr-2 text-indigo-600 dark:text-indigo-600 rounded-sm border-gray-600 dark:border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-500"
                 />
                 {genre === "all" ? "전체" : genre}
               </label>

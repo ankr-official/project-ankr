@@ -109,7 +109,7 @@ export default function ActivitySetupModal({ onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs"
       onClick={onClose}
     >
       <div
@@ -154,7 +154,7 @@ export default function ActivitySetupModal({ onClose }) {
               }}
               maxLength={16}
               placeholder="나를 부를 이름"
-              className={`w-full px-3 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-sm border focus:outline-none transition-colors ${
+              className={`w-full px-3 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-sm border focus:outline-hidden transition-colors ${
                 nicknameError
                   ? "border-red-400 dark:border-red-600 focus:border-red-400"
                   : "border-gray-200 dark:border-gray-700 focus:border-indigo-400 dark:focus:border-indigo-500"
@@ -176,7 +176,7 @@ export default function ActivitySetupModal({ onClose }) {
               </span>
             </label>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-400 dark:text-gray-500 flex-shrink-0 whitespace-nowrap">
+              <span className="text-sm text-gray-400 dark:text-gray-500 shrink-0 whitespace-nowrap">
                 ankr.kr/@
               </span>
               <input
@@ -188,7 +188,7 @@ export default function ActivitySetupModal({ onClose }) {
                 }}
                 maxLength={20}
                 placeholder="my-handle"
-                className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-sm border border-gray-200 dark:border-gray-700 focus:outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
+                className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-sm border border-gray-200 dark:border-gray-700 focus:outline-hidden focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
               />
             </div>
             {statusInfo ? (

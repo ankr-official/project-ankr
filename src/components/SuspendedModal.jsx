@@ -3,10 +3,10 @@ import { useScrollLock } from "../hooks/useScrollLock";
 export default function SuspendedModal({ reason, onClose }) {
   useScrollLock(true);
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
       <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/70 dark:border-gray-800 shadow-2xl p-6 space-y-4">
         <div className="flex items-center  gap-3">
-          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center">
+          <div className="shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center">
             <svg
               className="w-5 h-5 text-amber-600 dark:text-amber-400"
               fill="none"
@@ -21,7 +21,7 @@ export default function SuspendedModal({ reason, onClose }) {
               />
             </svg>
           </div>
-          <div className="pl-2 [&>*]:text-left [&>*]:w-full">
+          <div className="pl-2 *:text-left *:w-full">
             <h3 className="font-bold text-gray-900 dark:text-white">
               계정이 정지되었습니다
             </h3>
