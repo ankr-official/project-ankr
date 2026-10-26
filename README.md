@@ -9,8 +9,8 @@
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-deployed-brightgreen?logo=github)](https://ankr.kr)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Realtime%20DB-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
-[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Cloudflare](https://img.shields.io/badge/Cloudflare-R2%20%2B%20Worker-F38020?logo=cloudflare&logoColor=white)](https://www.cloudflare.com)
 
 </div>
@@ -43,7 +43,7 @@
 ## Tech Stack
 
 ```
-Frontend   React 19 + Vite 6 + TailwindCSS 3
+Frontend   React 19 + Vite 8 + TailwindCSS 4
 Database   Firebase Realtime Database (연도별 분할)
 Auth       Firebase Authentication (커스텀 클레임 기반 관리자 권한)
 Functions  Firebase Cloud Functions v2 (이메일 알림)
@@ -68,9 +68,12 @@ Hosting    GitHub Pages
 src/
 ├── components/
 │   ├── admin/          # 관리자 전용 컴포넌트
+│   ├── common/         # 장르 태그·하트 버튼 등 공용 요소
 │   ├── events/         # 이벤트 목록·카드·테이블 컴포넌트
 │   ├── form/           # 공용 폼 컴포넌트
+│   ├── receipt/        # 다녀온 행사 영수증
 │   └── ui/             # 공용 UI 컴포넌트
+├── config/             # Firebase 초기화
 ├── contexts/           # AuthContext
 ├── hooks/              # 커스텀 훅
 ├── pages/              # 페이지 컴포넌트
