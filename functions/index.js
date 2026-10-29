@@ -547,6 +547,37 @@ exports.submitEditRequest = onCall(
   }
 );
 
+const VIEW_IP_TTL_MS = 24 * 60 * 60 * 1000;
+
+// 조회수 중복 방지용 IP 해시는 24시간만 필요하므로 매일 만료분 삭제
+exports.cleanupViewIPs = onSchedule(
+  {
+    schedule: "0 4 * * *",
+    timeZone: "Asia/Seoul",
+    region: "asia-southeast1",
+  },
+  async () => {
+    const db = getDatabase();
+    const all = (await db.ref("viewIPs").get()).val() || {};
+    const cutoff = Date.now() - VIEW_IP_TTL_MS;
+
+    const updates = {};
+    for (const [eventId, hashes] of Object.entries(all)) {
+      for (const [hash, ts] of Object.entries(hashes || {})) {
+        if (typeof ts !== "number" || ts < cutoff) updates[`${eventId}/${hash}`] = null;
+      }
+    }
+
+    const paths = Object.keys(updates);
+    for (let i = 0; i < paths.length; i += 1000) {
+      const chunk = Object.fromEntries(paths.slice(i, i + 1000).map((p) => [p, null]));
+      await db.ref("viewIPs").update(chunk);
+    }
+
+    console.log(`✅ viewIPs cleanup: removed ${paths.length}`);
+  },
+);
+
 exports.recordView = onCall(
   {
     region: "asia-southeast1",
@@ -556,6 +587,13 @@ exports.recordView = onCall(
     const { eventId, eventYear } = request.data || {};
     if (!eventId || !/^row\d+$/.test(eventId)) throw new Error("Invalid eventId");
     if (!Number.isInteger(eventYear) || eventYear < 2020 || eventYear > 2100) throw new Error("Invalid eventYear");
+
+    // 솔트 없이 해시하면 IPv4 전수 대입으로 원래 IP 복원이 가능하므로 fail-closed
+    const salt = process.env.VIEW_IP_SALT;
+    if (!salt) {
+      console.error("❌ VIEW_IP_SALT is not set; view not counted");
+      return { counted: false };
+    }
 
     const db = getDatabase();
     const eventSnap = await db.ref(`data_v3/${eventYear}/${eventId}`).once("value");
@@ -569,7 +607,7 @@ exports.recordView = onCall(
 
     const hash = crypto
       .createHash("sha256")
-      .update(ip + eventId)
+      .update(salt + ip + eventId)
       .digest("hex")
       .slice(0, 16);
 
@@ -577,8 +615,7 @@ exports.recordView = onCall(
     const snap = await ipRef.once("value");
 
     const now = Date.now();
-    const TTL_MS = 24 * 60 * 60 * 1000;
-    if (snap.exists() && now - snap.val() < TTL_MS) return { counted: false };
+    if (snap.exists() && now - snap.val() < VIEW_IP_TTL_MS) return { counted: false };
 
     await db.ref(`data_v3/${eventYear}/${eventId}/views`)
       .transaction((current) => (current || 0) + 1);
