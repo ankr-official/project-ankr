@@ -31,7 +31,7 @@ export default function SuspendedModal({ reason, onClose }) {
               </p>
             )}
             <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
-              문의: ankr.web.official@gmail.com
+              이의제기·문의: ankr.web.official@gmail.com
             </p>
           </div>
         </div>
