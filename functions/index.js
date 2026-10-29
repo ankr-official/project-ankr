@@ -588,6 +588,22 @@ exports.recordView = onCall(
   }
 );
 
+// 회원 탈퇴·삭제 시 uid에 연결된 RTDB 데이터 정리 (공개 활동 페이지 포함)
+const cleanupUserData = async (db, uid) => {
+  const slug = (await db.ref(`users/${uid}/activitySlug`).get()).val();
+  const slugRef = slug ? db.ref(`activitySlugs/${slug}`) : null;
+  const slugOwned = slugRef && (await slugRef.get()).val() === uid;
+
+  await Promise.all([
+    db.ref(`reportLimits/${uid}`).remove(),
+    db.ref(`editRequestLimits/${uid}`).remove(),
+    db.ref(`likes/${uid}`).remove(),
+    db.ref(`suspensions/${uid}`).remove(),
+    db.ref(`users/${uid}`).remove(),
+    ...(slugOwned ? [slugRef.remove()] : []),
+  ]);
+};
+
 // data_v2 → data_v3/{year}/{id} 마이그레이션 (1회 실행용, owner만 호출 가능)
 
 exports.deleteSelf = onRequest(
@@ -621,12 +637,7 @@ exports.deleteSelf = onRequest(
 
     const db = getDatabase();
     try {
-      await Promise.all([
-        db.ref(`reportLimits/${uid}`).remove(),
-        db.ref(`editRequestLimits/${uid}`).remove(),
-        db.ref(`likes/${uid}`).remove(),
-        db.ref(`suspensions/${uid}`).remove(),
-      ]);
+      await cleanupUserData(db, uid);
     } catch (error) {
       console.error("❌ RTDB cleanup failed after self-delete. uid:", uid, error);
       try {
@@ -682,12 +693,7 @@ exports.deleteUser = onRequest(
 
       await getAuth().deleteUser(uid);
 
-      await Promise.all([
-        db.ref(`reportLimits/${uid}`).remove(),
-        db.ref(`editRequestLimits/${uid}`).remove(),
-        db.ref(`likes/${uid}`).remove(),
-        db.ref(`suspensions/${uid}`).remove(),
-      ]);
+      await cleanupUserData(db, uid);
 
       console.log("✅ User deleted:", uid);
       return res.status(200).json({ ok: true, uid });
