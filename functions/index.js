@@ -306,6 +306,31 @@ exports.weeklyBackup = onSchedule(
   },
 );
 
+// 관리자 조치 기록(대상 이메일 포함)은 1년 보관 후 삭제 — 개인정보처리방침 보유기간과 일치시킬 것
+const AUDIT_LOG_RETENTION_MS = 365 * 24 * 60 * 60 * 1000;
+
+exports.cleanupAuditLogs = onSchedule(
+  {
+    schedule: "0 5 1 * *",
+    timeZone: "Asia/Seoul",
+    region: "asia-southeast1",
+  },
+  async () => {
+    const db = getDatabase();
+    const logs = (await db.ref("auditLogs").get()).val() || {};
+    const cutoff = Date.now() - AUDIT_LOG_RETENTION_MS;
+
+    const updates = {};
+    for (const [key, log] of Object.entries(logs)) {
+      const ts = Date.parse(log?.timestamp);
+      if (!Number.isNaN(ts) && ts < cutoff) updates[key] = null;
+    }
+
+    if (Object.keys(updates).length) await db.ref("auditLogs").update(updates);
+    console.log(`✅ auditLogs cleanup: removed ${Object.keys(updates).length}`);
+  },
+);
+
 const ADMIN_ALLOWED_ORIGINS = new Set([
   "https://ankr.kr",
   ...(process.env.ADMIN_EXTRA_ORIGIN ? [process.env.ADMIN_EXTRA_ORIGIN] : []),
