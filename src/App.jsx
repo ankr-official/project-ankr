@@ -58,7 +58,7 @@ function AppContent() {
             <div className="container px-4 mx-auto">
               <div className="flex flex-col items-center space-y-4">
                 <div className="text-center space-y-1">
-                  <p className="text-sm">
+                  <p className="text-sm mb-2">
                     © {currentYear} ANKR.KR, All rights reserved.
                   </p>
                   <div className="flex items-center justify-center gap-3">

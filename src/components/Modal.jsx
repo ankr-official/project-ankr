@@ -92,6 +92,7 @@ const EventImage = ({ imgUrl, eventName }) => {
       <img
         src={imgUrl.replace(/(name=)[^&]*/, "$1large")}
         alt={eventName}
+        referrerPolicy="no-referrer"
         className={`object-cover w-full rounded-lg transition-opacity duration-300 ${imgLoaded ? "opacity-100 h-auto" : "opacity-0 h-0"}`}
         onLoad={done}
         onError={done}
