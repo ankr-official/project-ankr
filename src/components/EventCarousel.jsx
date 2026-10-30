@@ -68,6 +68,7 @@ export function EventCarousel({ events, onEventClick }) {
               transition={{ duration: 0.4, ease: "easeInOut" }}
               src={currentEvent.img_url.replace(/(name=)[^&]*/, "$1medium")}
               alt={currentEvent.event_name}
+              referrerPolicy="no-referrer"
               className="absolute inset-0 w-full h-full object-cover"
               fetchPriority={currentIndex === 0 ? "high" : "auto"}
             />

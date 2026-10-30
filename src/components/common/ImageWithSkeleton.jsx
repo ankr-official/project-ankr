@@ -19,6 +19,7 @@ export const ImageWithSkeleton = ({
         src={src}
         alt={alt}
         loading={loading}
+        referrerPolicy="no-referrer"
         className={`${imgClassName} transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
         onLoad={done}
         onError={done}
