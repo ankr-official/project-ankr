@@ -27,7 +27,7 @@ export default function TermsOfService() {
             이용약관
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            시행일: 2026년 3월 16일 &nbsp;·&nbsp; 최종 수정일: 2026년 5월 22일
+            시행일: 2026년 3월 16일 &nbsp;·&nbsp; 최종 수정일: 2026년 10월 29일
           </p>
           <p className="mt-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
             본 이용약관은 ANKR.KR(이하 "서비스")이 제공하는 모든 서비스의 이용
@@ -85,7 +85,7 @@ export default function TermsOfService() {
                 to="/privacy"
                 className="text-indigo-600 dark:text-indigo-400 active:underline mouse:hover:underline"
               >
-                개인정보처리방침
+                개인정보 처리방침
               </Link>
               을 참고하시기 바랍니다.)
             </li>
@@ -141,9 +141,30 @@ export default function TermsOfService() {
             <li>기타 관련 법령에 위반되는 행위</li>
           </ul>
           <p className="mt-2">
-            위 의무를 위반할 경우 운영자는 사전 통보 없이 해당 콘텐츠를
-            삭제하거나 서비스 이용을 제한할 수 있습니다.
+            이용자가 위 의무를 위반한 경우 운영자는 해당 콘텐츠를 삭제하거나
+            서비스 이용을 제한할 수 있습니다.
           </p>
+          <ul className="list-disc list-inside space-y-1 mt-2">
+            <li>
+              운영자는 조치 내용과 사유를 이메일 또는 서비스 화면(이용 제한 시
+              로그인 화면)으로 알립니다.
+            </li>
+            <li>
+              불법 정보 유포 등 즉시 조치가 필요한 경우에는 먼저 조치한 뒤 지체
+              없이 알립니다.
+            </li>
+            <li>
+              이용자는 조치에 이의가 있으면 통지를 받은 날부터 30일 이내에{" "}
+              <a
+                href="mailto:ankr.web.official@gmail.com"
+                className="text-indigo-600 dark:text-indigo-400 active:underline mouse:hover:underline"
+              >
+                ankr.web.official@gmail.com
+              </a>
+              으로 이의를 제기할 수 있으며, 운영자는 접수일부터 7일 이내에 검토
+              결과를 안내합니다. 이의가 타당하면 조치를 취소하고 원상 복구합니다.
+            </li>
+          </ul>
         </Section>
 
         {/* Section 5 */}
@@ -158,8 +179,9 @@ export default function TermsOfService() {
               있습니다.
             </li>
             <li>
-              다음의 경우 운영자는 사전 통보 없이 콘텐츠를 수정하거나 삭제할 수
-              있습니다.
+              다음의 경우 운영자는 콘텐츠를 수정하거나 삭제할 수 있습니다.
+              제4조 위반을 이유로 한 삭제에는 제4조의 통지 및 이의제기 절차를
+              따릅니다.
               <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
                 <li>허위 또는 부정확한 정보로 판단되는 경우</li>
                 <li>제4조의 이용자 의무를 위반한 경우</li>
@@ -168,7 +190,8 @@ export default function TermsOfService() {
               </ul>
             </li>
             <li>
-              이용자는 자신이 제보한 콘텐츠의 삭제 또는 수정을{" "}
+              이용자는 자신이 제보한 콘텐츠의 삭제 또는 수정, 제보가 반영되지
+              않거나 수정·삭제된 사유의 안내를{" "}
               <a
                 href="mailto:ankr.web.official@gmail.com"
                 className="text-indigo-600 dark:text-indigo-400 active:underline mouse:hover:underline"
@@ -184,13 +207,14 @@ export default function TermsOfService() {
         <Section number="6" title="서비스 변경 및 중단">
           <ul className="list-disc list-inside space-y-1">
             <li>
-              운영자는 서비스의 내용, 기능, UI 등을 사전 공지 없이 변경할 수
-              있습니다.
+              운영자는 서비스 개선을 위해 서비스의 내용, 기능, UI 등을 변경할 수
+              있습니다. 이용자에게 불리하거나 중요한 변경은 시행 7일 전까지 서비스
+              내 공지로 안내합니다.
             </li>
             <li>
               운영자는 서버 점검, 시스템 장애, 기타 운영상의 사유로 서비스를
-              일시적으로 중단할 수 있으며, 이 경우 사전 또는 사후에 공지할 수
-              있습니다.
+              일시적으로 중단할 수 있으며, 이 경우 사전에 공지합니다. 다만 예측할
+              수 없는 장애 등 부득이한 경우에는 사후에 공지합니다.
             </li>
             <li>
               운영자는 서비스를 영구적으로 종료할 수 있으며, 이 경우 서비스 종료
@@ -229,6 +253,10 @@ export default function TermsOfService() {
               대해 운영자는 개입 의무가 없으며 이로 인한 손해를 배상할 책임이
               없습니다.
             </li>
+            <li>
+              위 각 항목에도 불구하고 운영자의 고의 또는 중대한 과실로 이용자에게
+              발생한 손해에 대해서는 관련 법령에 따라 책임을 집니다.
+            </li>
           </ul>
         </Section>
 
@@ -250,6 +278,23 @@ export default function TermsOfService() {
             <li>
               해외에서 서비스를 이용하더라도 표시되는 시간은 KST 기준이며, 현지
               시간으로 자동 변환되지 않습니다.
+            </li>
+          </ul>
+        </Section>
+
+        {/* Section 9 */}
+        <Section number="9" title="약관의 변경">
+          <ul className="list-disc list-inside space-y-1">
+            <li>
+              운영자는 관련 법령을 위반하지 않는 범위에서 본 약관을 변경할 수
+              있습니다.
+            </li>
+            <li>
+              약관을 변경하는 경우 변경 내용과 시행일을 시행 7일 전부터 서비스 내에
+              공지합니다. 이용자에게 불리한 변경은 시행 30일 전부터 공지합니다.
+            </li>
+            <li>
+              이용자는 변경된 약관에 동의하지 않으면 회원 탈퇴를 할 수 있습니다.
             </li>
           </ul>
         </Section>

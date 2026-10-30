@@ -66,15 +66,15 @@ export default function LoginDropdown({
         </div>
 
         <p className="mt-3 text-center text-xs text-gray-400 dark:text-gray-500 leading-relaxed">
-          Google로 로그인하면{" "}
+          로그인하면{" "}
           <Link to="/terms" onClick={onClose} className="underline active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors">
             이용약관
-          </Link>{" "}
-          및{" "}
-          <Link to="/privacy" onClick={onClose} className="underline active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors">
-            개인정보처리방침
           </Link>
-          에 동의한 것으로 간주됩니다.
+          이 적용되며, 개인정보 처리에 관한 사항은{" "}
+          <Link to="/privacy" onClick={onClose} className="underline font-bold active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors">
+            개인정보 처리방침
+          </Link>
+          에서 확인할 수 있습니다.
         </p>
       </div>
 

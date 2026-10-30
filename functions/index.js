@@ -306,6 +306,31 @@ exports.weeklyBackup = onSchedule(
   },
 );
 
+// 관리자 조치 기록(대상 이메일 포함)은 1년 보관 후 삭제 — 개인정보처리방침 보유기간과 일치시킬 것
+const AUDIT_LOG_RETENTION_MS = 365 * 24 * 60 * 60 * 1000;
+
+exports.cleanupAuditLogs = onSchedule(
+  {
+    schedule: "0 5 1 * *",
+    timeZone: "Asia/Seoul",
+    region: "asia-southeast1",
+  },
+  async () => {
+    const db = getDatabase();
+    const logs = (await db.ref("auditLogs").get()).val() || {};
+    const cutoff = Date.now() - AUDIT_LOG_RETENTION_MS;
+
+    const updates = {};
+    for (const [key, log] of Object.entries(logs)) {
+      const ts = Date.parse(log?.timestamp);
+      if (!Number.isNaN(ts) && ts < cutoff) updates[key] = null;
+    }
+
+    if (Object.keys(updates).length) await db.ref("auditLogs").update(updates);
+    console.log(`✅ auditLogs cleanup: removed ${Object.keys(updates).length}`);
+  },
+);
+
 const ADMIN_ALLOWED_ORIGINS = new Set([
   "https://ankr.kr",
   ...(process.env.ADMIN_EXTRA_ORIGIN ? [process.env.ADMIN_EXTRA_ORIGIN] : []),
@@ -547,6 +572,37 @@ exports.submitEditRequest = onCall(
   }
 );
 
+const VIEW_IP_TTL_MS = 24 * 60 * 60 * 1000;
+
+// 조회수 중복 방지용 IP 해시는 24시간만 필요하므로 매일 만료분 삭제
+exports.cleanupViewIPs = onSchedule(
+  {
+    schedule: "0 4 * * *",
+    timeZone: "Asia/Seoul",
+    region: "asia-southeast1",
+  },
+  async () => {
+    const db = getDatabase();
+    const all = (await db.ref("viewIPs").get()).val() || {};
+    const cutoff = Date.now() - VIEW_IP_TTL_MS;
+
+    const updates = {};
+    for (const [eventId, hashes] of Object.entries(all)) {
+      for (const [hash, ts] of Object.entries(hashes || {})) {
+        if (typeof ts !== "number" || ts < cutoff) updates[`${eventId}/${hash}`] = null;
+      }
+    }
+
+    const paths = Object.keys(updates);
+    for (let i = 0; i < paths.length; i += 1000) {
+      const chunk = Object.fromEntries(paths.slice(i, i + 1000).map((p) => [p, null]));
+      await db.ref("viewIPs").update(chunk);
+    }
+
+    console.log(`✅ viewIPs cleanup: removed ${paths.length}`);
+  },
+);
+
 exports.recordView = onCall(
   {
     region: "asia-southeast1",
@@ -556,6 +612,13 @@ exports.recordView = onCall(
     const { eventId, eventYear } = request.data || {};
     if (!eventId || !/^row\d+$/.test(eventId)) throw new Error("Invalid eventId");
     if (!Number.isInteger(eventYear) || eventYear < 2020 || eventYear > 2100) throw new Error("Invalid eventYear");
+
+    // 솔트 없이 해시하면 IPv4 전수 대입으로 원래 IP 복원이 가능하므로 fail-closed
+    const salt = process.env.VIEW_IP_SALT;
+    if (!salt) {
+      console.error("❌ VIEW_IP_SALT is not set; view not counted");
+      return { counted: false };
+    }
 
     const db = getDatabase();
     const eventSnap = await db.ref(`data_v3/${eventYear}/${eventId}`).once("value");
@@ -569,7 +632,7 @@ exports.recordView = onCall(
 
     const hash = crypto
       .createHash("sha256")
-      .update(ip + eventId)
+      .update(salt + ip + eventId)
       .digest("hex")
       .slice(0, 16);
 
@@ -577,8 +640,7 @@ exports.recordView = onCall(
     const snap = await ipRef.once("value");
 
     const now = Date.now();
-    const TTL_MS = 24 * 60 * 60 * 1000;
-    if (snap.exists() && now - snap.val() < TTL_MS) return { counted: false };
+    if (snap.exists() && now - snap.val() < VIEW_IP_TTL_MS) return { counted: false };
 
     await db.ref(`data_v3/${eventYear}/${eventId}/views`)
       .transaction((current) => (current || 0) + 1);
@@ -587,6 +649,22 @@ exports.recordView = onCall(
     return { counted: true };
   }
 );
+
+// 회원 탈퇴·삭제 시 uid에 연결된 RTDB 데이터 정리 (공개 활동 페이지 포함)
+const cleanupUserData = async (db, uid) => {
+  const slug = (await db.ref(`users/${uid}/activitySlug`).get()).val();
+  const slugRef = slug ? db.ref(`activitySlugs/${slug}`) : null;
+  const slugOwned = slugRef && (await slugRef.get()).val() === uid;
+
+  await Promise.all([
+    db.ref(`reportLimits/${uid}`).remove(),
+    db.ref(`editRequestLimits/${uid}`).remove(),
+    db.ref(`likes/${uid}`).remove(),
+    db.ref(`suspensions/${uid}`).remove(),
+    db.ref(`users/${uid}`).remove(),
+    ...(slugOwned ? [slugRef.remove()] : []),
+  ]);
+};
 
 // data_v2 → data_v3/{year}/{id} 마이그레이션 (1회 실행용, owner만 호출 가능)
 
@@ -621,12 +699,7 @@ exports.deleteSelf = onRequest(
 
     const db = getDatabase();
     try {
-      await Promise.all([
-        db.ref(`reportLimits/${uid}`).remove(),
-        db.ref(`editRequestLimits/${uid}`).remove(),
-        db.ref(`likes/${uid}`).remove(),
-        db.ref(`suspensions/${uid}`).remove(),
-      ]);
+      await cleanupUserData(db, uid);
     } catch (error) {
       console.error("❌ RTDB cleanup failed after self-delete. uid:", uid, error);
       try {
@@ -682,12 +755,7 @@ exports.deleteUser = onRequest(
 
       await getAuth().deleteUser(uid);
 
-      await Promise.all([
-        db.ref(`reportLimits/${uid}`).remove(),
-        db.ref(`editRequestLimits/${uid}`).remove(),
-        db.ref(`likes/${uid}`).remove(),
-        db.ref(`suspensions/${uid}`).remove(),
-      ]);
+      await cleanupUserData(db, uid);
 
       console.log("✅ User deleted:", uid);
       return res.status(200).json({ ok: true, uid });

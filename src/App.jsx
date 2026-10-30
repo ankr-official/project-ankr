@@ -75,9 +75,9 @@ function AppContent() {
                     <Link
                       to="/privacy"
                       onClick={() => window.scrollTo(0, 0)}
-                      className="text-xs text-gray-500 dark:text-gray-400 active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors"
+                      className="text-xs font-bold text-gray-700 dark:text-gray-200 active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors"
                     >
-                      개인정보처리방침
+                      개인정보 처리방침
                     </Link>
                   </div>
                 </div>
