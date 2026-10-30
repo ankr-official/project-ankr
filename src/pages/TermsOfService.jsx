@@ -85,7 +85,7 @@ export default function TermsOfService() {
                 to="/privacy"
                 className="text-indigo-600 dark:text-indigo-400 active:underline mouse:hover:underline"
               >
-                개인정보처리방침
+                개인정보 처리방침
               </Link>
               을 참고하시기 바랍니다.)
             </li>

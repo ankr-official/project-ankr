@@ -72,7 +72,7 @@ export default function LoginDropdown({
           </Link>
           이 적용되며, 개인정보 처리에 관한 사항은{" "}
           <Link to="/privacy" onClick={onClose} className="underline font-bold active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors">
-            개인정보처리방침
+            개인정보 처리방침
           </Link>
           에서 확인할 수 있습니다.
         </p>
