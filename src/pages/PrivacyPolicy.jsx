@@ -14,7 +14,7 @@ const SECTIONS = [
   "개인정보 자동 수집 장치의 설치·운영 및 거부",
   "제보 내용에 포함된 타인의 개인정보",
   "정보주체와 법정대리인의 권리·의무 및 행사방법",
-  "개인정보 보호책임자",
+  "개인정보 보호 담당 부서",
   "권익침해 구제방법",
   "개인정보 처리방침의 변경",
 ];
@@ -630,19 +630,20 @@ export default function PrivacyPolicy() {
         {/* Section 13 */}
         <Section number={13}>
           <p>
-            개인정보 처리에 관한 업무를 총괄하고 문의, 열람·정정·삭제·처리정지
-            요청, 불만 처리, 피해 구제를 담당하는 개인정보 보호책임자는 아래와
-            같습니다. 문의에는 지체 없이 답변합니다.
+            서비스는 개인정보 처리에 관한 업무를 총괄하고 문의,
+            열람·정정·삭제·처리정지 요청, 불만 처리, 피해 구제를 처리하기 위해
+            아래와 같이 개인정보 보호 담당 부서를 두고 있습니다. 문의에는 지체 없이
+            답변합니다.
           </p>
           <p>
             <span className="font-medium text-gray-800 dark:text-gray-200">
-              개인정보 보호책임자:{" "}
+              부서명:{" "}
             </span>
-            ANKR 운영자
+            ANKR 운영팀
           </p>
           <p>
             <span className="font-medium text-gray-800 dark:text-gray-200">
-              이메일:{" "}
+              연락처(이메일):{" "}
             </span>
             <a href="mailto:ankr.web.official@gmail.com" className={linkClass}>
               ankr.web.official@gmail.com
