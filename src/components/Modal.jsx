@@ -92,7 +92,7 @@ const EventImage = ({ imgUrl, eventName }) => {
       <img
         src={imgUrl.replace(/(name=)[^&]*/, "$1large")}
         alt={eventName}
-        referrerPolicy="no-referrer"
+        referrerPolicy={imgUrl.includes("pbs.twimg.com") ? "no-referrer" : undefined}
         className={`object-cover w-full rounded-lg transition-opacity duration-300 ${imgLoaded ? "opacity-100 h-auto" : "opacity-0 h-0"}`}
         onLoad={done}
         onError={done}
