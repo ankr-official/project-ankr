@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
 import { deleteSelf } from "../utils/adminApi";
 import { useScrollLock } from "../hooks/useScrollLock";
+import { useBackdropClose } from "../hooks/useBackdropClose";
 
 export default function SettingsModal({ onClose }) {
   const { user, signOut } = useAuth();
@@ -98,10 +99,11 @@ export default function SettingsModal({ onClose }) {
     }
   };
 
+  const backdropProps = useBackdropClose(onClose);
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs"
-      onClick={onClose}
+      {...backdropProps}
     >
       <div
         className="w-full max-w-md mx-4 bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden"

@@ -23,6 +23,7 @@ import { ref, get } from "firebase/database";
 import { httpsCallable } from "firebase/functions";
 import { isoToTime, isoToLocal } from "../utils/eventFormUtils";
 import { database, functions } from "../config/firebase";
+import { useBackdropClose } from "../hooks/useBackdropClose";
 
 const recordViewFn = httpsCallable(functions, "recordView");
 
@@ -450,6 +451,7 @@ export function Modal({
     }
   };
 
+  const backdropProps = useBackdropClose(onClose);
   return (
     <>
       {isEditOpen && (
@@ -474,7 +476,7 @@ export function Modal({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22, ease: "easeIn" }}
             className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-black/50 backdrop-blur-xs"
-            onClick={onClose}
+            {...backdropProps}
           >
             <motion.div
               initial={{ y: "100%" }}

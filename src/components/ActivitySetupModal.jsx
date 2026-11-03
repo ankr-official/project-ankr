@@ -7,6 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { RESERVED_SLUGS, RESERVED_NICKNAMES } from "../constants";
 import { toast } from "react-toastify";
+import { useBackdropClose } from "../hooks/useBackdropClose";
 
 const isValidSlug = (s) => {
   if (!s || s.length < 3 || s.length > 20) return false;
@@ -107,10 +108,11 @@ export default function ActivitySetupModal({ onClose }) {
 
   const statusInfo = SLUG_STATUS[slugStatus];
 
+  const backdropProps = useBackdropClose(onClose);
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs"
-      onClick={onClose}
+      {...backdropProps}
     >
       <div
         className="w-full max-w-md mx-4 bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden"

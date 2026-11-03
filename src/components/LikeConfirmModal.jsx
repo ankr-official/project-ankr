@@ -1,12 +1,14 @@
 import { CheckCircleIcon, HeartIcon } from "@heroicons/react/24/outline";
 import { useScrollLock } from "../hooks/useScrollLock";
+import { useBackdropClose } from "../hooks/useBackdropClose";
 
 export default function LikeConfirmModal({ onAttended, onLiked, onClose }) {
   useScrollLock(true);
+  const backdropProps = useBackdropClose(onClose);
   return (
     <div
       className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4"
-      onClick={onClose}
+      {...backdropProps}
     >
       <div
         className="w-full max-w-sm bg-white dark:bg-gray-900 rounded-xl shadow-xl overflow-hidden"
