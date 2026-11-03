@@ -11,6 +11,7 @@ import { database } from "../config/firebase";
 import { formatDate, sortByDateTime, toKSTDate, kstDateStr } from "../utils/dateUtils";
 import { GenreTag } from "./common/GenreTag";
 import { useScrollLock } from "../hooks/useScrollLock";
+import { useBackdropClose } from "../hooks/useBackdropClose";
 
 const QUARTERS = [
   { key: "all", label: "전체" },
@@ -92,10 +93,11 @@ export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [
 
   const isSearching = keyword.trim().length > 0;
 
+  const backdropProps = useBackdropClose(onClose);
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-xs"
-      onClick={onClose}
+      {...backdropProps}
     >
       <div
         className="w-full sm:max-w-lg bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col h-[85vh]"

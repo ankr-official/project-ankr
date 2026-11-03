@@ -1,4 +1,5 @@
 import { useScrollLock } from "../../hooks/useScrollLock";
+import { useBackdropClose } from "../../hooks/useBackdropClose";
 
 export function ModalShell({
     onClose,
@@ -7,11 +8,12 @@ export function ModalShell({
     children,
 }) {
     useScrollLock(true);
+    const backdropProps = useBackdropClose(onClose);
     return (
         <div
             style={{ zIndex }}
             className="fixed inset-0 flex items-start justify-center p-4 sm:p-6 sm:items-center bg-black/50 backdrop-blur-xs overflow-y-auto"
-            onClick={onClose}
+            {...backdropProps}
         >
             <div
                 style={{ maxHeight }}

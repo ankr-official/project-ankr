@@ -4,6 +4,7 @@ import * as htmlToImage from "html-to-image";
 import { XMarkIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { YearEndReceiptView } from "./receipt/YearEndReceiptView";
 import { useScrollLock } from "../hooks/useScrollLock";
+import { useBackdropClose } from "../hooks/useBackdropClose";
 
 export function AttendedReceiptModal({
   events,
@@ -88,10 +89,11 @@ export function AttendedReceiptModal({
 
   const canDownload = userName.trim() && processedEvents.length > 0;
 
+  const backdropProps = useBackdropClose(onClose);
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-xs overflow-y-auto py-8 px-4"
-      onClick={onClose}
+      {...backdropProps}
     >
       <div className="w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
