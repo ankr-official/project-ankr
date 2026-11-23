@@ -8,7 +8,15 @@ const nodemailer = require("nodemailer");
 const { onRequest, onCall } = require("firebase-functions/v2/https");
 const { onValueCreated } = require("firebase-functions/v2/database");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
+const { defineSecret } = require("firebase-functions/params");
+const { S3Client, ListObjectsV2Command, PutObjectCommand } = require("@aws-sdk/client-s3");
 const crypto = require("crypto");
+
+const R2_ACCOUNT_ID = defineSecret("R2_ACCOUNT_ID");
+const R2_ACCESS_KEY_ID = defineSecret("R2_ACCESS_KEY_ID");
+const R2_SECRET_ACCESS_KEY = defineSecret("R2_SECRET_ACCESS_KEY");
+const R2_BUCKET = "ankr-assets";
+const ASSETS_BASE_URL = "https://ankr-assets.ankr-web-official.workers.dev";
 
 initializeApp({
   databaseURL: "https://ankr-db-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -761,6 +769,100 @@ exports.deleteUser = onRequest(
       return res.status(200).json({ ok: true, uid });
     } catch (error) {
       console.error("❌ Error deleting user:", error);
+      return res.status(500).send("Internal Server Error");
+    }
+  },
+);
+
+const IMAGE_TYPES = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+};
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+
+const detectImageType = (buf) => {
+  if (buf.length < 12) return null;
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return "image/jpeg";
+  if (buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
+  if (buf.subarray(0, 4).toString("ascii") === "RIFF" && buf.subarray(8, 12).toString("ascii") === "WEBP") return "image/webp";
+  if (buf.subarray(0, 4).toString("ascii") === "GIF8") return "image/gif";
+  return null;
+};
+
+exports.uploadEventImage = onRequest(
+  {
+    timeoutSeconds: 60,
+    region: "asia-northeast3",
+    secrets: [R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY],
+  },
+  async (req, res) => {
+    setAdminCors(res, req);
+    if (req.method === "OPTIONS") return res.status(204).send("");
+    if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+    const caller = await verifyAdminOrOwnerToken(req, res);
+    if (!caller) return;
+
+    const accountId = R2_ACCOUNT_ID.value();
+    const accessKeyId = R2_ACCESS_KEY_ID.value();
+    const secretAccessKey = R2_SECRET_ACCESS_KEY.value();
+    if (!accountId || !accessKeyId || !secretAccessKey) {
+      console.error("❌ R2 secrets missing");
+      return res.status(500).send("Server misconfigured");
+    }
+
+    try {
+      const { year, rowId, contentType, data } = req.body || {};
+      const maxYear = new Date(Date.now() + 9 * 60 * 60 * 1000).getUTCFullYear() + 1;
+      if (!Number.isInteger(year) || year < 2012 || year > maxYear) return res.status(400).send("Invalid year");
+      if (typeof rowId !== "string" || !/^row\d+$/.test(rowId)) return res.status(400).send("Invalid rowId");
+      if (!IMAGE_TYPES[contentType]) return res.status(400).send("Unsupported image type");
+      if (typeof data !== "string" || !data) return res.status(400).send("Missing data");
+
+      const buf = Buffer.from(data, "base64");
+      if (buf.length === 0 || buf.length > MAX_IMAGE_BYTES) return res.status(400).send("Invalid image size");
+      const detected = detectImageType(buf);
+      if (!detected) return res.status(400).send("Not an image");
+
+      const ext = IMAGE_TYPES[detected];
+      const prefix = `event/${year}/${rowId}/`;
+      const s3 = new S3Client({
+        region: "auto",
+        endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+        credentials: { accessKeyId, secretAccessKey },
+      });
+
+      // 기존 버전 확인: image.ext → 1, image_N.ext → N (Worker 캐시가 immutable이라 덮어쓰지 않음)
+      const listed = await s3.send(new ListObjectsV2Command({ Bucket: R2_BUCKET, Prefix: prefix }));
+      const maxVersion = (listed.Contents || []).reduce((m, obj) => {
+        const match = obj.Key.slice(prefix.length).match(/^image(?:_(\d+))?\.\w+$/);
+        if (!match) return m;
+        return Math.max(m, match[1] ? parseInt(match[1], 10) : 1);
+      }, 0);
+      const fileName = maxVersion === 0 ? `image.${ext}` : `image_${maxVersion + 1}.${ext}`;
+      const key = `${prefix}${fileName}`;
+
+      await s3.send(new PutObjectCommand({
+        Bucket: R2_BUCKET,
+        Key: key,
+        Body: buf,
+        ContentType: detected,
+      }));
+
+      await getDatabase().ref("auditLogs").push({
+        action: "uploadEventImage",
+        key,
+        size: buf.length,
+        performedBy: caller.uid,
+        performedByRole: caller.role,
+        timestamp: new Date().toISOString(),
+      });
+
+      console.log("✅ Event image uploaded:", key);
+      return res.status(200).json({ ok: true, url: `${ASSETS_BASE_URL}/${key}` });
+    } catch (error) {
+      console.error("❌ Error uploading event image:", error);
       return res.status(500).send("Internal Server Error");
     }
   },

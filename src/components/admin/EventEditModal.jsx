@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useEventForm } from "../../hooks/useEventForm";
 import { buildSubmitData, inputClass, isValidUrl, parseTweetData } from "../../utils/eventFormUtils";
 import { ModalShell, ModalCloseButton } from "../form/ModalShell";
@@ -6,6 +6,9 @@ import { AutocompleteInput } from "../form/AutocompleteInput";
 import { LocationField } from "../form/LocationField";
 import { TimeFields } from "../form/TimeFields";
 import { GenreSelector } from "../form/GenreSelector";
+
+const UPLOAD_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
 
 function FieldError({ message }) {
     if (!message) return null;
@@ -36,6 +39,41 @@ export default function EventEditModal({
     const [fetchError, setFetchError] = useState("");
     const [imageLinkOnly, setImageLinkOnly] = useState(!isNew);
     const [isAutoFetchingImage, setIsAutoFetchingImage] = useState(false);
+
+    const [imageFile, setImageFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState("");
+    const [fileError, setFileError] = useState("");
+    const fileInputRef = useRef(null);
+
+    useEffect(() => {
+        if (!imageFile) { setPreviewUrl(""); return; }
+        const url = URL.createObjectURL(imageFile);
+        setPreviewUrl(url);
+        return () => URL.revokeObjectURL(url);
+    }, [imageFile]);
+
+    const handleFileChange = e => {
+        const file = e.target.files?.[0];
+        e.target.value = "";
+        if (!file) return;
+        if (!UPLOAD_TYPES.includes(file.type)) {
+            setFileError("JPG, PNG, WEBP, GIF 파일만 업로드할 수 있습니다.");
+            return;
+        }
+        if (file.size > MAX_UPLOAD_BYTES) {
+            setFileError("8MB 이하 파일만 업로드할 수 있습니다.");
+            return;
+        }
+        setFileError("");
+        setImageFile(file);
+        revalidate(form, imgUrl, file);
+    };
+
+    const clearImageFile = () => {
+        setImageFile(null);
+        setFileError("");
+        revalidate(form, imgUrl, null);
+    };
 
     // 제보 승인 시: SNS 링크(X)는 있지만 이미지가 없으면 이미지만 자동 크롤링
     useEffect(() => {
@@ -87,6 +125,7 @@ export default function EventEditModal({
             const parsed = parseTweetData(data.tweet);
             set("event_url", `https://x.com/${m[1]}/status/${m[2]}`);
             setImgUrl(parsed.img_url || "");
+            setImageFile(null);
             if (!imageLinkOnly) {
                 const todayKST = new Date(new Date().getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
                 set("event_name", parsed.event_name || "");
@@ -113,7 +152,7 @@ export default function EventEditModal({
         }
     };
 
-    const validate = (f = form, img = imgUrl) => {
+    const validate = (f = form, img = imgUrl, file = imageFile) => {
         const errs = {};
         if (!f.event_name.trim()) errs.event_name = "이벤트명을 입력해주세요.";
         if (!f.schedule) errs.schedule = "날짜를 선택해주세요.";
@@ -124,7 +163,7 @@ export default function EventEditModal({
         } else if (!isValidUrl(f.event_url)) {
             errs.event_url = "올바른 URL 형식이 아닙니다. (https://...)";
         }
-        if (img && !isValidUrl(img)) errs.img_url = "올바른 URL 형식이 아닙니다. (https://...)";
+        if (!file && img && !isValidUrl(img)) errs.img_url = "올바른 URL 형식이 아닙니다. (https://...)";
         return errs;
     };
 
@@ -137,11 +176,11 @@ export default function EventEditModal({
         const data = { ...buildSubmitData(form), confirm, img_url: imgUrl };
         if (!data.img_url) data.img_url = null;
         if (event?.id) data.id = event.id;
-        onSave(data);
+        onSave(data, imageFile);
     };
 
-    const revalidate = (nextForm = form, nextImg = imgUrl) => {
-        if (submitted) setErrors(validate(nextForm, nextImg));
+    const revalidate = (nextForm = form, nextImg = imgUrl, nextFile = imageFile) => {
+        if (submitted) setErrors(validate(nextForm, nextImg, nextFile));
     };
 
     const handleSet = (field, val) => {
@@ -306,39 +345,96 @@ export default function EventEditModal({
                         <FieldError message={errors.event_url} />
                     </div>
                     <div className="space-y-1.5">
-                        <label className="flex items-center gap-1.5 text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
-                            이미지 URL
-                            {isAutoFetchingImage && (
-                                <span className="flex items-center gap-1 text-xs font-normal text-gray-400 dark:text-gray-500">
-                                    <div className="w-3 h-3 border-2 border-gray-300 dark:border-gray-600 border-t-sky-500 rounded-full animate-spin" />
-                                    자동 가져오는 중...
-                                </span>
-                            )}
-                        </label>
-                        <div className="relative">
+                        <div className="flex items-center justify-between gap-2">
+                            <label className="flex items-center gap-1.5 text-sm font-medium text-left pl-2 text-gray-700 dark:text-gray-300">
+                                이미지
+                                {isAutoFetchingImage && (
+                                    <span className="flex items-center gap-1 text-xs font-normal text-gray-400 dark:text-gray-500">
+                                        <div className="w-3 h-3 border-2 border-gray-300 dark:border-gray-600 border-t-sky-500 rounded-full animate-spin" />
+                                        자동 가져오는 중...
+                                    </span>
+                                )}
+                            </label>
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isSaving || isAutoFetchingImage}
+                                className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-indigo-600 dark:text-indigo-400 active:bg-indigo-50 mouse:hover:bg-indigo-50 dark:active:bg-indigo-500/10 dark:mouse:hover:bg-indigo-500/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                                </svg>
+                                {imageFile ? "다른 파일 선택" : "파일 업로드"}
+                            </button>
                             <input
-                                type="text"
-                                value={imgUrl}
-                                onChange={e => { setImgUrl(e.target.value); revalidate(form, e.target.value); }}
-                                placeholder="https://..."
-                                disabled={isAutoFetchingImage}
-                                className={`${inputClass} pr-9${errors.img_url ? " border-red-400 dark:border-red-500" : ""}`}
+                                ref={fileInputRef}
+                                type="file"
+                                accept={UPLOAD_TYPES.join(",")}
+                                onChange={handleFileChange}
+                                className="hidden"
                             />
-                            {isValidUrl(imgUrl) && (
-                                <a
-                                    href={imgUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    tabIndex={-1}
-                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 active:text-indigo-500 mouse:hover:text-indigo-500 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors"
+                        </div>
+                        {imageFile ? (
+                            <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200/70 dark:border-gray-700/70">
+                                {previewUrl && (
+                                    <img src={previewUrl} alt="" className="w-12 h-12 rounded-md object-cover shrink-0 bg-gray-200 dark:bg-gray-700" />
+                                )}
+                                <div className="flex-1 min-w-0 text-left">
+                                    <p className="text-sm text-gray-900 dark:text-white truncate">{imageFile.name}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        {(imageFile.size / 1024 / 1024).toFixed(1)}MB · 저장 시 업로드됩니다
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={clearImageFile}
+                                    disabled={isSaving}
+                                    aria-label="선택한 파일 제거"
+                                    className="shrink-0 p-1.5 rounded-md text-gray-400 active:text-red-500 mouse:hover:text-red-500 dark:active:text-red-400 dark:mouse:hover:text-red-400 active:bg-gray-200 mouse:hover:bg-gray-200 dark:active:bg-gray-700 dark:mouse:hover:bg-gray-700 transition-colors disabled:opacity-40"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
-                                </a>
-                            )}
-                        </div>
-                        <FieldError message={errors.img_url} />
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                {isValidUrl(imgUrl) && (
+                                    <img
+                                        src={imgUrl.replace(/(name=)[^&]*/, "$1small")}
+                                        alt=""
+                                        referrerPolicy={imgUrl.includes("pbs.twimg.com") ? "no-referrer" : undefined}
+                                        className="w-9 h-9 rounded-md object-cover shrink-0 bg-gray-200 dark:bg-gray-700"
+                                    />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={imgUrl}
+                                        onChange={e => { setImgUrl(e.target.value); revalidate(form, e.target.value); }}
+                                        placeholder="https://..."
+                                        disabled={isAutoFetchingImage}
+                                        className={`${inputClass} pr-9${errors.img_url ? " border-red-400 dark:border-red-500" : ""}`}
+                                    />
+                                    {isValidUrl(imgUrl) && (
+                                        <a
+                                            href={imgUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            tabIndex={-1}
+                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 active:text-indigo-500 mouse:hover:text-indigo-500 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                            </svg>
+                                        </a>
+                                    )}
+                                </div>
+                                </div>
+                            </div>
+                        )}
+                        <FieldError message={fileError || errors.img_url} />
                     </div>
                 </div>
 
