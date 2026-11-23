@@ -547,15 +547,60 @@ exports.submitReport = onCall(
   }
 );
 
+const ISO_DATETIME_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
+const isIsoDateTime = (v) => typeof v === "string" && ISO_DATETIME_RE.test(v) && !Number.isNaN(Date.parse(v));
+const isNonEmptyString = (v) => typeof v === "string" && v.trim() !== "";
+const isHttpUrl = (v) => {
+  try {
+    return ["http:", "https:"].includes(new URL(v).protocol);
+  } catch { return false; }
+};
+
+// 수정 요청은 승인 시 이벤트에 반영되므로 허용 필드만 형식을 확인해 저장한다. 형식이 맞지 않으면 null.
+const sanitizeEditFormData = (formData) => {
+  if (!formData || typeof formData !== "object" || Array.isArray(formData)) return null;
+  if (formData.deleteRequest === true) return { deleteRequest: true };
+
+  const { event_name, schedule, location, genre, event_url, time_start, time_entrance, time_end, etc } = formData;
+  if (!isNonEmptyString(event_name) || !isNonEmptyString(location) || !isNonEmptyString(genre)) return null;
+  if (!isIsoDateTime(schedule)) return null;
+
+  const data = { event_name, schedule, location, genre };
+  if (event_url != null) {
+    if (typeof event_url !== "string" || (event_url !== "" && !isHttpUrl(event_url))) return null;
+    data.event_url = event_url;
+  }
+  for (const [field, value] of Object.entries({ time_start, time_entrance, time_end })) {
+    if (value == null) continue;
+    if (!isIsoDateTime(value)) return null;
+    data[field] = value;
+  }
+  if (etc != null) {
+    if (typeof etc !== "string") return null;
+    data.etc = etc;
+  }
+  return data;
+};
+
 exports.submitEditRequest = onCall(
   { region: "asia-southeast1" },
   async (request) => {
     if (!request.auth) throw new Error("unauthenticated");
-    const { eventId, eventYear, eventName, reason, formData, _snap } = request.data || {};
-    if (!eventId || !eventYear || !eventName || !reason || !formData)
+    const { eventId, eventYear, reason, formData, _snap } = request.data || {};
+    if (!eventId || !eventYear || !reason || !formData)
       throw new Error("missing-required-fields");
+    if (typeof eventId !== "string" || !/^row\d+$/.test(eventId)) throw new Error("invalid-event-id");
+    if (!Number.isInteger(eventYear)) throw new Error("invalid-event-year");
+    if (typeof reason !== "string") throw new Error("invalid-reason");
+    const editData = sanitizeEditFormData(formData);
+    if (!editData) throw new Error("invalid-form-data");
 
     const db = getDatabase();
+    // 대상 이벤트가 실제로 있는지 확인하고, 이벤트명은 요청 값이 아닌 DB 값을 쓴다
+    const eventSnap = await db.ref(`data_v3/${eventYear}/${eventId}`).once("value");
+    if (!eventSnap.exists()) throw new Error("event-not-found");
+    const eventName = String(eventSnap.val().event_name ?? "");
+
     const uid = request.auth.uid;
     const token = await getAuth().getUser(uid);
     const role = token.customClaims?.role;
@@ -566,7 +611,7 @@ exports.submitEditRequest = onCall(
     }
 
     await db.ref("editRequests").push({
-      ...formData,
+      ...editData,
       eventId,
       eventYear,
       eventName,
