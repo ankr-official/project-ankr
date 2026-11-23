@@ -20,14 +20,14 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
     try {
       const loaded = findEvent(request);
       const year = request.eventYear ?? (loaded && toKSTDate(loaded.schedule).getUTCFullYear());
-      if (!Number.isInteger(year) || !/^row\d+$/.test(request.eventId)) {
+      if (!Number.isInteger(year) || typeof request.eventId !== "string" || !/^row\d+$/.test(request.eventId)) {
         toast.error("원본 이벤트를 찾을 수 없습니다.");
         return;
       }
-      // 대상은 DB에서 직접 읽어 확인한다. 목록에 없는 대상은 카드에 요청의 이벤트명이 표시되므로 실제 이름과 같을 때만 승인한다
+      // 대상은 DB에서 직접 읽어 확인한다. 카드에 표시된 이벤트명이 실제 이름과 같을 때만 승인한다
       const eventRef = ref(database, `data_v3/${year}/${request.eventId}`);
       const target = (await get(eventRef)).val();
-      if (!target || (!loaded && target.event_name !== request.eventName)) {
+      if (!target || String(target.event_name) !== String(loaded ? loaded.event_name : request.eventName)) {
         toast.error("원본 이벤트를 찾을 수 없습니다.");
         return;
       }

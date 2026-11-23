@@ -550,6 +550,7 @@ exports.submitReport = onCall(
 const ISO_DATETIME_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
 const isIsoDateTime = (v) => typeof v === "string" && ISO_DATETIME_RE.test(v) && !Number.isNaN(Date.parse(v));
 const isNonEmptyString = (v) => typeof v === "string" && v.trim() !== "";
+const kstDate = (iso) => new Date(Date.parse(iso) + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
 const isHttpUrl = (v) => {
   try {
     return ["http:", "https:"].includes(new URL(v).protocol);
@@ -572,7 +573,8 @@ const sanitizeEditFormData = (formData) => {
   }
   for (const [field, value] of Object.entries({ time_start, time_entrance, time_end })) {
     if (value == null) continue;
-    if (!isIsoDateTime(value)) return null;
+    // 관리자 비교표는 시각만 보여 주므로 날짜는 일정과 같아야 한다
+    if (!isIsoDateTime(value) || kstDate(value) !== kstDate(schedule)) return null;
     data[field] = value;
   }
   if (etc != null) {
@@ -591,7 +593,7 @@ exports.submitEditRequest = onCall(
       throw new Error("missing-required-fields");
     if (typeof eventId !== "string" || !/^row\d+$/.test(eventId)) throw new Error("invalid-event-id");
     if (!Number.isInteger(eventYear)) throw new Error("invalid-event-year");
-    if (typeof reason !== "string") throw new Error("invalid-reason");
+    if (!isNonEmptyString(reason)) throw new Error("invalid-reason");
     const editData = sanitizeEditFormData(formData);
     if (!editData) throw new Error("invalid-form-data");
 

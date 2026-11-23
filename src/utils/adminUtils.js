@@ -13,6 +13,8 @@ export const pickEditableFields = (request) => {
     if (value == null) continue;
     if (typeof value !== "string") return null;
     if (DATETIME_FIELDS.includes(field) && (!ISO_DATETIME_RE.test(value) || isNaN(new Date(value)))) return null;
+    // 비교표는 시각만 보여 주므로 날짜는 일정과 같아야 한다
+    if (field.startsWith("time_") && isoToLocal(value) !== isoToLocal(request.schedule)) return null;
     if (field === "event_url" && value !== "" && !isValidUrl(value)) return null;
     data[field] = value;
   }
