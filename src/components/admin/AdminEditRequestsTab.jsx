@@ -1,10 +1,10 @@
 import { useEffect } from "react";
-import { ref, remove, update } from "firebase/database";
+import { get, ref, remove, update } from "firebase/database";
 import { toast } from "react-toastify";
 import { database } from "../../config/firebase";
 import { useRealtimeData } from "../../hooks/useRealtimeData";
 import { GENRE_COLORS } from "../../constants";
-import { getChangedFields } from "../../utils/adminUtils";
+import { getChangedFields, pickEditableFields, formatScheduleDisplay } from "../../utils/adminUtils";
 import { toKSTDate, kstDateStr } from "../../utils/dateUtils";
 
 export default function AdminEditRequestsTab({ events, onCountChange }) {
@@ -14,37 +14,35 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
     if (!editRequestsLoading) onCountChange?.(editRequests.length);
   }, [editRequests.length, editRequestsLoading]);
 
-  const getEventYear = (request) => {
-    if (request.eventYear) return request.eventYear;
-    const found = events.find((e) => e.id === request.eventId);
-    return found ? toKSTDate(found.schedule).getUTCFullYear() : null;
-  };
+  const findEvent = (request) => events.find((e) => e.id === request.eventId);
 
   const handleApprove = async (request) => {
     try {
-      const year = getEventYear(request);
-      if (!year) {
-        toast.error("이벤트 연도를 확인할 수 없습니다.");
+      const loaded = findEvent(request);
+      const year = request.eventYear ?? (loaded && toKSTDate(loaded.schedule).getUTCFullYear());
+      if (!Number.isInteger(year) || typeof request.eventId !== "string" || !/^row\d+$/.test(request.eventId)) {
+        toast.error("원본 이벤트를 찾을 수 없습니다.");
+        return;
+      }
+      // 대상은 DB에서 직접 읽어 확인한다. 카드에 표시된 이벤트명이 실제 이름과 같을 때만 승인한다
+      const eventRef = ref(database, `data_v3/${year}/${request.eventId}`);
+      const target = (await get(eventRef)).val();
+      if (!target || String(target.event_name) !== String(loaded ? loaded.event_name : request.eventName)) {
+        toast.error("원본 이벤트를 찾을 수 없습니다.");
         return;
       }
       if (request.deleteRequest) {
-        await remove(ref(database, `data_v3/${year}/${request.eventId}`));
+        await remove(eventRef);
         await remove(ref(database, `editRequests/${request.id}`));
         toast.success("삭제 요청이 승인되어 이벤트가 삭제되었습니다.");
       } else {
-        const {
-          id,
-          eventId,
-          eventYear,
-          eventName,
-          reason,
-          submittedAt,
-          submittedBy,
-          _snap,
-          ...data
-        } = request;
-        await update(ref(database, `data_v3/${year}/${eventId}`), data);
-        await remove(ref(database, `editRequests/${id}`));
+        const data = pickEditableFields(request);
+        if (!data) {
+          toast.error("요청 형식이 올바르지 않습니다.");
+          return;
+        }
+        await update(eventRef, data);
+        await remove(ref(database, `editRequests/${request.id}`));
         toast.success("요청이 승인되어 이벤트 정보가 업데이트되었습니다.");
       }
     } catch {
@@ -104,7 +102,7 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
                     {request.deleteRequest ? "삭제요청" : "수정요청"}
                   </span>
                   <p className="font-semibold text-gray-900 dark:text-white text-sm text-left leading-snug">
-                    {request.eventName || request.event_name || "(이름 없음)"}
+                    {findEvent(request)?.event_name || request.eventName || request.event_name || "(이름 없음)"}
                   </p>
                   <p className="text-xs text-gray-400 text-left dark:text-gray-500 mt-0.5 font-mono">
                     ID: {request.eventId}
@@ -132,6 +130,7 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
 
             {/* 수정/삭제 내용 */}
             {(() => {
+              const original = findEvent(request);
               if (request.deleteRequest) {
                 return (
                   <div className="rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200/60 dark:border-red-800/30 px-3 py-2">
@@ -139,12 +138,16 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
                       이벤트 삭제 요청
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 text-left">
+                      {original
+                        ? `${formatScheduleDisplay(original.schedule)} · ${original.location}`
+                        : `원본 이벤트를 찾을 수 없습니다. (ID: ${request.eventId})`}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 text-left">
                       승인 시 이 이벤트가 영구 삭제됩니다.
                     </p>
                   </div>
                 );
               }
-              const original = events.find((e) => e.id === request.eventId);
               const diffs = getChangedFields(original, request);
               return (
                 <div className="rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200/60 dark:border-gray-700/50 px-3 py-2 space-y-2">
