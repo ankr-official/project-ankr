@@ -1,5 +1,25 @@
-import { isoToTime, isoToLocal, toArray } from "./eventFormUtils";
+import { isoToTime, isoToLocal, toArray, isValidUrl } from "./eventFormUtils";
 import { toKSTDate } from "./dateUtils";
+
+const EDITABLE_FIELDS = ["event_name", "schedule", "location", "genre", "event_url", "time_start", "time_entrance", "time_end", "etc"];
+const DATETIME_FIELDS = ["schedule", "time_start", "time_entrance", "time_end"];
+const ISO_DATETIME_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
+
+/** 수정요청에서 이벤트에 반영할 필드만 골라 반환합니다. 형식이 맞지 않으면 null을 반환합니다. */
+export const pickEditableFields = (request) => {
+  const data = {};
+  for (const field of EDITABLE_FIELDS) {
+    const value = request[field];
+    if (value == null) continue;
+    if (typeof value !== "string") return null;
+    if (DATETIME_FIELDS.includes(field) && (!ISO_DATETIME_RE.test(value) || isNaN(new Date(value)))) return null;
+    // 비교표는 시각만 보여 주므로 날짜는 일정과 같아야 한다
+    if (field.startsWith("time_") && isoToLocal(value) !== isoToLocal(request.schedule)) return null;
+    if (field === "event_url" && value !== "" && !isValidUrl(value)) return null;
+    data[field] = value;
+  }
+  return data;
+};
 
 export const formatScheduleDisplay = (dateStr) => {
   if (!dateStr) return "-";

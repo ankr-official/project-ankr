@@ -13,7 +13,7 @@ export const useRealtimeData = (path) => {
       (snapshot) => {
         const fetched = [];
         snapshot.forEach((child) => {
-          fetched.push({ id: child.key, ...child.val() });
+          fetched.push({ ...child.val(), id: child.key });
         });
         setData(fetched);
         setLoading(false);
