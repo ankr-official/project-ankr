@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ref, remove, update } from "firebase/database";
+import { get, ref, remove, update } from "firebase/database";
 import { toast } from "react-toastify";
 import { database } from "../../config/firebase";
 import { useRealtimeData } from "../../hooks/useRealtimeData";
@@ -14,18 +14,23 @@ export default function AdminEditRequestsTab({ events, onCountChange }) {
     if (!editRequestsLoading) onCountChange?.(editRequests.length);
   }, [editRequests.length, editRequestsLoading]);
 
-  // 대상은 요청에 적힌 값이 아니라 실제 이벤트에서 확인한다
   const findEvent = (request) => events.find((e) => e.id === request.eventId);
 
   const handleApprove = async (request) => {
     try {
-      const original = findEvent(request);
-      const year = original && toKSTDate(original.schedule).getUTCFullYear();
-      if (!year) {
+      const loaded = findEvent(request);
+      const year = request.eventYear ?? (loaded && toKSTDate(loaded.schedule).getUTCFullYear());
+      if (!Number.isInteger(year) || !/^row\d+$/.test(request.eventId)) {
         toast.error("원본 이벤트를 찾을 수 없습니다.");
         return;
       }
-      const eventRef = ref(database, `data_v3/${year}/${original.id}`);
+      // 대상은 DB에서 직접 읽어 확인한다. 목록에 없는 대상은 카드에 요청의 이벤트명이 표시되므로 실제 이름과 같을 때만 승인한다
+      const eventRef = ref(database, `data_v3/${year}/${request.eventId}`);
+      const target = (await get(eventRef)).val();
+      if (!target || (!loaded && target.event_name !== request.eventName)) {
+        toast.error("원본 이벤트를 찾을 수 없습니다.");
+        return;
+      }
       if (request.deleteRequest) {
         await remove(eventRef);
         await remove(ref(database, `editRequests/${request.id}`));
