@@ -7,6 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useYearEventData } from "../hooks/useYearEventData";
 import { toArray, GENRES } from "../utils/eventFormUtils";
 import { toKSTDate, kstDateStr } from "../utils/dateUtils";
+import { uploadEventImage } from "../utils/adminApi";
 import EventEditModal from "../components/admin/EventEditModal";
 import AdminHeader from "../components/admin/AdminHeader";
 import AdminReportsTab from "../components/admin/AdminReportsTab";
@@ -163,13 +164,27 @@ export default function Admin() {
     }
   };
 
-  const handleSave = async (eventData) => {
+  // 업로드 실패 시 저장 중단 (DB write 전에 호출)
+  const uploadImageIfNeeded = async (imageFile, year, rowId, data) => {
+    if (!imageFile) return true;
+    try {
+      data.img_url = await uploadEventImage(year, rowId, imageFile);
+      return true;
+    } catch (err) {
+      console.error("이미지 업로드 실패:", err);
+      toast.error("이미지 업로드 중 오류가 발생했습니다.");
+      return false;
+    }
+  };
+
+  const handleSave = async (eventData, imageFile = null) => {
     const { id, ...data } = eventData;
     setIsSaving(true);
     try {
       if (id) {
         const newYear = toKSTDate(data.schedule).getUTCFullYear();
         const oldYear = toKSTDate(editingEvent.schedule).getUTCFullYear();
+        if (!(await uploadImageIfNeeded(imageFile, newYear, id, data))) return;
         if (newYear !== oldYear) {
           await set(ref(database, `data_v3/${newYear}/${id}`), data);
           await remove(ref(database, `data_v3/${oldYear}/${id}`));
@@ -199,6 +214,7 @@ export default function Admin() {
         const maxRow = Math.max(0, ...maxes, maxSavedRowRef.current ?? 0);
         const newId = `row${maxRow + 1}`;
         maxSavedRowRef.current = maxRow + 1;
+        if (!(await uploadImageIfNeeded(imageFile, year, newId, data))) return;
         await set(ref(database, `data_v3/${year}/${newId}`), data);
         addLocalEvent(year, newId, data);
         if (!knownYears.includes(year)) {
