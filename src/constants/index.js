@@ -59,6 +59,9 @@ export const RESERVED_SLUGS = [
   "remove",
 ];
 
+// Cloudflare Worker (R2 ankr-assets 프록시)
+export const ASSETS_BASE_URL = "https://ankr-assets.ankr-web-official.workers.dev";
+
 export const FORM_URL =
   "https://docs.google.com/forms/u/0/d/e/1FAIpQLScfgviSghF4mRqCmqCZr2M6X8fpd70T6s8j62OhgdlwY6590Q/formResponse";
 

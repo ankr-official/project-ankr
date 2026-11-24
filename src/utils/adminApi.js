@@ -39,6 +39,12 @@ export const uploadEventImage = async (year, rowId, file) => {
   return url;
 };
 
+/** 외부 이미지 URL을 서버에서 받아 R2에 저장 후 Worker URL 반환 (Twitter는 name=large) */
+export const uploadEventImageFromUrl = async (year, rowId, sourceUrl) => {
+  const { url } = await ownerCall("uploadEventImage", { year, rowId, sourceUrl });
+  return url;
+};
+
 export const deleteSelf = async () => {
   const idToken = await auth.currentUser.getIdToken();
   const res = await fetch(`${BASE_URL}/deleteSelf`, {

@@ -5,9 +5,9 @@ import { toast } from "react-toastify";
 import { database } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { useYearEventData } from "../hooks/useYearEventData";
-import { toArray, GENRES } from "../utils/eventFormUtils";
+import { toArray, GENRES, shouldMirrorImageUrl } from "../utils/eventFormUtils";
 import { toKSTDate, kstDateStr } from "../utils/dateUtils";
-import { uploadEventImage } from "../utils/adminApi";
+import { uploadEventImage, uploadEventImageFromUrl } from "../utils/adminApi";
 import EventEditModal from "../components/admin/EventEditModal";
 import AdminHeader from "../components/admin/AdminHeader";
 import AdminReportsTab from "../components/admin/AdminReportsTab";
@@ -164,9 +164,18 @@ export default function Admin() {
     }
   };
 
-  // 업로드 실패 시 저장 중단 (DB write 전에 호출)
+  // DB write 전에 호출. 파일 업로드 실패 → 저장 중단 / 외부 URL 복사 실패 → 원본 URL로 저장
   const uploadImageIfNeeded = async (imageFile, year, rowId, data) => {
-    if (!imageFile) return true;
+    if (!imageFile) {
+      if (!shouldMirrorImageUrl(data.img_url, editingEvent?.img_url)) return true;
+      try {
+        data.img_url = await uploadEventImageFromUrl(year, rowId, data.img_url);
+      } catch (err) {
+        console.error("이미지 URL R2 저장 실패:", err);
+        toast.warn("이미지를 R2에 저장하지 못해 원본 URL로 저장했습니다.");
+      }
+      return true;
+    }
     try {
       data.img_url = await uploadEventImage(year, rowId, imageFile);
       return true;
