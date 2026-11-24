@@ -1,4 +1,4 @@
-import { GENRE_COLORS } from "../constants";
+import { GENRE_COLORS, ASSETS_BASE_URL } from "../constants";
 import { toKSTDate } from "./dateUtils";
 
 export const GENRES = Object.keys(GENRE_COLORS).filter(g => g !== "default");
@@ -66,6 +66,10 @@ export const isValidUrl = url => {
         return false;
     }
 };
+
+/** 저장 시 R2로 복사할 외부 이미지 URL인지: 비어있지 않고, Worker URL이 아니며, 원래 값에서 바뀐 경우 */
+export const shouldMirrorImageUrl = (url, originalUrl) =>
+    !!url && isValidUrl(url) && !url.startsWith(`${ASSETS_BASE_URL}/`) && url !== (originalUrl ?? "");
 
 /** Parses fxtwitter API response into partial event form fields. */
 export const parseTweetData = (tweet) => {

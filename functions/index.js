@@ -838,6 +838,59 @@ const detectImageType = (buf) => {
   return null;
 };
 
+class HttpError extends Error {
+  constructor(status, message) {
+    super(message);
+    this.status = status;
+  }
+}
+
+// admin 전용이지만 내부망 접근(SSRF) 최소 방어: https + 공개 호스트명만 허용
+const assertPublicHttpsUrl = (raw) => {
+  let u;
+  try { u = new URL(raw); } catch { throw new HttpError(400, "Invalid sourceUrl"); }
+  const host = u.hostname.toLowerCase();
+  if (
+    u.protocol !== "https:" ||
+    u.username || u.password ||
+    host === "localhost" || host.endsWith(".localhost") || host.endsWith(".internal") ||
+    /^[\d.]+$/.test(host) || host.includes(":") || host.startsWith("[")
+  ) {
+    throw new HttpError(400, "Invalid sourceUrl");
+  }
+  return u;
+};
+
+// 기존 표출 로직(Modal/EventSeoHelmet)과 동일하게 Twitter 이미지는 name=large로 받음
+const toLargeTwitterUrl = (u) => {
+  if (u.hostname !== "pbs.twimg.com") return u.toString();
+  u.searchParams.set("name", "large");
+  return u.toString();
+};
+
+const fetchSourceImage = async (sourceUrl) => {
+  const url = toLargeTwitterUrl(assertPublicHttpsUrl(sourceUrl));
+  let res;
+  try {
+    res = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(15000) });
+  } catch (error) {
+    console.error("❌ Source fetch error:", error);
+    throw new HttpError(502, "Source fetch failed");
+  }
+  assertPublicHttpsUrl(res.url);
+  if (!res.ok || !res.body) throw new HttpError(502, `Source fetch failed (${res.status})`);
+  if (Number(res.headers.get("content-length") || 0) > MAX_IMAGE_BYTES) throw new HttpError(400, "Invalid image size");
+
+  const chunks = [];
+  let total = 0;
+  for await (const chunk of res.body) {
+    total += chunk.length;
+    if (total > MAX_IMAGE_BYTES) throw new HttpError(400, "Invalid image size");
+    chunks.push(chunk);
+  }
+  return { buf: Buffer.concat(chunks), fetchedUrl: url };
+};
+
 exports.uploadEventImage = onRequest(
   {
     timeoutSeconds: 60,
@@ -860,14 +913,23 @@ exports.uploadEventImage = onRequest(
     }
 
     try {
-      const { year, rowId, contentType, data } = req.body || {};
+      const { year, rowId, contentType, data, sourceUrl } = req.body || {};
       const maxYear = new Date(Date.now() + 9 * 60 * 60 * 1000).getUTCFullYear() + 1;
       if (!Number.isInteger(year) || year < 2012 || year > maxYear) return res.status(400).send("Invalid year");
       if (typeof rowId !== "string" || !/^row\d+$/.test(rowId)) return res.status(400).send("Invalid rowId");
-      if (!IMAGE_TYPES[contentType]) return res.status(400).send("Unsupported image type");
-      if (typeof data !== "string" || !data) return res.status(400).send("Missing data");
 
-      const buf = Buffer.from(data, "base64");
+      // 파일 업로드(base64 data) 또는 외부 URL 복사(sourceUrl) 중 정확히 하나
+      let buf;
+      let fetchedUrl = null;
+      if (typeof sourceUrl === "string" && sourceUrl && data == null) {
+        ({ buf, fetchedUrl } = await fetchSourceImage(sourceUrl));
+      } else if (typeof data === "string" && data && sourceUrl == null) {
+        if (!IMAGE_TYPES[contentType]) return res.status(400).send("Unsupported image type");
+        buf = Buffer.from(data, "base64");
+      } else {
+        return res.status(400).send("Provide either data or sourceUrl");
+      }
+
       if (buf.length === 0 || buf.length > MAX_IMAGE_BYTES) return res.status(400).send("Invalid image size");
       const detected = detectImageType(buf);
       if (!detected) return res.status(400).send("Not an image");
@@ -901,6 +963,7 @@ exports.uploadEventImage = onRequest(
         action: "uploadEventImage",
         key,
         size: buf.length,
+        ...(fetchedUrl && { sourceUrl: fetchedUrl }),
         performedBy: caller.uid,
         performedByRole: caller.role,
         timestamp: new Date().toISOString(),
@@ -909,6 +972,7 @@ exports.uploadEventImage = onRequest(
       console.log("✅ Event image uploaded:", key);
       return res.status(200).json({ ok: true, url: `${ASSETS_BASE_URL}/${key}` });
     } catch (error) {
+      if (error instanceof HttpError) return res.status(error.status).send(error.message);
       console.error("❌ Error uploading event image:", error);
       return res.status(500).send("Internal Server Error");
     }
