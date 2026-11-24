@@ -12,6 +12,7 @@ import { formatDate, sortByDateTime, toKSTDate, kstDateStr } from "../utils/date
 import { GenreTag } from "./common/GenreTag";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useBackdropClose } from "../hooks/useBackdropClose";
+import { toThumbUrl } from "../utils/imageUtils";
 
 const QUARTERS = [
   { key: "all", label: "전체" },
@@ -195,7 +196,8 @@ export function AttendedPicker({ user, allEvents, likes, onClose, knownYears = [
               >
                 {event.img_url ? (
                   <ImageWithSkeleton
-                    src={event.img_url.replace(/(name=)[^&]*/, "$1small")}
+                    src={toThumbUrl(event.img_url)}
+                    fallbackSrc={event.img_url}
                     alt={event.event_name}
                     wrapperClassName="w-10 h-10 rounded-full shrink-0"
                     imgClassName="object-cover w-full h-full"

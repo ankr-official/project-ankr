@@ -6,6 +6,7 @@ import { AutocompleteInput } from "../form/AutocompleteInput";
 import { LocationField } from "../form/LocationField";
 import { TimeFields } from "../form/TimeFields";
 import { GenreSelector } from "../form/GenreSelector";
+import { toThumbUrl } from "../../utils/imageUtils";
 
 const UPLOAD_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
@@ -401,7 +402,8 @@ export default function EventEditModal({
                             <div className="flex items-center gap-2">
                                 {isValidUrl(imgUrl) && (
                                     <img
-                                        src={imgUrl.replace(/(name=)[^&]*/, "$1small")}
+                                        src={toThumbUrl(imgUrl)}
+                                        onError={e => { if (e.currentTarget.src !== imgUrl) e.currentTarget.src = imgUrl; }}
                                         alt=""
                                         referrerPolicy={imgUrl.includes("pbs.twimg.com") ? "no-referrer" : undefined}
                                         className="w-9 h-9 rounded-md object-cover shrink-0 bg-gray-200 dark:bg-gray-700"

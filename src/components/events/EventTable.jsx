@@ -6,6 +6,7 @@ import { DesktopGenreFilter } from "./DesktopGenreFilter";
 import { MobileGenreFilter } from "./MobileGenreFilter";
 import { EventCard } from "./EventCard";
 import { ImageWithSkeleton } from "../common/ImageWithSkeleton";
+import { toThumbUrl } from "../../utils/imageUtils";
 
 export const EventTable = ({
   events,
@@ -46,7 +47,8 @@ export const EventTable = ({
                     <div className="flex items-center">
                       {item.img_url ? (
                         <ImageWithSkeleton
-                          src={item.img_url.replace(/(name=)[^&]*/, "$1small")}
+                          src={toThumbUrl(item.img_url)}
+                          fallbackSrc={item.img_url}
                           alt={item.event_name}
                           wrapperClassName="h-[50px] w-[50px] shrink-0 rounded-full mr-3"
                           imgClassName="object-cover w-full h-full"

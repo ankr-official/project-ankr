@@ -12,6 +12,7 @@ import { sortByDateTime, formatDate, toKSTDate, kstDateStr } from "../utils/date
 import { useYearEventData } from "../hooks/useYearEventData";
 import { EventCard } from "../components/events/EventCard";
 import { ImageWithSkeleton } from "../components/common/ImageWithSkeleton";
+import { toThumbUrl } from "../utils/imageUtils";
 
 const isPast = (event) => {
   if (event.time_start) return new Date(event.time_start) < new Date();
@@ -302,7 +303,8 @@ export default function ActivityGuest() {
                   >
                     {event.img_url ? (
                       <ImageWithSkeleton
-                        src={event.img_url.replace(/(name=)[^&]*/, "$1small")}
+                        src={toThumbUrl(event.img_url)}
+                        fallbackSrc={event.img_url}
                         alt={event.event_name}
                         wrapperClassName="w-full h-full"
                         imgClassName="object-cover w-full h-full"
