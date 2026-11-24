@@ -3,6 +3,7 @@ import { GenreTag } from "../common/GenreTag";
 import { LocationLink } from "../common/LocationLink";
 import { HeartButton } from "../common/HeartButton";
 import { ImageWithSkeleton } from "../common/ImageWithSkeleton";
+import { toThumbUrl } from "../../utils/imageUtils";
 
 const pad = (n) => String(n).padStart(2, "0");
 
@@ -34,7 +35,8 @@ export const EventCard = ({
       <div className="flex items-center space-x-4 h-full">
         {event.img_url ? (
           <ImageWithSkeleton
-            src={event.img_url.replace(/(name=)[^&]*/, "$1small")}
+            src={toThumbUrl(event.img_url)}
+            fallbackSrc={event.img_url}
             alt={event.event_name}
             wrapperClassName="shrink-0 w-24 h-32 rounded-lg"
             imgClassName="object-cover w-full h-full"

@@ -10,6 +10,7 @@ const { onValueCreated } = require("firebase-functions/v2/database");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { defineSecret } = require("firebase-functions/params");
 const { S3Client, ListObjectsV2Command, PutObjectCommand } = require("@aws-sdk/client-s3");
+const sharp = require("sharp");
 const crypto = require("crypto");
 
 const R2_ACCOUNT_ID = defineSecret("R2_ACCOUNT_ID");
@@ -891,9 +892,17 @@ const fetchSourceImage = async (sourceUrl) => {
   return { buf: Buffer.concat(chunks), fetchedUrl: url };
 };
 
+// 목록용 썸네일: 가로 400px WebP. 키 규칙은 ankr-assets/scripts/generate-thumbs.mjs와 동일
+// (event/2026/row1/image_2.jpg → event/2026/row1/image_2_thumb.webp)
+const THUMB_WIDTH = 400;
+const thumbKeyOf = (key) => key.replace(/\.\w+$/, "_thumb.webp");
+const makeThumbnail = (buf) =>
+  sharp(buf).rotate().resize({ width: THUMB_WIDTH, withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
+
 exports.uploadEventImage = onRequest(
   {
     timeoutSeconds: 60,
+    memory: "512MiB", // sharp 썸네일 생성 (원본 최대 8MB)
     region: "asia-northeast3",
     secrets: [R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY],
   },
@@ -958,6 +967,18 @@ exports.uploadEventImage = onRequest(
         Body: buf,
         ContentType: detected,
       }));
+
+      // 썸네일 실패는 업로드 실패로 보지 않음 — 프론트가 썸네일 404 시 원본으로 폴백
+      try {
+        await s3.send(new PutObjectCommand({
+          Bucket: R2_BUCKET,
+          Key: thumbKeyOf(key),
+          Body: await makeThumbnail(buf),
+          ContentType: "image/webp",
+        }));
+      } catch (error) {
+        console.error("⚠️ Thumbnail generation failed:", key, error);
+      }
 
       await getDatabase().ref("auditLogs").push({
         action: "uploadEventImage",
