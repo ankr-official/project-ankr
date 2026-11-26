@@ -27,7 +27,13 @@ export function EventSeoHelmet({ event }) {
     "@type": "Event",
     name: event.event_name,
     startDate: event.time_start || event.schedule,
-    location: { "@type": "Place", name: event.location },
+    // confirm된 이벤트만 노출되므로 Scheduled. 상세 주소 데이터는 없어 국가만 명시
+    eventStatus: "https://schema.org/EventScheduled",
+    location: {
+      "@type": "Place",
+      name: event.location,
+      address: { "@type": "PostalAddress", addressCountry: "KR" },
+    },
     image: imgUrl,
     url,
     organizer: { "@type": "Organization", name: "ANKR.KR", url: "https://ankr.kr" },

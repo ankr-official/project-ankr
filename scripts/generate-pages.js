@@ -134,7 +134,14 @@ function eventPage(template, id, event) {
     startDate,
     ...(endDate && { endDate }),
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    location: { "@type": "Place", name: event.location || "미정" },
+    // confirm된 이벤트만 생성되므로 Scheduled. 상세 주소 데이터는 없어 국가만 명시
+    // performer·offers는 데이터가 없어 생략 (가짜 값은 구조화 데이터 가이드라인 위반)
+    eventStatus: "https://schema.org/EventScheduled",
+    location: {
+      "@type": "Place",
+      name: event.location || "미정",
+      address: { "@type": "PostalAddress", addressCountry: "KR" },
+    },
     image,
     url,
     description,
