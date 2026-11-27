@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { database } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { useYearEventData } from "../hooks/useYearEventData";
-import { toArray, GENRES, shouldMirrorImageUrl } from "../utils/eventFormUtils";
+import { toArray, GENRES, needsImageCopy } from "../utils/eventFormUtils";
 import { toKSTDate, kstDateStr } from "../utils/dateUtils";
 import { uploadEventImage, uploadEventImageFromUrl } from "../utils/adminApi";
 import EventEditModal from "../components/admin/EventEditModal";
@@ -167,7 +167,7 @@ export default function Admin() {
   // DB write 전에 호출. 파일 업로드 실패 → 저장 중단 / 외부 URL 복사 실패 → 원본 URL로 저장
   const uploadImageIfNeeded = async (imageFile, year, rowId, data) => {
     if (!imageFile) {
-      if (!shouldMirrorImageUrl(data.img_url, editingEvent?.img_url)) return true;
+      if (!needsImageCopy(data.img_url, editingEvent?.img_url, !editingEvent?.id)) return true;
       try {
         data.img_url = await uploadEventImageFromUrl(year, rowId, data.img_url);
       } catch (err) {
@@ -244,6 +244,14 @@ export default function Admin() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  // 기존 이벤트 내용으로 '추가' 모달 열기 — 저장 전엔 아무것도 기록하지 않음. 이미지는 저장 시 새 경로로 복사
+  const handleDuplicate = (event) => {
+    // eslint-disable-next-line no-unused-vars
+    const { id, views, request_time, ...rest } = event;
+    // 표출 여부는 복사하지 않음 — 복제본은 날짜 등을 고친 뒤 직접 표출하도록 기본 숨김
+    setEditingEvent({ ...rest, confirm: false, _duplicate: true });
   };
 
   const handleApproveReport = (report) => {
@@ -422,6 +430,7 @@ export default function Admin() {
                 search={search}
                 onClearSearch={() => setSearch("")}
                 onEdit={setEditingEvent}
+                onDuplicate={handleDuplicate}
                 onDelete={setDeleteTarget}
                 onToggleConfirm={handleToggleConfirm}
               />

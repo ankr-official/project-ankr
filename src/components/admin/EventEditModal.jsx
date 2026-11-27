@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useEventForm } from "../../hooks/useEventForm";
-import { buildSubmitData, inputClass, isValidUrl, parseTweetData, shouldMirrorImageUrl } from "../../utils/eventFormUtils";
+import { buildSubmitData, inputClass, isValidUrl, parseTweetData, needsImageCopy } from "../../utils/eventFormUtils";
 import { ModalShell, ModalCloseButton } from "../form/ModalShell";
 import { AutocompleteInput } from "../form/AutocompleteInput";
 import { LocationField } from "../form/LocationField";
@@ -196,7 +196,7 @@ export default function EventEditModal({
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200/70 dark:border-gray-800">
                 <h2 className="text-base font-bold text-gray-900 dark:text-white">
-                    {isNew ? "이벤트 추가" : "이벤트 수정"}
+                    {event?._duplicate ? "이벤트 복제" : isNew ? "이벤트 추가" : "이벤트 수정"}
                 </h2>
                 <ModalCloseButton onClick={onClose} />
             </div>
@@ -222,7 +222,7 @@ export default function EventEditModal({
                             type="button"
                             onClick={handleFetchTweet}
                             disabled={isFetching || !tweetUrl.trim()}
-                            className="shrink-0 px-3 py-2 rounded-lg text-sm bg-sky-500 mouse:hover:bg-sky-600 active:bg-sky-600 text-white font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+                            className="shrink-0 px-3 py-2 rounded-lg text-sm bg-indigo-600 mouse:hover:bg-indigo-700 active:bg-indigo-700 text-white font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
                         >
                             {isFetching
                                 ? <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -237,7 +237,7 @@ export default function EventEditModal({
                             type="checkbox"
                             checked={imageLinkOnly}
                             onChange={e => setImageLinkOnly(e.target.checked)}
-                            className="w-3.5 h-3.5 rounded-sm border-gray-300 dark:border-gray-600 text-sky-500 focus:ring-sky-500 dark:bg-gray-800"
+                            className="w-3.5 h-3.5 rounded-sm accent-indigo-600"
                         />
                         이미지와 링크만 가져오기
                     </label>
@@ -351,7 +351,7 @@ export default function EventEditModal({
                                 이미지
                                 {isAutoFetchingImage && (
                                     <span className="flex items-center gap-1 text-xs font-normal text-gray-400 dark:text-gray-500">
-                                        <div className="w-3 h-3 border-2 border-gray-300 dark:border-gray-600 border-t-sky-500 rounded-full animate-spin" />
+                                        <div className="w-3 h-3 border-2 border-gray-300 dark:border-gray-600 border-t-indigo-500 rounded-full animate-spin" />
                                         자동 가져오는 중...
                                     </span>
                                 )}
@@ -436,7 +436,7 @@ export default function EventEditModal({
                                 </div>
                             </div>
                         )}
-                        {!imageFile && shouldMirrorImageUrl(imgUrl, event?.img_url) && (
+                        {!imageFile && needsImageCopy(imgUrl, event?.img_url, isNew) && (
                             <p className="text-xs text-left text-gray-500 dark:text-gray-400 pl-2">
                                 저장 시 R2에 자동 저장됩니다
                             </p>

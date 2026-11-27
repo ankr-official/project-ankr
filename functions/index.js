@@ -9,7 +9,7 @@ const { onRequest, onCall } = require("firebase-functions/v2/https");
 const { onValueCreated } = require("firebase-functions/v2/database");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { defineSecret } = require("firebase-functions/params");
-const { S3Client, ListObjectsV2Command, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { S3Client, ListObjectsV2Command, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
 const sharp = require("sharp");
 const crypto = require("crypto");
 
@@ -892,6 +892,23 @@ const fetchSourceImage = async (sourceUrl) => {
   return { buf: Buffer.concat(chunks), fetchedUrl: url };
 };
 
+// 자사 Worker URL → R2 원본 키. 원본 이미지 경로만 허용 (썸네일·임의 키 차단)
+const R2_ORIGINAL_KEY = /^event\/\d{4}\/row\d+\/image(_\d+)?\.(jpg|jpeg|png|webp|gif)$/;
+
+const readR2Image = async (s3, sourceUrl) => {
+  const key = sourceUrl.slice(ASSETS_BASE_URL.length + 1);
+  if (!R2_ORIGINAL_KEY.test(key)) throw new HttpError(400, "Invalid sourceUrl");
+  let obj;
+  try {
+    obj = await s3.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: key }));
+  } catch (error) {
+    if (error?.name === "NoSuchKey") throw new HttpError(404, "Source not found");
+    throw error;
+  }
+  if (Number(obj.ContentLength || 0) > MAX_IMAGE_BYTES) throw new HttpError(400, "Invalid image size");
+  return Buffer.from(await obj.Body.transformToByteArray());
+};
+
 // 목록용 썸네일: 가로 400px WebP. 키 규칙은 ankr-assets/scripts/generate-thumbs.mjs와 동일
 // (event/2026/row1/image_2.jpg → event/2026/row1/image_2_thumb.webp)
 const THUMB_WIDTH = 400;
@@ -927,10 +944,20 @@ exports.uploadEventImage = onRequest(
       if (!Number.isInteger(year) || year < 2012 || year > maxYear) return res.status(400).send("Invalid year");
       if (typeof rowId !== "string" || !/^row\d+$/.test(rowId)) return res.status(400).send("Invalid rowId");
 
-      // 파일 업로드(base64 data) 또는 외부 URL 복사(sourceUrl) 중 정확히 하나
+      const s3 = new S3Client({
+        region: "auto",
+        endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+        credentials: { accessKeyId, secretAccessKey },
+      });
+
+      // 파일 업로드(base64 data) 또는 URL 복사(sourceUrl) 중 정확히 하나
       let buf;
       let fetchedUrl = null;
-      if (typeof sourceUrl === "string" && sourceUrl && data == null) {
+      if (typeof sourceUrl === "string" && sourceUrl.startsWith(`${ASSETS_BASE_URL}/`) && data == null) {
+        // 자사 Worker URL(이벤트 복제) — Worker는 Referer 없으면 403이므로 R2에서 직접 읽음
+        buf = await readR2Image(s3, sourceUrl);
+        fetchedUrl = sourceUrl;
+      } else if (typeof sourceUrl === "string" && sourceUrl && data == null) {
         ({ buf, fetchedUrl } = await fetchSourceImage(sourceUrl));
       } else if (typeof data === "string" && data && sourceUrl == null) {
         if (!IMAGE_TYPES[contentType]) return res.status(400).send("Unsupported image type");
@@ -945,11 +972,6 @@ exports.uploadEventImage = onRequest(
 
       const ext = IMAGE_TYPES[detected];
       const prefix = `event/${year}/${rowId}/`;
-      const s3 = new S3Client({
-        region: "auto",
-        endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-        credentials: { accessKeyId, secretAccessKey },
-      });
 
       // 기존 버전 확인: image.ext → 1, image_N.ext → N (Worker 캐시가 immutable이라 덮어쓰지 않음)
       const listed = await s3.send(new ListObjectsV2Command({ Bucket: R2_BUCKET, Prefix: prefix }));
