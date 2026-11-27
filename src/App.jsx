@@ -6,6 +6,7 @@ import { LoginDropdownProvider } from "./contexts/LoginDropdownContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/Home";
+import { toKSTDate } from "./utils/dateUtils";
 import "./App.css";
 
 const Admin = lazy(() => import("./pages/Admin"));
@@ -16,7 +17,7 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 
 function AppContent() {
   const { theme } = useThemeContext();
-  const currentYear = new Date(new Date().getTime() + 9 * 60 * 60 * 1000).getUTCFullYear();
+  const currentYear = toKSTDate(new Date()).getUTCFullYear();
 
   return (
     <>

@@ -56,7 +56,7 @@ export const DesktopGenreFilter = ({ selectedGenres, onGenreChange }) => {
                   type="checkbox"
                   checked={selectedGenres.includes(genre)}
                   onChange={() => onGenreChange(genre)}
-                  className="mr-2 text-indigo-600 dark:text-indigo-600 rounded-sm border-gray-600 dark:border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-500"
+                  className="mr-2 accent-indigo-600 text-indigo-600 dark:text-indigo-600 rounded-sm border-gray-600 dark:border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-500"
                 />
                 {genre === "all" ? "전체" : genre}
               </label>
