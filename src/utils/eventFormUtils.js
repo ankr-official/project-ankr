@@ -71,6 +71,12 @@ export const isValidUrl = url => {
 export const shouldMirrorImageUrl = (url, originalUrl) =>
     !!url && isValidUrl(url) && !url.startsWith(`${ASSETS_BASE_URL}/`) && url !== (originalUrl ?? "");
 
+/** 저장 시 이미지를 R2(새 이벤트 경로)로 복사할지.
+ *  신규(복제·제보 승인 포함): 유효한 URL이면 Worker URL이라도 전부 — 다른 이벤트 이미지 링크를 공유하지 않음
+ *  수정: URL이 바뀐 외부 URL만 */
+export const needsImageCopy = (url, originalUrl, isNew) =>
+    isNew ? !!url && isValidUrl(url) : shouldMirrorImageUrl(url, originalUrl);
+
 /** Parses fxtwitter API response into partial event form fields. */
 export const parseTweetData = (tweet) => {
     const text = tweet.text || "";

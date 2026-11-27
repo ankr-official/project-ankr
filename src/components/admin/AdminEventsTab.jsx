@@ -8,6 +8,7 @@ export default function AdminEventsTab({
   search,
   onClearSearch,
   onEdit,
+  onDuplicate,
   onDelete,
   onToggleConfirm,
 }) {
@@ -144,6 +145,23 @@ export default function AdminEventsTab({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        onDuplicate(event);
+                      }}
+                      className="p-1.5 rounded-lg text-gray-500 active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 active:bg-indigo-50 mouse:hover:bg-indigo-50 dark:active:bg-indigo-950/30 dark:mouse:hover:bg-indigo-950/30 transition-colors"
+                      title="복제"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
                         onDelete(event);
                       }}
                       className="p-1.5 rounded-lg text-gray-500 active:text-red-600 mouse:hover:text-red-600 dark:active:text-red-400 dark:mouse:hover:text-red-400 active:bg-red-50 mouse:hover:bg-red-50 dark:active:bg-red-950/30 dark:mouse:hover:bg-red-950/30 transition-colors"
@@ -262,6 +280,23 @@ export default function AdminEventsTab({
                   />
                 </svg>
                 수정
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDuplicate(event);
+                }}
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 active:bg-indigo-50 mouse:hover:bg-indigo-50 dark:active:bg-indigo-950/30 dark:mouse:hover:bg-indigo-950/30 active:text-indigo-600 mouse:hover:text-indigo-600 dark:active:text-indigo-400 dark:mouse:hover:text-indigo-400 transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
+                </svg>
+                복제
               </button>
               <button
                 onClick={(e) => {
