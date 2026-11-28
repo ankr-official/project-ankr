@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /liked
+
+Sitemap: https://ankr.kr/sitemap.xml
